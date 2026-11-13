@@ -254,6 +254,9 @@ html.splash-on,html.splash-on body{overflow:hidden}
 .authcard .logo.svgl svg{width:100%;height:100%;display:block;filter:drop-shadow(0 6px 16px #5b9cff44)}
 .authcard{animation:spUp .6s .1s ease-out both}
 @media (prefers-reduced-motion:reduce){#splash *,#splash{animation-duration:.01s!important;animation-delay:0s!important}.authcard,.authcard .logo.svgl{animation:none}}
+.pwwrap input{padding-right:52px}
+.pwwrap .eye,html[data-theme=light] .pwwrap .eye{display:grid;place-items:center;width:38px;height:34px;padding:0;right:7px;border-radius:10px;line-height:0}
+.pwwrap .eye svg{display:block}
 </style>
 </head>
 <body>
@@ -267,8 +270,7 @@ html.splash-on,html.splash-on body{overflow:hidden}
   <div class="sub" id="authSub">অ্যাকাউন্টে ঢুকতে নিচের তথ্য দাও।</div>
   <div class="authtabs"><button type="button" id="tabLogin" class="on">Login</button><button type="button" id="tabSignup">Sign up</button></div>
   <label for="authUser">Username</label><input id="authUser" autocomplete="username" autocapitalize="none" required>
-  <label for="authPass">Password</label><div class="pwwrap"><input id="authPass" type="password" autocomplete="current-password" required><button type="button" class="eye" data-for="authPass">Show</button></div>
-  <div id="confirmWrap" hidden><label for="authPass2">Confirm password</label><div class="pwwrap"><input id="authPass2" type="password" autocomplete="new-password"><button type="button" class="eye" data-for="authPass2">Show</button></div></div>
+  <label for="authPass">Password</label><div class="pwwrap"><input id="authPass" type="password" autocomplete="current-password" required><button type="button" class="eye" data-for="authPass" aria-label="পাসওয়ার্ড দেখাও"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></button></div>
   <div class="autherr" id="authErr"></div>
   <button class="btn" type="submit" id="authBtn">Login</button>
  </form>
@@ -313,8 +315,8 @@ html.splash-on,html.splash-on body{overflow:hidden}
 <div class="panel" data-v="account" hidden>
  <div class="sectionhead"><h3>Change password</h3></div>
  <form id="pwForm">
-  <label for="pwOld">Current password</label><div class="pwwrap"><input id="pwOld" type="password" autocomplete="current-password" required><button type="button" class="eye" data-for="pwOld">Show</button></div>
-  <label for="pwNew">New password</label><div class="pwwrap"><input id="pwNew" type="password" autocomplete="new-password" required><button type="button" class="eye" data-for="pwNew">Show</button></div>
+  <label for="pwOld">Current password</label><div class="pwwrap"><input id="pwOld" type="password" autocomplete="current-password" required><button type="button" class="eye" data-for="pwOld" aria-label="পাসওয়ার্ড দেখাও"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></button></div>
+  <label for="pwNew">New password</label><div class="pwwrap"><input id="pwNew" type="password" autocomplete="new-password" required><button type="button" class="eye" data-for="pwNew" aria-label="পাসওয়ার্ড দেখাও"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></button></div>
   <div class="autherr" id="pwMsg"></div>
   <button class="btn" type="submit">Update password</button>
  </form>
@@ -335,7 +337,7 @@ html.splash-on,html.splash-on body{overflow:hidden}
  <div class="sectionhead"><h3 id="modalTitle">নতুন পরীক্ষা যোগ করো</h3><button class="btn secondary" type="button" id="modalClose" style="padding:6px 12px;font-size:12px">বন্ধ</button></div>
 <form id="addForm">
    <div class="formgrid">
-    <div class="full"><label for="uni">বিশ্ববিদ্যালয়ের নাম</label><input id="uni" placeholder="যেমন: ঢাকা বিশ্ববিদ্যালয়" required></div>
+    <div class="full"><label for="uni">বিশ্ববিদ্যালয়ের নাম</label><input id="uni" maxlength="80" placeholder="যেমন: ঢাকা বিশ্ববিদ্যালয়" required></div>
     <div><label for="unitSel">Unit</label><select id="unitSel"><option value="">Select</option><option value="A Unit">A Unit</option><option value="B Unit">B Unit</option><option value="C Unit">C Unit</option><option value="D Unit">D Unit</option><option value="E Unit">E Unit</option><option value="__other">Other</option></select></div>
     <div><label for="groupSel">বিভাগ</label><select id="groupSel"><option value="">নির্বাচন করো</option><option value="বিজ্ঞান">বিজ্ঞান</option><option value="মানবিক">মানবিক</option><option value="বাণিজ্য">বাণিজ্য</option></select></div>
     <div class="full" id="unitOtherWrap" hidden><label for="unit">Unit name</label><input id="unit" placeholder="e.g. Arts Unit"></div>
@@ -403,7 +405,7 @@ const byDate=(a,b)=>(a.examDate||'9999').localeCompare(b.examDate||'9999');
 function allExams(){
  const g={};
  ((CLOUD&&commRows)?[commRows]:Object.keys(getUsers()).map(u=>{let a=[];try{a=JSON.parse(localStorage.getItem(userKey(u))||'[]')}catch(e){}return a})).forEach(a=>{
-  a.forEach(x=>{const k=[x.uni,x.unit||'',x.group||'',x.examDate||''].map(v=>String(v).trim().toLowerCase()).join('|');
+  a.forEach(x=>{if(!x||!x.uni||String(x.uni).length>100)return;const k=[x.uni,x.unit||'',x.group||'',x.examDate||''].map(v=>String(v).trim().toLowerCase()).join('|');
    const m=g[k]||(g[k]={id:k,uni:x.uni,unit:x.unit||'',group:x.group||'',examDate:x.examDate||'',applyEnd:'',admitDate:'',status:'',count:0});
    m.count++;m.applyEnd=m.applyEnd||x.applyEnd||'';m.admitDate=m.admitDate||x.admitDate||''})});
  return Object.values(g).sort(byDate);
@@ -689,7 +691,6 @@ function randSalt(){const a=new Uint8Array(16);if(window.crypto&&crypto.getRando
 let authMode='login';
 function setMode(m){
  authMode=m;$('tabLogin').classList.toggle('on',m==='login');$('tabSignup').classList.toggle('on',m==='signup');
- $('confirmWrap').hidden=m!=='signup';$('authPass2').required=m==='signup';
  $('authPass').autocomplete=m==='signup'?'new-password':'current-password';
  $('authBtn').textContent=m==='signup'?'Create account':'Login';
  $('authSub').textContent=m==='signup'?'নতুন অ্যাকাউন্ট খুলতে নিচের তথ্য দাও।':'অ্যাকাউন্টে ঢুকতে নিচের তথ্য দাও।';
@@ -715,7 +716,6 @@ $('authForm').addEventListener('submit',async e=>{
   if(authMode==='signup'){
    if(!/^[a-z0-9_.]{3,20}$/.test(u)){err.textContent='ইউজারনেম ৩–২০ অক্ষরের হতে হবে (a-z, 0-9, _ বা .)।';return}
    if(p.length<6){err.textContent='পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের দাও।';return}
-   if(p!==$('authPass2').value){err.textContent='দুটি পাসওয়ার্ড মেলেনি।';return}
    if(users[u]){err.textContent='এই ইউজারনেম আগে থেকেই আছে।';return}
    if(CLOUD){
     try{await cloudSignup(u,p)}catch(ex){
@@ -756,7 +756,8 @@ $('authForm').addEventListener('submit',async e=>{
  }catch(ex){err.textContent=ex.message==='nocrypto'?'এই অ্যাকাউন্টটি অন্য ধরনের লিংকে খোলা হয়েছিল। আগের লিংকেই লগইন করো।':'অ্যাকাউন্ট তৈরি হয়নি ('+(ex.name||'error')+'): ব্রাউজারের প্রাইভেট মোড বন্ধ করে আবার চেষ্টা করো।'}
  finally{btn.disabled=false}
 });
-document.querySelectorAll('.eye').forEach(b=>b.onclick=()=>{const i=$(b.dataset.for),show=i.type==='password';i.type=show?'text':'password';b.textContent=show?'Hide':'Show'});
+const EYE_ON='<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>',EYE_OFF='<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17.9 17.9A10.4 10.4 0 0 1 12 19c-6.4 0-10-7-10-7a17.7 17.7 0 0 1 4.1-4.9M9.9 5.2A9.7 9.7 0 0 1 12 5c6.4 0 10 7 10 7a17.8 17.8 0 0 1-2.2 3.2M1 1l22 22"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/></svg>';
+document.querySelectorAll('.eye').forEach(b=>b.onclick=()=>{const i=$(b.dataset.for),show=i.type==='password';i.type=show?'text':'password';b.innerHTML=show?EYE_OFF:EYE_ON;b.setAttribute('aria-label',show?'পাসওয়ার্ড লুকাও':'পাসওয়ার্ড দেখাও')});
 $('pwForm').addEventListener('submit',async e=>{
  e.preventDefault();const m=$('pwMsg');m.style.color='';m.textContent='';
  try{
