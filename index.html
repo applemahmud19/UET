@@ -269,6 +269,24 @@ html.splash-on,html.splash-on body{overflow:hidden}
 #addForm .btnrow{margin-top:14px}
 #addForm .btn{padding:11px 18px}
 @media(max-width:420px){#addForm .formgrid{grid-template-columns:1fr 1fr;gap:0 8px}#addForm .full{grid-column:1/-1}}
+/* calendar: clearer dots, legend and list */
+.calday{min-height:54px}
+.calday .cdots{height:auto;justify-content:center;flex-wrap:wrap;gap:3px;margin-top:3px}
+.calday .cdots .cd{width:8px;height:8px;border-radius:50%}
+.cd-exam{background:#ffc66d}.cd-exam.past{background:#75d6a3}.cd-apply{background:#67a8ff}.cd-admit{background:#62dfd0}
+.calday.exam:not(.sel){background:rgba(255,198,109,.13)}.calday.exam.past:not(.sel){background:rgba(117,214,163,.13)}
+.callegend{margin:0 6px 12px;font-size:12px;gap:8px 14px}
+.callegend .sw{width:10px;height:10px;border-radius:50%;border:0}
+.callegend .sw-exam{background:#ffc66d}.callegend .sw-past{background:#75d6a3}.callegend .sw-apply{background:#67a8ff}.callegend .sw-admit{background:#62dfd0}
+.calhint{margin:10px 6px 0;font-size:11.5px}
+.tpill{display:inline-block;font-size:10.5px;font-weight:800;padding:2px 8px;border-radius:999px;margin-right:2px}
+.tpill.t-exam{background:#ffc66d26;color:#ffc66d}.tpill.t-apply{background:#67a8ff26;color:#67a8ff}.tpill.t-admit{background:#62dfd026;color:#62dfd0}
+.ritem.cr-exam{box-shadow:inset 4px 0 0 #ffc66d}.ritem.cr-apply{box-shadow:inset 4px 0 0 #67a8ff}.ritem.cr-admit{box-shadow:inset 4px 0 0 #62dfd0}
+html[data-theme=light] .cd-exam{background:#f0a020}html[data-theme=light] .cd-exam.past{background:#35b87a}html[data-theme=light] .cd-apply{background:#2f7bf0}html[data-theme=light] .cd-admit{background:#1fb3a3}
+html[data-theme=light] .calday.exam:not(.sel){background:#fff3d6}html[data-theme=light] .calday.exam.past:not(.sel){background:#e0f6ea}
+html[data-theme=light] .callegend .sw-exam{background:#f0a020}html[data-theme=light] .callegend .sw-past{background:#35b87a}html[data-theme=light] .callegend .sw-apply{background:#2f7bf0}html[data-theme=light] .callegend .sw-admit{background:#1fb3a3}
+html[data-theme=light] .tpill.t-exam{background:#ffe3b0;color:#7a4a00}html[data-theme=light] .tpill.t-apply{background:#d7e6ff;color:#1b4f9c}html[data-theme=light] .tpill.t-admit{background:#cbf1ee;color:#12615b}
+html[data-theme=light] .ritem.cr-exam{box-shadow:inset 4px 0 0 #f0a020}html[data-theme=light] .ritem.cr-apply{box-shadow:inset 4px 0 0 #2f7bf0}html[data-theme=light] .ritem.cr-admit{box-shadow:inset 4px 0 0 #1fb3a3}
 /* header (Admission Roadmap + page title) hidden for a bigger map */
 .brand{display:none}
 .top{margin:12px 6px 14px}
@@ -311,8 +329,9 @@ html.splash-on,html.splash-on body{overflow:hidden}
 <div class="panel calpanel" data-v="calendar" hidden>
  <div class="mapfilter"><select id="calFilter" aria-label="ফিল্টার"><option value="all">সব পরীক্ষা</option><option value="exam">পরীক্ষার তারিখ</option><option value="apply">আবেদনের শেষ তারিখ</option><option value="admit">অ্যাডমিট কার্ড ডাউনলোড</option></select></div>
  <div class="calhead"><button type="button" class="calnav" id="calPrev" aria-label="আগের মাস">‹</button><h3 id="calTitle"></h3><button type="button" class="calnav" id="calNext" aria-label="পরের মাস">›</button></div>
- <div class="calgrid" id="calGrid"></div>
  <div class="callegend"><span><i class="sw sw-exam"></i>পরীক্ষা</span><span><i class="sw sw-past"></i>হয়ে গেছে</span><span><i class="sw sw-apply"></i>আবেদনের শেষ</span><span><i class="sw sw-admit"></i>অ্যাডমিট কার্ড</span></div>
+ <div class="calgrid" id="calGrid"></div>
+ <div class="muted calhint">কোনো দিনে চাপ দিলে নিচে সেই দিনের বিস্তারিত দেখাবে</div>
  <div class="callist" id="calList"></div>
 </div>
 <div class="panel" data-v="remind" hidden>
@@ -564,10 +583,10 @@ function renderCalendar(){
   b.className='calday'+(isExam?' exam':'')+(isExam&&daysLeft(key)<0?' past':'')+(daysLeft(key)===0?' today':'')+(calSel===key?' sel':'')+(((lead+d-1)%7)===0?' sun':'');
   const n=document.createElement('span');n.textContent=bnum(d);b.append(n);
   const ord={exam:0,apply:1,admit:2};
-  items.slice().sort((a,c)=>ord[a.t]-ord[c.t]).slice(0,2).forEach(i=>{
-   const c=document.createElement('span');c.className='cchip '+i.t+(i.t==='exam'&&daysLeft(key)<0?' past':'');
-   c.textContent=i.x.uni.trim().split(/\s+/)[0];b.append(c)});
-  if(items.length>2){const m=document.createElement('span');m.className='cmore';m.textContent='+'+bnum(items.length-2);b.append(m)}
+  if(items.length){const dw=document.createElement('span');dw.className='cdots';
+   items.slice().sort((a,c)=>ord[a.t]-ord[c.t]).slice(0,4).forEach(i=>{const dt=document.createElement('i');dt.className='cd cd-'+i.t+(i.t==='exam'&&daysLeft(key)<0?' past':'');dw.append(dt)});
+   if(items.length>4){const m=document.createElement('span');m.className='cmore';m.textContent='+'+bnum(items.length-4);dw.append(m)}
+   b.append(dw)}
   b.onclick=()=>{calSel=calSel===key?null:key;renderCalendar()};
   grid.append(b);
  }
@@ -581,9 +600,9 @@ function renderCalendar(){
  list.append(h);
  if(calSel&&!rows.length){const e=document.createElement('div');e.className='empty';e.textContent='এই দিনে কোনো পরীক্ষা নেই';list.append(e)}
  rows.forEach(r=>{
-  const it=document.createElement('div');it.className='ritem';
+  const it=document.createElement('div');it.className='ritem cr-'+r.t;
   const l=document.createElement('div'),b=document.createElement('b'),m=document.createElement('div');m.className='muted';
-  b.textContent=r.x.uni;m.textContent=[CAL_T[r.t],timeText(r.x[({exam:'examTime',apply:'applyEndTime',admit:'admitTime'})[r.t]]),tagText(r.x)].filter(Boolean).join('  •  ');
+  b.textContent=r.x.uni;const pl=document.createElement('span');pl.className='tpill t-'+r.t;pl.textContent=CAL_T[r.t];m.append(pl,' '+[timeText(r.x[({exam:'examTime',apply:'applyEndTime',admit:'admitTime'})[r.t]]),tagText(r.x)].filter(Boolean).join('  •  '));
   l.append(b,m);
   if(!calSel){const m2=document.createElement('div');m2.className='muted';m2.textContent=dateText(r.k);l.append(m2)}
   const dd=document.createElement('div'),k=daysLeft(r.k);dd.className='rdays'+(k<0?' late':k<=3?' hot':'');
@@ -607,7 +626,7 @@ function render(){
  if(!$('detailModal').hidden)fillDetail();
 }
 const UNI_LIST=['ঢাকা বিশ্ববিদ্যালয়','রাজশাহী বিশ্ববিদ্যালয়','চট্টগ্রাম বিশ্ববিদ্যালয়','জাহাঙ্গীরনগর বিশ্ববিদ্যালয়','জগন্নাথ বিশ্ববিদ্যালয়','ইসলামী বিশ্ববিদ্যালয়','খুলনা বিশ্ববিদ্যালয়','বরিশাল বিশ্ববিদ্যালয়','কুমিল্লা বিশ্ববিদ্যালয়','বেগম রোকেয়া বিশ্ববিদ্যালয়','শাহজালাল বিজ্ঞান ও প্রযুক্তি বিশ্ববিদ্যালয়','বাংলাদেশ কৃষি বিশ্ববিদ্যালয়','বুয়েট','জাতীয় বিশ্ববিদ্যালয়','গুচ্ছ ভর্তি পরীক্ষা (GST)'];
-UNI_LIST.forEach(n=>$('uniSel').add(new Option(n,n),$('uniSel').options.length-1));
+UNI_LIST.forEach(n=>$('uniSel').add(new Option(n,n)));
 function syncUniOther(){$('uniOtherWrap').hidden=$('uniSel').value!=='__other';if(!$('uniOtherWrap').hidden)setTimeout(()=>$('uni').focus(),30)}
 function setUniFields(n){n=(n||'').trim();if(!n){$('uniSel').value='';$('uni').value=''}else if(UNI_LIST.includes(n)){$('uniSel').value=n;$('uni').value=''}else{$('uniSel').value='__other';$('uni').value=n}$('uniOtherWrap').hidden=$('uniSel').value!=='__other'}
 function getUni(){const v=$('uniSel').value;return v==='__other'?$('uni').value.trim():v}
