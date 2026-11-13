@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="bn">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -52,7 +52,7 @@ tr.row{cursor:pointer}tr.row:hover td{filter:brightness(.97)}
 
 <div class="auth" id="login">
   <form class="card" id="loginForm">
-    <h2>Admin Login</h2><div class="muted" style="margin-bottom:8px">শুধু অ্যাডমিনদের জন্য</div>
+    <h2>Admin Login</h2><div class="muted" style="margin-bottom:8px">Admins only</div>
     <label>Username</label><input id="lu" autocapitalize="none" autocomplete="username" required>
     <label>Password</label><input id="lp" type="password" autocomplete="current-password" required>
     <div class="err" id="lerr"></div>
@@ -66,41 +66,41 @@ tr.row{cursor:pointer}tr.row:hover td{filter:brightness(.97)}
     <div class="acts"><span class="muted" id="me"></span><button class="btn sec sm" id="reload">Refresh</button><button class="btn sec sm" id="csv">CSV</button><button class="btn red sm" id="logout">Logout</button></div>
   </div>
   <div class="stats">
-    <div class="stat"><span>মোট ইউজার</span><strong id="sU">0</strong></div>
-    <div class="stat"><span>মোট পরীক্ষা এন্ট্রি</span><strong id="sE">0</strong></div>
-    <div class="stat"><span>গত ৭ দিনে অ্যাক্টিভ</span><strong id="sA">0</strong></div>
-    <div class="stat"><span>আজ নতুন</span><strong id="sN">0</strong></div>
+    <div class="stat"><span>Total users</span><strong id="sU">0</strong></div>
+    <div class="stat"><span>Total exam entries</span><strong id="sE">0</strong></div>
+    <div class="stat"><span>Active in last 7 days</span><strong id="sA">0</strong></div>
+    <div class="stat"><span>New today</span><strong id="sN">0</strong></div>
   </div>
   <div class="panel">
     <div class="tools">
-      <input id="q" placeholder="Username দিয়ে খোঁজো...">
-      <select id="sort"><option value="created_at">নতুন আগে</option><option value="last_sign_in_at">লাস্ট লগইন</option><option value="exam_count">বেশি পরীক্ষা</option><option value="username">নাম (A-Z)</option></select>
+      <input id="q" placeholder="Search by username...">
+      <select id="sort"><option value="created_at">Newest first</option><option value="last_sign_in_at">Last login</option><option value="exam_count">Most exams</option><option value="username">Name (A-Z)</option></select>
     </div>
-    <div class="tw"><table><thead><tr><th>#</th><th>Username</th><th>পরীক্ষা</th><th>রিমাইন্ডার</th><th>Signup</th><th>Last login</th><th>Last sync</th></tr></thead><tbody id="rows"></tbody></table></div>
+    <div class="tw"><table><thead><tr><th>#</th><th>Username</th><th>Exams</th><th>Reminders</th><th>Signup</th><th>Last login</th><th>Last sync</th></tr></thead><tbody id="rows"></tbody></table></div>
     <div class="muted" id="cnt" style="margin-top:10px"></div>
   </div>
 </div>
 
 <div class="modal" id="uModal" hidden><div class="sheet">
-  <div class="head"><div><h3 id="uName"></h3><div class="muted" id="uMeta"></div></div><button class="btn sec sm" id="uClose">বন্ধ</button></div>
-  <div class="tabs"><button data-t="exams" class="on">পরীক্ষা</button><button data-t="rems">রিমাইন্ডার</button><button data-t="acc">অ্যাকাউন্ট</button></div>
+  <div class="head"><div><h3 id="uName"></h3><div class="muted" id="uMeta"></div></div><button class="btn sec sm" id="uClose">Close</button></div>
+  <div class="tabs"><button data-t="exams" class="on">Exams</button><button data-t="rems">Reminders</button><button data-t="acc">Account</button></div>
   <div id="tExams"></div>
   <div id="tRems" hidden>
-    <div class="muted">Raw JSON — সাবধানে এডিট করো।</div>
+    <div class="muted">Raw JSON — edit with care.</div>
     <textarea id="remJson" style="min-height:260px;font-family:monospace;font-size:12px"></textarea>
     <div class="row2"><button class="btn" id="remSave">Save reminders</button></div>
   </div>
   <div id="tAcc" hidden>
-    <label>নতুন পাসওয়ার্ড দাও (কমপক্ষে ৬ অক্ষর)</label><input id="newPw" type="text" autocomplete="off">
-    <div class="row2"><button class="btn" id="pwSave">Password বদলাও</button></div>
+    <label>Set new password (at least 6 characters)</label><input id="newPw" type="text" autocomplete="off">
+    <div class="row2"><button class="btn" id="pwSave">Change password</button></div>
     <hr style="border:0;border-top:1px solid var(--line);margin:18px 0">
-    <div class="muted">এই ইউজারের সব ডেটা ও অ্যাকাউন্ট চিরতরে মুছে যাবে।</div>
-    <div class="row2"><button class="btn red" id="delUser">ইউজার ডিলিট করো</button></div>
+    <div class="muted">All data and the account of this user will be permanently deleted.</div>
+    <div class="row2"><button class="btn red" id="delUser">Delete user</button></div>
   </div>
 </div></div>
 
 <div class="modal" id="eModal" hidden style="z-index:60"><div class="sheet s">
-  <div class="head"><h3 id="eTitle">পরীক্ষা</h3><button class="btn sec sm" id="eClose">বন্ধ</button></div>
+  <div class="head"><h3 id="eTitle">Exam</h3><button class="btn sec sm" id="eClose">Close</button></div>
   <div class="g2" id="eForm"></div>
   <div class="row2"><button class="btn" id="eSave">Save</button></div>
 </div></div>
@@ -115,8 +115,11 @@ let users=[],cur=null,editIdx=-1;
 const UNI_LIST=['ঢাকা বিশ্ববিদ্যালয়','রাজশাহী বিশ্ববিদ্যালয়','চট্টগ্রাম বিশ্ববিদ্যালয়','জাহাঙ্গীরনগর বিশ্ববিদ্যালয়','জগন্নাথ বিশ্ববিদ্যালয়','ইসলামী বিশ্ববিদ্যালয়','খুলনা বিশ্ববিদ্যালয়','বরিশাল বিশ্ববিদ্যালয়','কুমিল্লা বিশ্ববিদ্যালয়','বেগম রোকেয়া বিশ্ববিদ্যালয়','শাহজালাল বিজ্ঞান ও প্রযুক্তি বিশ্ববিদ্যালয়','বাংলাদেশ কৃষি বিশ্ববিদ্যালয়','বুয়েট','জাতীয় বিশ্ববিদ্যালয়','গুচ্ছ ভর্তি পরীক্ষা (GST)'];
 const UNIT_PRESETS=['A Unit','B Unit','C Unit','D Unit','E Unit'];
 const STATUS=['পরিকল্পনায়','আবেদন চলছে','আবেদন সম্পন্ন','অ্যাডমিট কার্ড প্রকাশিত','পরীক্ষা সম্পন্ন'];
-const FIELDS=[['uni','বিশ্ববিদ্যালয়','text',1],['unit','Unit','text'],['group','গ্রুপ','sel',0,['','বিজ্ঞান','মানবিক','বাণিজ্য']],['examDate','পরীক্ষার তারিখ','date'],['examTime','পরীক্ষার সময়','time'],['applyStart','আবেদন শুরু','date'],['applyEnd','আবেদন শেষ','date'],['applyEndTime','আবেদন শেষ সময়','time'],['admitDate','অ্যাডমিট তারিখ','date'],['admitTime','অ্যাডমিট সময়','time'],['status','স্ট্যাটাস','sel',1,STATUS],['note','নোট','area',1]];
+const FIELDS=[['uni','University','text',1],['unit','Unit','text'],['group','Group','sel',0,['','বিজ্ঞান','মানবিক','বাণিজ্য']],['examDate','Exam date','date'],['examTime','Exam time','time'],['applyStart','Application start','date'],['applyEnd','Application end','date'],['applyEndTime','Application end time','time'],['admitDate','Admit card date','date'],['admitTime','Admit card time','time'],['status','Status','sel',1,STATUS],['note','Note','area',1]];
 
+/* Stored values stay in Bengali (shared with the main app); displayed in English here */
+const BN2EN={"ঢাকা বিশ্ববিদ্যালয়": "University of Dhaka", "রাজশাহী বিশ্ববিদ্যালয়": "University of Rajshahi", "চট্টগ্রাম বিশ্ববিদ্যালয়": "University of Chittagong", "জাহাঙ্গীরনগর বিশ্ববিদ্যালয়": "Jahangirnagar University", "জগন্নাথ বিশ্ববিদ্যালয়": "Jagannath University", "ইসলামী বিশ্ববিদ্যালয়": "Islamic University", "খুলনা বিশ্ববিদ্যালয়": "Khulna University", "বরিশাল বিশ্ববিদ্যালয়": "University of Barishal", "কুমিল্লা বিশ্ববিদ্যালয়": "Comilla University", "বেগম রোকেয়া বিশ্ববিদ্যালয়": "Begum Rokeya University", "শাহজালাল বিজ্ঞান ও প্রযুক্তি বিশ্ববিদ্যালয়": "Shahjalal University of Science and Technology", "বাংলাদেশ কৃষি বিশ্ববিদ্যালয়": "Bangladesh Agricultural University", "বুয়েট": "BUET", "জাতীয় বিশ্ববিদ্যালয়": "National University", "গুচ্ছ ভর্তি পরীক্ষা (GST)": "Cluster Admission Test (GST)", "পরিকল্পনায়": "Planning", "আবেদন চলছে": "Applying", "আবেদন সম্পন্ন": "Applied", "অ্যাডমিট কার্ড প্রকাশিত": "Admit card published", "পরীক্ষা সম্পন্ন": "Exam completed", "বিজ্ঞান": "Science", "মানবিক": "Humanities", "বাণিজ্য": "Commerce"};
+const L=v=>BN2EN[v]||v;
 function toast(m,bad){const t=document.createElement('div');t.className='toast'+(bad?' bad':'');t.textContent=m;document.body.appendChild(t);setTimeout(()=>t.remove(),2600)}
 async function api(path,o={}){
   const h={apikey:CC.anonKey,'Content-Type':'application/json'};
@@ -139,14 +142,14 @@ async function call(path,o){await ensureToken();return api(path,o)}
 $('loginForm').onsubmit=async e=>{
   e.preventDefault();$('lerr').textContent='';$('lbtn').disabled=true;
   try{
-    if(!CC.url||!CC.anonKey)throw new Error('config.js এ Supabase url/anonKey নেই');
+    if(!CC.url||!CC.anonKey)throw new Error('Supabase url/anonKey missing in config.js');
     const u=$('lu').value.trim().toLowerCase();
     const j=await api('/auth/v1/token?grant_type=password',{method:'POST',auth:false,body:{email:u+'@'+(CC.emailDomain||'admissionroadmap.app'),password:$('lp').value}});
     S={u};saveSession(j);
     const ok=await call('/rest/v1/rpc/is_admin',{method:'POST',body:{}});
-    if(ok!==true){localStorage.removeItem(SK);S=null;throw new Error('তুমি অ্যাডমিন না')}
+    if(ok!==true){localStorage.removeItem(SK);S=null;throw new Error('You are not an admin')}
     start();
-  }catch(ex){$('lerr').textContent=ex.message.includes('Invalid login')?'Username বা password ভুল':ex.message}
+  }catch(ex){$('lerr').textContent=ex.message.includes('Invalid login')?'Wrong username or password':ex.message}
   $('lbtn').disabled=false;
 };
 $('logout').onclick=()=>{localStorage.removeItem(SK);S=null;location.reload()};
@@ -158,13 +161,13 @@ async function start(){
 async function loadUsers(){
   try{users=await call('/rest/v1/rpc/admin_list_users',{method:'POST',body:{}})||[];renderUsers()}
   catch(ex){
-    if(/not admin|permission|Could not find|function/i.test(ex.message))toast('admin-setup.sql রান করা হয়নি বা তুমি অ্যাডমিন না',1);else toast(ex.message,1)
+    if(/not admin|permission|Could not find|function/i.test(ex.message))toast('admin-setup.sql has not been run, or you are not an admin',1);else toast(ex.message,1)
   }
 }
 
 const TZ='Asia/Dhaka';
-const fd=d=>d?new Date(d).toLocaleDateString('bn-BD',{timeZone:TZ,day:'numeric',month:'short',year:'numeric'}):'—';
-const fdt=d=>d?new Date(d).toLocaleString('bn-BD',{timeZone:TZ,day:'numeric',month:'short',hour:'numeric',minute:'2-digit',hour12:true}):'—';
+const fd=d=>d?new Date(d).toLocaleDateString('en-US',{timeZone:TZ,day:'numeric',month:'short',year:'numeric'}):'—';
+const fdt=d=>d?new Date(d).toLocaleString('en-US',{timeZone:TZ,day:'numeric',month:'short',hour:'numeric',minute:'2-digit',hour12:true}):'—';
 const dkey=d=>new Date(d).toLocaleDateString('en-CA',{timeZone:TZ});
 function renderUsers(){
   const q=$('q').value.trim().toLowerCase(),k=$('sort').value;
@@ -175,8 +178,8 @@ function renderUsers(){
   $('sE').textContent=users.reduce((s,u)=>s+(u.exam_count||0),0);
   $('sA').textContent=users.filter(u=>u.last_sign_in_at&&now-new Date(u.last_sign_in_at)<7*day).length;
   $('sN').textContent=users.filter(u=>dkey(u.created_at)===dkey(Date.now())).length;
-  $('rows').innerHTML=l.map((u,i)=>`<tr class="row" data-id="${esc(u.user_id)}"><td class="muted">${i+1}</td><td><b>${esc(u.username)}</b></td><td><span class="pill">${u.exam_count}</span></td><td>${u.rem_count}</td><td>${fd(u.created_at)}</td><td>${fdt(u.last_sign_in_at)}</td><td>${fdt(u.updated_at)}</td></tr>`).join('')||'<tr><td colspan="7" class="muted">কোনো ইউজার নেই</td></tr>';
-  $('cnt').textContent=l.length+' জন ইউজার';
+  $('rows').innerHTML=l.map((u,i)=>`<tr class="row" data-id="${esc(u.user_id)}"><td class="muted">${i+1}</td><td><b>${esc(u.username)}</b></td><td><span class="pill">${u.exam_count}</span></td><td>${u.rem_count}</td><td>${fd(u.created_at)}</td><td>${fdt(u.last_sign_in_at)}</td><td>${fdt(u.updated_at)}</td></tr>`).join('')||'<tr><td colspan="7" class="muted">No users found</td></tr>';
+  $('cnt').textContent=l.length+(l.length===1?' user':' users');
   document.querySelectorAll('tr.row').forEach(r=>r.onclick=()=>openUser(r.dataset.id));
 }
 $('q').oninput=renderUsers;$('sort').onchange=renderUsers;$('reload').onclick=()=>{loadUsers();toast('Refreshed')};
@@ -207,23 +210,23 @@ document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>setTab(b.data
 $('uClose').onclick=()=>{$('uModal').hidden=true;cur=null};
 function renderExams(){
   const l=cur.exams;
-  $('tExams').innerHTML='<div class="row2" style="margin:0 0 10px"><button class="btn sm" id="addEx">+ নতুন পরীক্ষা</button><span class="muted" style="align-self:center">'+l.length+'টি</span></div>'+
-  (l.map((x,i)=>`<div class="ex"><div class="t"><div><h4>${esc(x.uni)} ${x.unit?'— '+esc(x.unit):''}</h4><span class="pill">${esc(x.status||'—')}</span></div><div style="display:flex;gap:6px"><button class="btn sec sm" data-e="${i}">Edit</button><button class="btn red sm" data-d="${i}">Delete</button></div></div><div class="m"><span>পরীক্ষা: ${esc(x.examDate||'—')}</span><span>আবেদন শেষ: ${esc(x.applyEnd||'—')}</span><span>অ্যাডমিট: ${esc(x.admitDate||'—')}</span>${x.group?'<span>'+esc(x.group)+'</span>':''}</div>${x.note?'<div class="m">নোট: '+esc(x.note)+'</div>':''}</div>`).join('')||'<div class="muted">কোনো পরীক্ষা যোগ করা নেই</div>');
+  $('tExams').innerHTML='<div class="row2" style="margin:0 0 10px"><button class="btn sm" id="addEx">+ New exam</button><span class="muted" style="align-self:center">'+l.length+(l.length===1?' exam':' exams')+'</span></div>'+
+  (l.map((x,i)=>`<div class="ex"><div class="t"><div><h4>${esc(L(x.uni))} ${x.unit?'— '+esc(x.unit):''}</h4><span class="pill">${esc(L(x.status)||'—')}</span></div><div style="display:flex;gap:6px"><button class="btn sec sm" data-e="${i}">Edit</button><button class="btn red sm" data-d="${i}">Delete</button></div></div><div class="m"><span>Exam: ${esc(x.examDate||'—')}</span><span>Application end: ${esc(x.applyEnd||'—')}</span><span>Admit card: ${esc(x.admitDate||'—')}</span>${x.group?'<span>'+esc(L(x.group))+'</span>':''}</div>${x.note?'<div class="m">Note: '+esc(x.note)+'</div>':''}</div>`).join('')||'<div class="muted">No exams added</div>');
   $('addEx').onclick=()=>openEdit(-1);
   document.querySelectorAll('[data-e]').forEach(b=>b.onclick=()=>openEdit(+b.dataset.e));
-  document.querySelectorAll('[data-d]').forEach(b=>b.onclick=async()=>{if(!confirm('এই পরীক্ষাটি ডিলিট করবে?'))return;cur.exams.splice(+b.dataset.d,1);await persist();renderExams()});
+  document.querySelectorAll('[data-d]').forEach(b=>b.onclick=async()=>{if(!confirm('Delete this exam?'))return;cur.exams.splice(+b.dataset.d,1);await persist();renderExams()});
 }
 function openEdit(i){
   editIdx=i;const x=i>=0?cur.exams[i]:{status:STATUS[0]};
-  $('eTitle').textContent=i>=0?'পরীক্ষা এডিট':'নতুন পরীক্ষা';
+  $('eTitle').textContent=i>=0?'Edit exam':'New exam';
   $('eForm').innerHTML=FIELDS.map(([k,l,t,full,opts])=>{
     if(k==='uni'||k==='unit'){
       const list=k==='uni'?UNI_LIST:UNIT_PRESETS,cv=x[k]||'',oth=!!cv&&!list.includes(cv);
-      const ph=k==='uni'?'বিশ্ববিদ্যালয়ের নাম লেখো':'e.g. Arts Unit';
-      return `<div class="full"><label>${l}</label><select data-sel="${k}">${['',...list,'__other'].map(o=>`<option value="${esc(o)}"${(o===cv||(oth&&o==='__other'))?' selected':''}>${o===''?'নির্বাচন করো':o==='__other'?'অন্যান্য (নিজে লিখো)':esc(o)}</option>`).join('')}</select></div><div class="full" data-wrap="${k}"${oth?'':' hidden'}><input data-other="${k}" value="${oth?esc(cv):''}" placeholder="${ph}"></div>`;
+      const ph=k==='uni'?'Enter university name':'e.g. Arts Unit';
+      return `<div class="full"><label>${l}</label><select data-sel="${k}">${['',...list,'__other'].map(o=>`<option value="${esc(o)}"${(o===cv||(oth&&o==='__other'))?' selected':''}>${o===''?'Select':o==='__other'?'Other (type manually)':esc(L(o))}</option>`).join('')}</select></div><div class="full" data-wrap="${k}"${oth?'':' hidden'}><input data-other="${k}" value="${oth?esc(cv):''}" placeholder="${ph}"></div>`;
     }
     const v=esc(x[k]||'');let inp;
-    if(t==='sel')inp=`<select data-k="${k}">${opts.map(o=>`<option value="${esc(o)}"${o===(x[k]||'')?' selected':''}>${esc(o||'নির্বাচন করো')}</option>`).join('')}</select>`;
+    if(t==='sel')inp=`<select data-k="${k}">${opts.map(o=>`<option value="${esc(o)}"${o===(x[k]||'')?' selected':''}>${esc(o?L(o):'Select')}</option>`).join('')}</select>`;
     else if(t==='area')inp=`<textarea data-k="${k}">${v}</textarea>`;
     else inp=`<input data-k="${k}" type="${t}" value="${v}">`;
     return `<div class="${full?'full':''}"><label>${l}</label>${inp}</div>`}).join('');
@@ -234,30 +237,30 @@ $('eClose').onclick=()=>$('eModal').hidden=true;
 $('eSave').onclick=async()=>{
   const v={};document.querySelectorAll('#eForm [data-k]').forEach(el=>v[el.dataset.k]=el.value.trim());
   ['uni','unit'].forEach(k=>{const s=document.querySelector('#eForm [data-sel="'+k+'"]').value;v[k]=s==='__other'?document.querySelector('#eForm [data-other="'+k+'"]').value.trim():s});
-  if(!v.uni){toast('বিশ্ববিদ্যালয়ের নাম দাও',1);return}
+  if(!v.uni){toast('Enter the university name',1);return}
   if(editIdx>=0)cur.exams[editIdx]=Object.assign({},cur.exams[editIdx],v);
   else cur.exams.push(Object.assign({id:Date.now().toString()},v));
   if(await persist()){$('eModal').hidden=true;renderExams()}
 };
 $('remSave').onclick=async()=>{
-  let a;try{a=JSON.parse($('remJson').value);if(!Array.isArray(a))throw 0}catch(e){toast('JSON ঠিক নেই (array হতে হবে)',1);return}
+  let a;try{a=JSON.parse($('remJson').value);if(!Array.isArray(a))throw 0}catch(e){toast('Invalid JSON (must be an array)',1);return}
   cur.rems=a;await persist();
 };
 async function persist(){
   try{
     await call('/rest/v1/user_data?on_conflict=user_id',{method:'POST',headers:{Prefer:'resolution=merge-duplicates,return=minimal'},body:{user_id:cur.uid,username:cur.username,exams:cur.exams,rems:cur.rems,updated_at:new Date().toISOString()}});
     const u=users.find(x=>x.user_id===cur.uid);if(u){u.exam_count=cur.exams.length;u.rem_count=cur.rems.length;u.updated_at=new Date().toISOString();renderUsers()}
-    toast('সেভ হয়েছে');return true;
+    toast('Saved');return true;
   }catch(ex){toast(ex.message,1);return false}
 }
 $('pwSave').onclick=async()=>{
-  const p=$('newPw').value;if(p.length<6){toast('কমপক্ষে ৬ অক্ষর',1);return}
-  if(!confirm(cur.username+' এর পাসওয়ার্ড বদলাবে?'))return;
-  try{await call('/rest/v1/rpc/admin_set_password',{method:'POST',body:{uid:cur.uid,new_password:p}});$('newPw').value='';toast('পাসওয়ার্ড বদলেছে')}catch(ex){toast(ex.message,1)}
+  const p=$('newPw').value;if(p.length<6){toast('At least 6 characters',1);return}
+  if(!confirm(cur.username+"'s password will be changed. Continue?"))return;
+  try{await call('/rest/v1/rpc/admin_set_password',{method:'POST',body:{uid:cur.uid,new_password:p}});$('newPw').value='';toast('Password changed')}catch(ex){toast(ex.message,1)}
 };
 $('delUser').onclick=async()=>{
-  if(prompt('ডিলিট করতে ইউজারের নাম লেখো: '+cur.username)!==cur.username)return;
-  try{await call('/rest/v1/rpc/admin_delete_user',{method:'POST',body:{uid:cur.uid}});$('uModal').hidden=true;cur=null;toast('ডিলিট হয়েছে');loadUsers()}catch(ex){toast(ex.message,1)}
+  if(prompt('Type the username to confirm deletion: '+cur.username)!==cur.username)return;
+  try{await call('/rest/v1/rpc/admin_delete_user',{method:'POST',body:{uid:cur.uid}});$('uModal').hidden=true;cur=null;toast('Deleted');loadUsers()}catch(ex){toast(ex.message,1)}
 };
 
 
