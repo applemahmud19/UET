@@ -112,6 +112,8 @@ const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;'
 const SK='ar-admin-session';
 let S=null;try{S=JSON.parse(localStorage.getItem(SK)||'null')}catch(e){}
 let users=[],cur=null,editIdx=-1;
+const UNI_LIST=['ঢাকা বিশ্ববিদ্যালয়','রাজশাহী বিশ্ববিদ্যালয়','চট্টগ্রাম বিশ্ববিদ্যালয়','জাহাঙ্গীরনগর বিশ্ববিদ্যালয়','জগন্নাথ বিশ্ববিদ্যালয়','ইসলামী বিশ্ববিদ্যালয়','খুলনা বিশ্ববিদ্যালয়','বরিশাল বিশ্ববিদ্যালয়','কুমিল্লা বিশ্ববিদ্যালয়','বেগম রোকেয়া বিশ্ববিদ্যালয়','শাহজালাল বিজ্ঞান ও প্রযুক্তি বিশ্ববিদ্যালয়','বাংলাদেশ কৃষি বিশ্ববিদ্যালয়','বুয়েট','জাতীয় বিশ্ববিদ্যালয়','গুচ্ছ ভর্তি পরীক্ষা (GST)'];
+const UNIT_PRESETS=['A Unit','B Unit','C Unit','D Unit','E Unit'];
 const STATUS=['পরিকল্পনায়','আবেদন চলছে','আবেদন সম্পন্ন','অ্যাডমিট কার্ড প্রকাশিত','পরীক্ষা সম্পন্ন'];
 const FIELDS=[['uni','বিশ্ববিদ্যালয়','text',1],['unit','Unit','text'],['group','গ্রুপ','sel',0,['','বিজ্ঞান','মানবিক','বাণিজ্য']],['examDate','পরীক্ষার তারিখ','date'],['examTime','পরীক্ষার সময়','time'],['applyStart','আবেদন শুরু','date'],['applyEnd','আবেদন শেষ','date'],['applyEndTime','আবেদন শেষ সময়','time'],['admitDate','অ্যাডমিট তারিখ','date'],['admitTime','অ্যাডমিট সময়','time'],['status','স্ট্যাটাস','sel',1,STATUS],['note','নোট','area',1]];
 
@@ -215,16 +217,23 @@ function openEdit(i){
   editIdx=i;const x=i>=0?cur.exams[i]:{status:STATUS[0]};
   $('eTitle').textContent=i>=0?'পরীক্ষা এডিট':'নতুন পরীক্ষা';
   $('eForm').innerHTML=FIELDS.map(([k,l,t,full,opts])=>{
+    if(k==='uni'||k==='unit'){
+      const list=k==='uni'?UNI_LIST:UNIT_PRESETS,cv=x[k]||'',oth=!!cv&&!list.includes(cv);
+      const ph=k==='uni'?'বিশ্ববিদ্যালয়ের নাম লেখো':'e.g. Arts Unit';
+      return `<div class="full"><label>${l}</label><select data-sel="${k}">${['',...list,'__other'].map(o=>`<option value="${esc(o)}"${(o===cv||(oth&&o==='__other'))?' selected':''}>${o===''?'নির্বাচন করো':o==='__other'?'অন্যান্য (নিজে লিখো)':esc(o)}</option>`).join('')}</select></div><div class="full" data-wrap="${k}"${oth?'':' hidden'}><input data-other="${k}" value="${oth?esc(cv):''}" placeholder="${ph}"></div>`;
+    }
     const v=esc(x[k]||'');let inp;
     if(t==='sel')inp=`<select data-k="${k}">${opts.map(o=>`<option value="${esc(o)}"${o===(x[k]||'')?' selected':''}>${esc(o||'নির্বাচন করো')}</option>`).join('')}</select>`;
     else if(t==='area')inp=`<textarea data-k="${k}">${v}</textarea>`;
     else inp=`<input data-k="${k}" type="${t}" value="${v}">`;
     return `<div class="${full?'full':''}"><label>${l}</label>${inp}</div>`}).join('');
+  document.querySelectorAll('#eForm [data-sel]').forEach(sel=>sel.onchange=()=>{const w=document.querySelector('#eForm [data-wrap="'+sel.dataset.sel+'"]');w.hidden=sel.value!=='__other';if(!w.hidden)w.querySelector('input').focus()});
   $('eModal').hidden=false;
 }
 $('eClose').onclick=()=>$('eModal').hidden=true;
 $('eSave').onclick=async()=>{
   const v={};document.querySelectorAll('#eForm [data-k]').forEach(el=>v[el.dataset.k]=el.value.trim());
+  ['uni','unit'].forEach(k=>{const s=document.querySelector('#eForm [data-sel="'+k+'"]').value;v[k]=s==='__other'?document.querySelector('#eForm [data-other="'+k+'"]').value.trim():s});
   if(!v.uni){toast('বিশ্ববিদ্যালয়ের নাম দাও',1);return}
   if(editIdx>=0)cur.exams[editIdx]=Object.assign({},cur.exams[editIdx],v);
   else cur.exams.push(Object.assign({id:Date.now().toString()},v));
