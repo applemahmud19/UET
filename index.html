@@ -464,6 +464,7 @@ textarea:focus{border-color:var(--blue)}textarea::placeholder{color:#6f6f78}
  <div class="accbody"><div class="btnrow" style="margin-top:0"><button class="btn secondary" id="exportBtn" type="button">Export data</button><button class="btn secondary" id="importBtn" type="button">Import data</button><button class="btn danger" id="clearBtn" type="button">Clear all exams</button><input id="importFile" type="file" accept="application/json" hidden></div></div>
 </details>
 <div class="panel accfoot" data-v="account" hidden>
+ <a id="adminLink" class="btn" href="./admin.html" hidden style="display:block;text-align:center;text-decoration:none;margin-bottom:10px">Admin Panel</a>
  <div class="btnrow" style="margin-top:0"><button class="btn secondary" id="logoutBtn" type="button">Logout</button><button class="btn danger" id="delAccBtn" type="button">Delete account</button></div>
 </div>
 <div class="modal" id="addModal" hidden><div class="sheet">
@@ -604,7 +605,7 @@ function renderReminders(){
  if(!box.children.length)box.innerHTML='<div class="empty">কোনো রিমাইন্ডার নেই।<br>নিচের ডানের + বাটন চেপে নিজের রিমাইন্ডার যোগ করো, অথবা পরীক্ষার তারিখ দিলে এখানে নিজে থেকেই আসবে।</div>';
  const hot=ev.filter(e=>{const k=daysLeft(e.d);return k>=0&&k<=3}).length,bd=$('remindBadge');bd.hidden=!hot;bd.textContent=hot;
 }
-function renderAccount(){$('accUser').textContent=currentUser||'';$('accAvatar').textContent=(currentUser||'?').charAt(0).toUpperCase();$('accCount').textContent=`মোট ${bnum(exams.length)}টি পরীক্ষা যোগ করা আছে`}
+function renderAccount(){checkAdmin();$('accUser').textContent=currentUser||'';$('accAvatar').textContent=(currentUser||'?').charAt(0).toUpperCase();$('accCount').textContent=`মোট ${bnum(exams.length)}টি পরীক্ষা যোগ করা আছে`}
 
 const exKey=x=>[x.uni,x.unit||'',x.group||'',x.examDate||''].map(v=>String(v).trim().toLowerCase()).join('|');
 const inMine=x=>exams.some(e=>exKey(e)===exKey(x));
@@ -1053,6 +1054,12 @@ async function fetchCommunity(){
   const rows=await sb('/rest/v1/rpc/community_exams',{method:'POST',token:t,body:{}});
   if(Array.isArray(rows)){commRows=rows;localStorage.setItem(COMM_KEY,JSON.stringify(rows));if(currentUser&&view==='main')renderMap(true)}
  }catch(e){}
+}
+var adU=null;
+function checkAdmin(){
+ const el=$('adminLink');if(!el||!CLOUD||!cloud||!currentUser||adU===currentUser)return;
+ adU=currentUser;el.hidden=true;
+ token().then(t=>sb('/rest/v1/rpc/is_admin',{method:'POST',token:t,body:{}})).then(ok=>{el.hidden=ok!==true}).catch(()=>{adU=null});
 }
 window.addEventListener('online',()=>{pushNow();pullNow()});
 window.addEventListener('resize',()=>{const n=$('nav');if(n)document.documentElement.style.setProperty('--navh',n.offsetHeight+'px')});
