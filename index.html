@@ -400,6 +400,11 @@ textarea:focus{border-color:var(--blue)}textarea::placeholder{color:#6f6f78}
 .alarmov .al-time{color:#9cc7ff;font-weight:700;font-size:15px}
 .alarmov .btnrow{width:100%;max-width:360px;margin-top:18px}
 .alarmov .btn{flex:1;padding:15px;font-size:16px}
+#alDateWrap[hidden]{display:none}
+.alitem.off{opacity:.55}.altime{font-size:26px;font-weight:800;line-height:1.2;white-space:nowrap}
+.alsw{flex:none;width:52px;height:30px;border-radius:999px;border:0;background:#4a4a52;position:relative;cursor:pointer;padding:0;transition:background .2s}
+.alsw::after{content:"";position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:#fff;transition:transform .2s}
+.alsw.on{background:var(--blue)}.alsw.on::after{transform:translateX(22px)}
 </style>
 </head>
 <body>
@@ -446,8 +451,9 @@ textarea:focus{border-color:var(--blue)}textarea::placeholder{color:#6f6f78}
  <div class="callist" id="calList"></div>
 </div>
 <div class="panel" data-v="remind" hidden>
- <div class="sectionhead"><h3>Reminder</h3><span class="muted">+ চেপে নিজের রিমাইন্ডার যোগ করো</span></div>
+ <div class="seg" id="remSeg" style="margin-bottom:14px"><button type="button" class="on" data-t="rem">রিমাইন্ডার</button><button type="button" data-t="alarm">অ্যালার্ম</button></div>
  <div id="remindList"></div>
+ <div id="alarmList" hidden></div>
 </div>
 <div class="panel prof" data-v="account" hidden>
  <div class="profrow"><div class="avatar" id="accAvatar"></div><div class="profinfo"><div class="profname" id="accUser"></div><div class="muted" id="accCount"></div></div></div>
@@ -511,15 +517,21 @@ textarea:focus{border-color:var(--blue)}textarea::placeholder{color:#6f6f78}
   <label for="remDate">তারিখ</label><input id="remDate" type="date" required>
   <label for="remTime">সময় (ঐচ্ছিক)</label><input id="remTime" type="time">
   <label for="remNote">নোট (ঐচ্ছিক)</label><input id="remNote" placeholder="যেমন: ব্যাংকে গিয়ে জমা দিতে হবে">
-  <div class="alrow"><input id="alarmOn" type="checkbox"><label for="alarmOn">অ্যালার্ম বাজাও</label></div>
-  <div id="alarmOpts" hidden>
-   <label for="alarmBefore">কখন বাজবে</label>
-   <select id="alarmBefore"><option value="0">ঠিক সময়ে</option><option value="10">১০ মিনিট আগে</option><option value="60">১ ঘণ্টা আগে</option><option value="180">৩ ঘণ্টা আগে</option><option value="1440">১ দিন আগে</option></select>
-   <div class="notehint">সময় না দিলে সকাল ৯:০০ ধরা হবে। অ্যালার্মের জন্য অ্যাপ/ট্যাব খোলা থাকতে হবে।</div>
-   <button type="button" class="btn secondary" id="alarmTest" style="padding:8px 12px;font-size:12px;margin-top:8px">টেস্ট করো</button>
-  </div>
   <div class="notehint" id="remHint">পরিবর্তন নিজে থেকেই সেভ হয়ে যাবে</div>
   <div class="btnrow"><button class="btn" type="submit" id="remSave">সেভ করো</button><button class="btn secondary" type="button" id="remCancel">বাতিল</button></div>
+ </form>
+</div></div>
+<div class="modal" id="alModal" hidden><div class="sheet">
+ <div class="sectionhead"><h3 id="alModalTitle">নতুন অ্যালার্ম</h3><button class="btn secondary" type="button" id="alClose" style="padding:6px 12px;font-size:12px">বন্ধ</button></div>
+ <form id="alForm">
+  <label for="alTime">সময়</label><input id="alTime" type="time" required>
+  <label for="alTitleIn">নাম (ঐচ্ছিক)</label><input id="alTitleIn" maxlength="60" placeholder="যেমন: ভর্তি পরীক্ষার ফি জমা">
+  <label for="alRepeat">কতবার বাজবে</label><select id="alRepeat"><option value="once">একবার</option><option value="daily">প্রতিদিন</option></select>
+  <div id="alDateWrap"><label for="alDate">তারিখ</label><input id="alDate" type="date"></div>
+  <div class="notehint">অ্যালার্মের জন্য অ্যাপ/ট্যাব খোলা থাকতে হবে।</div>
+  <button type="button" class="btn secondary" id="alarmTest" style="padding:8px 12px;font-size:12px;margin-top:8px">টেস্ট করো</button>
+  <div class="notehint" id="alHint">পরিবর্তন নিজে থেকেই সেভ হয়ে যাবে</div>
+  <div class="btnrow"><button class="btn" type="submit">সেভ করো</button><button class="btn secondary" type="button" id="alCancel">বাতিল</button></div>
  </form>
 </div></div>
 <button class="fab" id="fabAdd" data-v="mine remind calendar" type="button" aria-label="নতুন যোগ করো"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>
@@ -605,7 +617,7 @@ function renderReminders(){
   if(x.admitDate&&si<2)ev.push({d:x.admitDate,tm:x.admitTime,t:'অ্যাডমিট কার্ড ডাউনলোড',x});
   if(x.examDate&&si<3)ev.push({d:x.examDate,tm:x.examTime,t:'ভর্তি পরীক্ষা',x});
  });
- rems.forEach(r=>{if(r.date)ev.push({d:r.date,tm:r.time,custom:true,r})});
+ rems.forEach(r=>{if(r.kind!=='alarm'&&r.date)ev.push({d:r.date,tm:r.time,custom:true,r})});
  ev.sort((a,b)=>a.d.localeCompare(b.d)||(a.tm||'').localeCompare(b.tm||''));
  const groups=[['আজ',e=>daysLeft(e.d)===0],['আগামী ৭ দিন',e=>{const k=daysLeft(e.d);return k>=1&&k<=7}],['এর পরে',e=>daysLeft(e.d)>7],['সময় পার হয়ে গেছে (অবস্থা আপডেট করো)',e=>daysLeft(e.d)<0]];
  const box=$('remindList');box.innerHTML='';
@@ -615,8 +627,7 @@ function renderReminders(){
   items.forEach(e=>{
    const k=daysLeft(e.d),r=document.createElement('div');r.className='ritem';
    const l=document.createElement('div'),b=document.createElement('b');b.textContent=e.custom?e.r.title:e.t+': '+e.x.uni;
-   const m=document.createElement('div');m.className='muted';m.textContent=dateText(e.d)+(e.tm?'  •  '+timeText(e.tm):'')+(e.custom?(e.r.note?'  •  '+e.r.note:''):(tagText(e.x)?'  •  '+tagText(e.x):''));if(e.custom&&e.r.alarm)m.textContent+='  •  অ্যালার্ম';
-   l.append(b,m);
+   const m=document.createElement('div');m.className='muted';m.textContent=dateText(e.d)+(e.tm?'  •  '+timeText(e.tm):'')+(e.custom?(e.r.note?'  •  '+e.r.note:''):(tagText(e.x)?'  •  '+tagText(e.x):''));l.append(b,m);
    if(e.custom){const ac=document.createElement('div');ac.className='ractions';
     const eb=document.createElement('button');eb.type='button';eb.textContent='Edit';eb.onclick=()=>openRem(e.r.id);
     const db=document.createElement('button');db.type='button';db.textContent='মুছো';db.onclick=()=>{if(confirm('এই রিমাইন্ডারটি মুছে ফেলবে?')){rems=rems.filter(a=>a.id!==e.r.id);saveRems()}};
@@ -627,9 +638,23 @@ function renderReminders(){
  });
  if(!box.children.length)box.innerHTML='<div class="empty">কোনো রিমাইন্ডার নেই।<br>নিচের ডানের + বাটন চেপে নিজের রিমাইন্ডার যোগ করো, অথবা পরীক্ষার তারিখ দিলে এখানে নিজে থেকেই আসবে।</div>';
  const hot=ev.filter(e=>{const k=daysLeft(e.d);return k>=0&&k<=3}).length,bd=$('remindBadge');bd.hidden=!hot;bd.textContent=hot;
+ renderAlarms();
 }
 function renderAccount(){$('accUser').textContent=currentUser||'';$('accAvatar').textContent=(currentUser||'?').charAt(0).toUpperCase();$('accCount').textContent=`মোট ${bnum(exams.length)}টি পরীক্ষা যোগ করা আছে`}
 
+const exKey=x=>[x.uni,x.unit||'',x.group||'',x.examDate||''].map(v=>String(v).trim().toLowerCase()).join('|');
+const inMine=x=>exams.some(e=>exKey(e)===exKey(x));
+function addToMine(x){
+ if(inMine(x)){showToast('এটি আগে থেকেই My Map-এ আছে');return}
+ exams.push({id:Date.now().toString(),uni:x.uni,unit:x.unit||'',group:x.group||'',examDate:x.examDate||'',examTime:x.examTime||'',applyStart:'',applyEnd:x.applyEnd||'',applyEndTime:x.applyEndTime||'',admitDate:x.admitDate||'',admitTime:x.admitTime||'',status:'পরিকল্পনায়'});
+ save();showToast('My Map-এ যোগ হয়েছে');
+}
+function mineBtn(x,full){
+ const b=document.createElement('button');b.type='button';b.className='btn'+(inMine(x)?' secondary':'');
+ b.style.cssText='padding:8px 14px;font-size:13px'+(full?';width:100%':'');
+ b.textContent=inMine(x)?'My Map-এ আছে':'My Map-এ যোগ করো';b.disabled=inMine(x);if(b.disabled)b.style.opacity='.7';
+ b.onclick=()=>addToMine(x);return b;
+}
 function renderMap(keepScroll){
  const NS='http://www.w3.org/2000/svg',svg=$('mapSvg'),box=$('mapScroll'),prev=box.scrollTop;
  const list=sortedExams(),n=list.length,GAP=130,W=340,H=(n+2)*GAP;
@@ -687,6 +712,7 @@ function renderMap(keepScroll){
   (mapMode==='all'?[['যোগ করেছে',bnum(x.count)+' জন']]:[['অবস্থা',x.status||'—']]).concat(x.group?[['বিভাগ',x.group]]:[]).concat([['পরীক্ষা',dtText(x,'examDate')],['আবেদন শেষ',dtText(x,'applyEnd')],['অ্যাডমিট কার্ড',dtText(x,'admitDate')]]).forEach(([k,v])=>{const r=document.createElement('div');r.className='drow';const a=document.createElement('span'),b=document.createElement('b');a.textContent=k;b.textContent=v;r.append(a,b);rw.append(r)});
   info.append(m,h,c,rw);
   if(mapMode==='mine'&&x.note){const nb=document.createElement('div');nb.className='notebox';const sm=document.createElement('small');sm.textContent='নোট';nb.append(sm,document.createTextNode(x.note));info.append(nb)}
+  if(mapMode==='all'){const r0=document.createElement('div');r0.className='btnrow';r0.style.marginTop='10px';r0.append(mineBtn(x));info.append(r0)}
   if(mapMode==='mine'){
    const row=document.createElement('div');row.className='btnrow';row.style.marginTop='10px';
    const mk2=(t,cls,fn)=>{const b=document.createElement('button');b.type='button';b.className='btn '+cls;b.style.cssText='padding:8px 12px;font-size:12px';b.textContent=t;b.onclick=fn;return b};
@@ -816,7 +842,7 @@ function fillDetail(){
   eb.onclick=()=>{const id=x.id;closeDetail();openForm(id)};
   const db=document.createElement('button');db.type='button';db.className='btn danger';db.textContent='Delete';db.onclick=()=>{if(confirm('এই পরীক্ষাটি মুছে ফেলবে?')){exams=exams.filter(a=>a.id!==x.id);closeDetail();save()}};
   row.append(eb,db);box.append(row);
- }
+ }else{const r0=document.createElement('div');r0.className='btnrow';r0.append(mineBtn(x,true));box.append(r0)}
 }
 function showToast(m){const t=$('toast');t.textContent=m;t.hidden=false;clearTimeout(showToast.t);showToast.t=setTimeout(()=>t.hidden=true,1800)}
 $('detailClose').onclick=closeDetail;
@@ -839,7 +865,7 @@ function applyForm(){
 }
 function closeForm(){if(formT){clearTimeout(formT);applyForm()}$('addModal').hidden=true;editingId=null}
 ['input','change'].forEach(ev=>$('addForm').addEventListener(ev,()=>{clearTimeout(formT);$('formHint').textContent='লিখছ…';formT=setTimeout(applyForm,600)}));
-$('fabAdd').onclick=()=>view==='remind'?openRem():openForm();$('modalClose').onclick=closeForm;$('modalCancel').onclick=closeForm;
+$('fabAdd').onclick=()=>view==='remind'?(remTab==='alarm'?openAl():openRem()):openForm();$('modalClose').onclick=closeForm;$('modalCancel').onclick=closeForm;
 $('addModal').addEventListener('click',e=>{if(e.target.id==='addModal')closeForm()});
 $('addForm').addEventListener('submit',e=>{
  e.preventDefault();clearTimeout(formT);formT=null;
@@ -850,37 +876,87 @@ let editingRem=null;
 function saveRems(){localStorage.setItem(remKey(currentUser),JSON.stringify(rems));markDirty();renderReminders()}
 function openRem(id){
  editingRem=id||null;const r=id?rems.find(a=>a.id===id):null;$('remForm').reset();
- if(r){$('remTitle').value=r.title;$('remDate').value=r.date;$('remTime').value=r.time||'';$('remNote').value=r.note||'';$('alarmOn').checked=!!r.alarm;$('alarmBefore').value=String(r.alarmBefore||0)}
- $('alarmOpts').hidden=!$('alarmOn').checked;
+ if(r){$('remTitle').value=r.title;$('remDate').value=r.date;$('remTime').value=r.time||'';$('remNote').value=r.note||''}
  $('remModalTitle').textContent=r?'রিমাইন্ডার এডিট করো':'নতুন রিমাইন্ডার';$('remModal').hidden=false;setTimeout(()=>$('remTitle').focus(),50);
 }
 /* ===== Alarm ===== */
-let actx=null,alSound=null,alStop=null,alShow=null;const alSnooze={};
+let actx=null,alSound=null,alStopT=null,alShow=null;const alSnooze={};
 function unlockAudio(){try{actx=actx||new (window.AudioContext||window.webkitAudioContext)();if(actx.state==='suspended')actx.resume()}catch(e){}}
 ['click','touchstart','keydown'].forEach(ev=>document.addEventListener(ev,unlockAudio,{passive:true}));
 function beepPattern(){if(!actx)return;const t0=actx.currentTime;for(let i=0;i<4;i++){const o=actx.createOscillator(),g=actx.createGain(),t=t0+i*.22;o.type='square';o.frequency.value=i%2?880:1040;g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(.25,t+.02);g.gain.exponentialRampToValueAtTime(.0001,t+.18);o.connect(g);g.connect(actx.destination);o.start(t);o.stop(t+.2)}}
-function startAlarmSound(){unlockAudio();stopAlarmSound();const go=()=>{beepPattern();try{navigator.vibrate&&navigator.vibrate([400,200,400,200,400])}catch(e){}};go();alSound=setInterval(go,1500);alStop=setTimeout(stopAlarmSound,180000)}
-function stopAlarmSound(){clearInterval(alSound);clearTimeout(alStop);alSound=alStop=null;try{navigator.vibrate&&navigator.vibrate(0)}catch(e){}}
-function alarmNotify(r){try{if(!('Notification' in window)||Notification.permission!=='granted')return;const o={body:r.note||dateText(r.date),tag:'alarm-'+r.id,requireInteraction:true,vibrate:[300,150,300]};if(navigator.serviceWorker&&navigator.serviceWorker.ready)navigator.serviceWorker.ready.then(g=>g.showNotification(r.title,o)).catch(()=>{try{new Notification(r.title,o)}catch(e){}});else new Notification(r.title,o)}catch(e){}}
-function ringAlarm(r,key){alShow={r,key};$('alTitle').textContent=r.title;$('alWhen').textContent=r.test?'':dateText(r.date)+(r.time?'  •  '+timeText(r.time):'');$('alNote').textContent=r.note||'';$('alNote').hidden=!r.note;$('alarmOv').hidden=false;startAlarmSound();if(!r.test)alarmNotify(r)}
-function closeAlarm(){stopAlarmSound();$('alarmOv').hidden=true;const a=alShow;alShow=null;return a}
-$('alStop').onclick=()=>{const a=closeAlarm();if(a&&!a.r.test){const z=rems.find(x=>x.id===a.r.id);if(z){z.fired=a.key;delete alSnooze[z.id];saveRems()}}};
-$('alSnooze').onclick=()=>{const a=closeAlarm();if(a&&!a.r.test)alSnooze[a.r.id]=Date.now()+5*60000;showToast('৫ মিনিট পরে আবার বাজবে')};
-function alarmTime(r){return new Date(r.date+'T'+(r.time||'09:00')+':00').getTime()}
+function startAlarmSound(){unlockAudio();stopAlarmSound();const go=()=>{beepPattern();try{navigator.vibrate&&navigator.vibrate([400,200,400,200,400])}catch(e){}};go();alSound=setInterval(go,1500);alStopT=setTimeout(stopAlarmSound,180000)}
+function stopAlarmSound(){clearInterval(alSound);clearTimeout(alStopT);alSound=alStopT=null;try{navigator.vibrate&&navigator.vibrate(0)}catch(e){}}
+function alarmNotify(title,body,id){try{if(!('Notification' in window)||Notification.permission!=='granted')return;const o={body,tag:'alarm-'+id,requireInteraction:true,vibrate:[300,150,300]};if(navigator.serviceWorker&&navigator.serviceWorker.ready)navigator.serviceWorker.ready.then(g=>g.showNotification(title,o)).catch(()=>{try{new Notification(title,o)}catch(e){}});else new Notification(title,o)}catch(e){}}
+function alLabel(a){return a.title||'অ্যালার্ম'}
+function alRepeatText(a){return a.repeat==='daily'?'প্রতিদিন':(a.date?dateText(a.date):'একবার')}
+function ringAlarm(a,key){alShow={a,key};const when=timeText(a.time)+'  •  '+alRepeatText(a);$('alTitle').textContent=alLabel(a);$('alWhen').textContent=when;$('alNote').textContent='';$('alNote').hidden=true;$('alarmOv').hidden=false;startAlarmSound();if(!a.test)alarmNotify(alLabel(a),when,a.id)}
+function closeAlarm(){stopAlarmSound();$('alarmOv').hidden=true;const x=alShow;alShow=null;return x}
+$('alStop').onclick=()=>{const x=closeAlarm();if(x&&!x.a.test){const z=rems.find(r=>r.id===x.a.id);if(z){z.fired=x.key;if(z.repeat!=='daily')z.enabled=false;delete alSnooze[z.id];saveRems()}}};
+$('alSnooze').onclick=()=>{const x=closeAlarm();if(x&&!x.a.test)alSnooze[x.a.id]=Date.now()+5*60000;showToast('৫ মিনিট পরে আবার বাজবে')};
+const ymd=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+function alOcc(a){
+ if(a.repeat==='daily'){const d=new Date();const [h,m]=a.time.split(':');d.setHours(+h,+m,0,0);return{ts:d.getTime(),key:ymd(d),win:30*60000}}
+ const dt=a.date||ymd(new Date());return{ts:new Date(dt+'T'+a.time+':00').getTime(),key:dt,win:6*3600000};
+}
 function checkAlarms(){
  if(!currentUser||alShow)return;const now=Date.now();
- for(const r of rems){
-  if(!r.alarm||!r.date)continue;const ev=alarmTime(r),t=ev-(r.alarmBefore||0)*60000,key=String(t);
-  if(r.fired===key||now<Math.max(t,alSnooze[r.id]||0)||now>ev+6*3600000)continue;
-  ringAlarm(r,key);break;
+ for(const a of rems){
+  if(a.kind!=='alarm'||!a.enabled||!a.time)continue;const o=alOcc(a),sn=alSnooze[a.id]||0;
+  if(a.fired===o.key&&!sn)continue;
+  if(sn){if(now<sn)continue}else if(now<o.ts||now>o.ts+o.win)continue;
+  ringAlarm(a,o.key);delete alSnooze[a.id];break;
  }
 }
 setInterval(checkAlarms,1000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)checkAlarms()});
-$('alarmOn').addEventListener('change',()=>{$('alarmOpts').hidden=!$('alarmOn').checked;if($('alarmOn').checked){unlockAudio();try{if('Notification' in window&&Notification.permission==='default')Notification.requestPermission()}catch(e){}}});
-$('alarmTest').onclick=()=>{unlockAudio();ringAlarm({test:true,title:$('remTitle').value.trim()||'টেস্ট অ্যালার্ম',note:'এভাবেই অ্যালার্ম বাজবে'})};
+/* tabs */
+let remTab='rem';
+function setRemTab(t){remTab=t;document.querySelectorAll('#remSeg button').forEach(b=>b.classList.toggle('on',b.dataset.t===t));$('remindList').hidden=t!=='rem';$('alarmList').hidden=t!=='alarm'}
+document.querySelectorAll('#remSeg button').forEach(b=>b.onclick=()=>setRemTab(b.dataset.t));
+/* alarm list */
+function renderAlarms(){
+ const box=$('alarmList');box.innerHTML='';
+ const list=rems.filter(r=>r.kind==='alarm').sort((a,b)=>(a.time||'').localeCompare(b.time||''));
+ if(!list.length){box.innerHTML='<div class="empty">কোনো অ্যালার্ম নেই।<br>নিচের ডানের + বাটন চেপে নতুন অ্যালার্ম যোগ করো।</div>';return}
+ list.forEach(a=>{
+  const r=document.createElement('div');r.className='ritem alitem'+(a.enabled?'':' off');
+  const l=document.createElement('div');
+  const t=document.createElement('div');t.className='altime';t.textContent=timeText(a.time);
+  const m=document.createElement('div');m.className='muted';m.textContent=alLabel(a)+'  •  '+alRepeatText(a);
+  const ac=document.createElement('div');ac.className='ractions';
+  const eb=document.createElement('button');eb.type='button';eb.textContent='Edit';eb.onclick=()=>openAl(a.id);
+  const db=document.createElement('button');db.type='button';db.textContent='মুছো';db.onclick=()=>{if(confirm('এই অ্যালার্মটি মুছে ফেলবে?')){rems=rems.filter(x=>x.id!==a.id);saveRems()}};
+  ac.append(eb,db);l.append(t,m,ac);
+  const sw=document.createElement('button');sw.type='button';sw.className='alsw'+(a.enabled?' on':'');sw.setAttribute('aria-pressed',a.enabled?'true':'false');sw.setAttribute('aria-label','চালু/বন্ধ');
+  sw.onclick=()=>{a.enabled=!a.enabled;if(a.enabled){delete a.fired;unlockAudio();try{if('Notification' in window&&Notification.permission==='default')Notification.requestPermission()}catch(e){}}saveRems()};
+  r.append(l,sw);box.append(r);
+ });
+}
+/* alarm form (auto-save) */
+let editingAl=null,alT=null;
+function syncAlDate(){$('alDateWrap').hidden=$('alRepeat').value==='daily'}
+function openAl(id){
+ editingAl=id||null;const a=id?rems.find(x=>x.id===id):null;$('alForm').reset();
+ if(a){$('alTitleIn').value=a.title||'';$('alTime').value=a.time||'';$('alRepeat').value=a.repeat||'once';$('alDate').value=a.date||''}
+ else $('alDate').value=ymd(new Date());
+ syncAlDate();$('alModalTitle').textContent=a?'অ্যালার্ম এডিট করো':'নতুন অ্যালার্ম';$('alHint').textContent='পরিবর্তন নিজে থেকেই সেভ হয়ে যাবে';
+ $('alModal').hidden=false;
+}
+function applyAl(){
+ alT=null;const time=$('alTime').value;if(!time)return false;
+ const v={kind:'alarm',title:$('alTitleIn').value.trim(),time,repeat:$('alRepeat').value,date:$('alRepeat').value==='daily'?'':($('alDate').value||ymd(new Date()))};
+ if(editingAl){const z=rems.find(x=>x.id===editingAl);if(z){const changed=z.time!==v.time||z.date!==v.date||z.repeat!==v.repeat;Object.assign(z,v);if(changed){z.enabled=true;delete z.fired}}}
+ else{const id=Date.now().toString();rems.push({id,...v,enabled:true});editingAl=id;$('alModalTitle').textContent='অ্যালার্ম এডিট করো';unlockAudio();try{if('Notification' in window&&Notification.permission==='default')Notification.requestPermission()}catch(e){}}
+ saveRems();$('alHint').textContent='নিজে থেকেই সেভ হয়েছে';return true;
+}
+function closeAl(){if(alT){clearTimeout(alT);applyAl()}$('alModal').hidden=true;editingAl=null}
+['input','change'].forEach(ev=>$('alForm').addEventListener(ev,()=>{syncAlDate();clearTimeout(alT);$('alHint').textContent='লিখছ…';alT=setTimeout(applyAl,600)}));
+$('alClose').onclick=closeAl;$('alCancel').onclick=closeAl;
+$('alModal').addEventListener('click',e=>{if(e.target.id==='alModal')closeAl()});
+$('alForm').addEventListener('submit',e=>{e.preventDefault();clearTimeout(alT);alT=null;if(!$('alTime').value){showToast('সময় দাও');return}applyAl();closeAl()});
+$('alarmTest').onclick=()=>{unlockAudio();ringAlarm({test:true,id:'test',title:$('alTitleIn').value.trim(),time:$('alTime').value||'08:00',repeat:$('alRepeat').value,date:$('alDate').value})};
 let remT=null;
 function applyRem(){
- remT=null;const v={title:$('remTitle').value.trim(),date:$('remDate').value,time:$('remTime').value,note:$('remNote').value.trim(),alarm:$('alarmOn').checked,alarmBefore:+$('alarmBefore').value||0};
+ remT=null;const v={title:$('remTitle').value.trim(),date:$('remDate').value,time:$('remTime').value,note:$('remNote').value.trim()};
  if(!v.title||!v.date)return false;
  if(editingRem){const z=rems.find(a=>a.id===editingRem);if(z)Object.assign(z,v);else rems.push({id:editingRem,...v})}
  else{const id=Date.now().toString();rems.push({id,...v});editingRem=id;$('remModalTitle').textContent='রিমাইন্ডার এডিট করো'}
