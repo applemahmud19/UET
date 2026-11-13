@@ -386,6 +386,20 @@ textarea:focus{border-color:var(--blue)}textarea::placeholder{color:#6f6f78}
 .btn,.pill,.dcount,.mapinfo .mi-count,.mapinfo .mi-eye{white-space:nowrap}
 .dtitle,.dunit{overflow-wrap:anywhere}
 @media(max-width:360px){.drow{font-size:12.5px;padding:12px}}
+/* alarm */
+.alrow{display:flex;align-items:center;gap:12px;background:var(--panel2,#0c1625);border-radius:16px;padding:13px 15px;margin-top:14px}
+.alrow input{width:22px;height:22px;min-height:0;padding:0;flex:none;accent-color:var(--blue)}
+.alrow label{margin:0;flex:1;color:var(--text);font-size:14px;font-weight:650}
+#alarmOpts{margin-top:2px}#alarmOpts[hidden]{display:none}
+.alarmov{position:fixed;inset:0;z-index:400;background:rgba(8,10,20,.94);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:24px;text-align:center;color:#fff}
+.alarmov[hidden]{display:none}
+.alarmov .bell{line-height:0;animation:alshake .5s infinite}
+@keyframes alshake{0%,100%{transform:rotate(0)}25%{transform:rotate(-16deg)}75%{transform:rotate(16deg)}}
+.alarmov h2{margin:0;font-size:26px;line-height:1.35;overflow-wrap:anywhere}
+.alarmov p{margin:0;color:#c8cbd6;font-size:15px;line-height:1.6;overflow-wrap:anywhere;max-width:420px}
+.alarmov .al-time{color:#9cc7ff;font-weight:700;font-size:15px}
+.alarmov .btnrow{width:100%;max-width:360px;margin-top:18px}
+.alarmov .btn{flex:1;padding:15px;font-size:16px}
 </style>
 </head>
 <body>
@@ -497,6 +511,13 @@ textarea:focus{border-color:var(--blue)}textarea::placeholder{color:#6f6f78}
   <label for="remDate">তারিখ</label><input id="remDate" type="date" required>
   <label for="remTime">সময় (ঐচ্ছিক)</label><input id="remTime" type="time">
   <label for="remNote">নোট (ঐচ্ছিক)</label><input id="remNote" placeholder="যেমন: ব্যাংকে গিয়ে জমা দিতে হবে">
+  <div class="alrow"><input id="alarmOn" type="checkbox"><label for="alarmOn">অ্যালার্ম বাজাও</label></div>
+  <div id="alarmOpts" hidden>
+   <label for="alarmBefore">কখন বাজবে</label>
+   <select id="alarmBefore"><option value="0">ঠিক সময়ে</option><option value="10">১০ মিনিট আগে</option><option value="60">১ ঘণ্টা আগে</option><option value="180">৩ ঘণ্টা আগে</option><option value="1440">১ দিন আগে</option></select>
+   <div class="notehint">সময় না দিলে সকাল ৯:০০ ধরা হবে। অ্যালার্মের জন্য অ্যাপ/ট্যাব খোলা থাকতে হবে।</div>
+   <button type="button" class="btn secondary" id="alarmTest" style="padding:8px 12px;font-size:12px;margin-top:8px">টেস্ট করো</button>
+  </div>
   <div class="notehint" id="remHint">পরিবর্তন নিজে থেকেই সেভ হয়ে যাবে</div>
   <div class="btnrow"><button class="btn" type="submit" id="remSave">সেভ করো</button><button class="btn secondary" type="button" id="remCancel">বাতিল</button></div>
  </form>
@@ -506,6 +527,7 @@ textarea:focus{border-color:var(--blue)}textarea::placeholder{color:#6f6f78}
  <div class="sectionhead"><h3>পরীক্ষার বিস্তারিত</h3><button class="btn secondary" type="button" id="detailClose" style="padding:6px 12px;font-size:12px">বন্ধ</button></div>
  <div id="detailBody"></div>
 </div></div>
+<div class="alarmov" id="alarmOv" hidden><div class="bell"><svg viewBox="0 0 24 24" width="76" height="76" fill="none" stroke="#9cc7ff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9a6 6 0 0112 0c0 6 2 7 2 7H4s2-1 2-7z"/><path d="M10 20a2 2 0 004 0"/></svg></div><h2 id="alTitle"></h2><div class="al-time" id="alWhen"></div><p id="alNote"></p><div class="btnrow"><button type="button" class="btn secondary" id="alSnooze">৫ মিনিট পরে</button><button type="button" class="btn" id="alStop">বন্ধ করো</button></div></div>
 <div class="toast" id="toast" hidden></div>
 <nav class="nav" id="nav">
  <button type="button" data-go="main"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/></svg>Main Map</button>
@@ -593,7 +615,8 @@ function renderReminders(){
   items.forEach(e=>{
    const k=daysLeft(e.d),r=document.createElement('div');r.className='ritem';
    const l=document.createElement('div'),b=document.createElement('b');b.textContent=e.custom?e.r.title:e.t+': '+e.x.uni;
-   const m=document.createElement('div');m.className='muted';m.textContent=dateText(e.d)+(e.tm?'  •  '+timeText(e.tm):'')+(e.custom?(e.r.note?'  •  '+e.r.note:''):(tagText(e.x)?'  •  '+tagText(e.x):''));l.append(b,m);
+   const m=document.createElement('div');m.className='muted';m.textContent=dateText(e.d)+(e.tm?'  •  '+timeText(e.tm):'')+(e.custom?(e.r.note?'  •  '+e.r.note:''):(tagText(e.x)?'  •  '+tagText(e.x):''));if(e.custom&&e.r.alarm)m.textContent+='  •  অ্যালার্ম';
+   l.append(b,m);
    if(e.custom){const ac=document.createElement('div');ac.className='ractions';
     const eb=document.createElement('button');eb.type='button';eb.textContent='Edit';eb.onclick=()=>openRem(e.r.id);
     const db=document.createElement('button');db.type='button';db.textContent='মুছো';db.onclick=()=>{if(confirm('এই রিমাইন্ডারটি মুছে ফেলবে?')){rems=rems.filter(a=>a.id!==e.r.id);saveRems()}};
@@ -786,7 +809,7 @@ function fillDetail(){
   const nl=document.createElement('label');nl.textContent='গুরুত্বপূর্ণ নোট';nl.htmlFor='detailNote';
   const ta=document.createElement('textarea');ta.id='detailNote';ta.maxLength=1000;ta.value=x.note||'';ta.placeholder='এখানে ফি, কেন্দ্র, কী কী আনতে হবে — যা মনে রাখা দরকার লিখে রাখো';
   const hint=document.createElement('div');hint.className='notehint';
-  ta.oninput=()=>{hint.textContent='লিখছ…';clearTimeout(ta._t);ta._t=setTimeout(()=>{const z=exams.find(a=>a.id===x.id);if(!z)return;z.note=ta.value.trim();try{localStorage.setItem(userKey(currentUser),JSON.stringify(exams))}catch(e){}markDirty();noteChanged=true;hint.textContent='✓ নোট সেভ হয়েছে'},500)};
+  ta.oninput=()=>{hint.textContent='লিখছ…';clearTimeout(ta._t);ta._t=setTimeout(()=>{const z=exams.find(a=>a.id===x.id);if(!z)return;z.note=ta.value.trim();try{localStorage.setItem(userKey(currentUser),JSON.stringify(exams))}catch(e){}markDirty();noteChanged=true;hint.textContent='নোট সেভ হয়েছে'},500)};
   box.append(nl,ta,hint);
   const row=document.createElement('div');row.className='btnrow';
   const eb=document.createElement('button');eb.type='button';eb.className='btn';eb.textContent='সব তথ্য আপডেট করো';
@@ -812,7 +835,7 @@ function applyForm(){
  formT=null;const v=formVals();if(!v.uni)return false;
  if(editingId){const z=exams.find(a=>a.id===editingId);if(z)Object.assign(z,v);else{exams.push({id:editingId,...v})}}
  else{const id=Date.now().toString();exams.push({id,...v});editingId=id;$('modalTitle').textContent='পরীক্ষা এডিট করো'}
- save();$('formHint').textContent='✓ নিজে থেকেই সেভ হয়েছে';return true;
+ save();$('formHint').textContent='নিজে থেকেই সেভ হয়েছে';return true;
 }
 function closeForm(){if(formT){clearTimeout(formT);applyForm()}$('addModal').hidden=true;editingId=null}
 ['input','change'].forEach(ev=>$('addForm').addEventListener(ev,()=>{clearTimeout(formT);$('formHint').textContent='লিখছ…';formT=setTimeout(applyForm,600)}));
@@ -827,16 +850,41 @@ let editingRem=null;
 function saveRems(){localStorage.setItem(remKey(currentUser),JSON.stringify(rems));markDirty();renderReminders()}
 function openRem(id){
  editingRem=id||null;const r=id?rems.find(a=>a.id===id):null;$('remForm').reset();
- if(r){$('remTitle').value=r.title;$('remDate').value=r.date;$('remTime').value=r.time||'';$('remNote').value=r.note||''}
+ if(r){$('remTitle').value=r.title;$('remDate').value=r.date;$('remTime').value=r.time||'';$('remNote').value=r.note||'';$('alarmOn').checked=!!r.alarm;$('alarmBefore').value=String(r.alarmBefore||0)}
+ $('alarmOpts').hidden=!$('alarmOn').checked;
  $('remModalTitle').textContent=r?'রিমাইন্ডার এডিট করো':'নতুন রিমাইন্ডার';$('remModal').hidden=false;setTimeout(()=>$('remTitle').focus(),50);
 }
+/* ===== Alarm ===== */
+let actx=null,alSound=null,alStop=null,alShow=null;const alSnooze={};
+function unlockAudio(){try{actx=actx||new (window.AudioContext||window.webkitAudioContext)();if(actx.state==='suspended')actx.resume()}catch(e){}}
+['click','touchstart','keydown'].forEach(ev=>document.addEventListener(ev,unlockAudio,{passive:true}));
+function beepPattern(){if(!actx)return;const t0=actx.currentTime;for(let i=0;i<4;i++){const o=actx.createOscillator(),g=actx.createGain(),t=t0+i*.22;o.type='square';o.frequency.value=i%2?880:1040;g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(.25,t+.02);g.gain.exponentialRampToValueAtTime(.0001,t+.18);o.connect(g);g.connect(actx.destination);o.start(t);o.stop(t+.2)}}
+function startAlarmSound(){unlockAudio();stopAlarmSound();const go=()=>{beepPattern();try{navigator.vibrate&&navigator.vibrate([400,200,400,200,400])}catch(e){}};go();alSound=setInterval(go,1500);alStop=setTimeout(stopAlarmSound,180000)}
+function stopAlarmSound(){clearInterval(alSound);clearTimeout(alStop);alSound=alStop=null;try{navigator.vibrate&&navigator.vibrate(0)}catch(e){}}
+function alarmNotify(r){try{if(!('Notification' in window)||Notification.permission!=='granted')return;const o={body:r.note||dateText(r.date),tag:'alarm-'+r.id,requireInteraction:true,vibrate:[300,150,300]};if(navigator.serviceWorker&&navigator.serviceWorker.ready)navigator.serviceWorker.ready.then(g=>g.showNotification(r.title,o)).catch(()=>{try{new Notification(r.title,o)}catch(e){}});else new Notification(r.title,o)}catch(e){}}
+function ringAlarm(r,key){alShow={r,key};$('alTitle').textContent=r.title;$('alWhen').textContent=r.test?'':dateText(r.date)+(r.time?'  •  '+timeText(r.time):'');$('alNote').textContent=r.note||'';$('alNote').hidden=!r.note;$('alarmOv').hidden=false;startAlarmSound();if(!r.test)alarmNotify(r)}
+function closeAlarm(){stopAlarmSound();$('alarmOv').hidden=true;const a=alShow;alShow=null;return a}
+$('alStop').onclick=()=>{const a=closeAlarm();if(a&&!a.r.test){const z=rems.find(x=>x.id===a.r.id);if(z){z.fired=a.key;delete alSnooze[z.id];saveRems()}}};
+$('alSnooze').onclick=()=>{const a=closeAlarm();if(a&&!a.r.test)alSnooze[a.r.id]=Date.now()+5*60000;showToast('৫ মিনিট পরে আবার বাজবে')};
+function alarmTime(r){return new Date(r.date+'T'+(r.time||'09:00')+':00').getTime()}
+function checkAlarms(){
+ if(!currentUser||alShow)return;const now=Date.now();
+ for(const r of rems){
+  if(!r.alarm||!r.date)continue;const ev=alarmTime(r),t=ev-(r.alarmBefore||0)*60000,key=String(t);
+  if(r.fired===key||now<Math.max(t,alSnooze[r.id]||0)||now>ev+6*3600000)continue;
+  ringAlarm(r,key);break;
+ }
+}
+setInterval(checkAlarms,1000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)checkAlarms()});
+$('alarmOn').addEventListener('change',()=>{$('alarmOpts').hidden=!$('alarmOn').checked;if($('alarmOn').checked){unlockAudio();try{if('Notification' in window&&Notification.permission==='default')Notification.requestPermission()}catch(e){}}});
+$('alarmTest').onclick=()=>{unlockAudio();ringAlarm({test:true,title:$('remTitle').value.trim()||'টেস্ট অ্যালার্ম',note:'এভাবেই অ্যালার্ম বাজবে'})};
 let remT=null;
 function applyRem(){
- remT=null;const v={title:$('remTitle').value.trim(),date:$('remDate').value,time:$('remTime').value,note:$('remNote').value.trim()};
+ remT=null;const v={title:$('remTitle').value.trim(),date:$('remDate').value,time:$('remTime').value,note:$('remNote').value.trim(),alarm:$('alarmOn').checked,alarmBefore:+$('alarmBefore').value||0};
  if(!v.title||!v.date)return false;
  if(editingRem){const z=rems.find(a=>a.id===editingRem);if(z)Object.assign(z,v);else rems.push({id:editingRem,...v})}
  else{const id=Date.now().toString();rems.push({id,...v});editingRem=id;$('remModalTitle').textContent='রিমাইন্ডার এডিট করো'}
- saveRems();$('remHint').textContent='✓ নিজে থেকেই সেভ হয়েছে';return true;
+ saveRems();$('remHint').textContent='নিজে থেকেই সেভ হয়েছে';return true;
 }
 function closeRem(){if(remT){clearTimeout(remT);applyRem()}$('remModal').hidden=true;editingRem=null}
 ['input','change'].forEach(ev=>$('remForm').addEventListener(ev,()=>{clearTimeout(remT);$('remHint').textContent='লিখছ…';remT=setTimeout(applyRem,600)}));
