@@ -804,7 +804,7 @@ async function cloudSignup(u,p){
 const cloudLogin=(u,p)=>sb('/auth/v1/token?grant_type=password',{method:'POST',body:{email:emailOf(u),password:p}});
 function syncState(st){
  const el=$('syncMsg');if(!el)return;
- el.textContent={local:'📱 ডেটা শুধু এই ফোনে সেভ হচ্ছে।',wait:'☁️ সিঙ্ক হচ্ছে...',ok:'☁️ ক্লাউডে সেভ আছে। যেকোনো ডিভাইসে লগইন করলেই তোমার ডেটা পাবে।',err:'⏳ সংযোগ নেই। ইন্টারনেট এলে নিজে থেকেই ক্লাউডে সেভ হবে।',login:'⚠️ ক্লাউডে সেভ করতে লগআউট করে আবার লগইন করো।'}[st]||'';
+ el.textContent={local:'ডেটা শুধু এই ফোনে সেভ হচ্ছে।',wait:'সিঙ্ক হচ্ছে...',ok:'ক্লাউডে সেভ আছে। যেকোনো ডিভাইসে লগইন করলেই তোমার ডেটা পাবে।',err:'সংযোগ নেই। ইন্টারনেট এলে নিজে থেকেই ক্লাউডে সেভ হবে।',login:'ক্লাউডে সেভ করতে লগআউট করে আবার লগইন করো।'}[st]||'';
 }
 function markDirty(){
  if(!CLOUD||!currentUser)return;
