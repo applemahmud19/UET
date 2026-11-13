@@ -378,6 +378,14 @@ textarea:focus{border-color:var(--blue)}textarea::placeholder{color:#6f6f78}
 .notehint{font-size:11.5px;color:var(--muted);margin:6px 4px 0;min-height:14px}
 .notebox{background:var(--panel);border-radius:14px;padding:10px 12px;margin-top:8px;font-size:13px;line-height:1.55;white-space:pre-wrap;word-break:break-word}
 .notebox small{display:block;color:var(--muted);font-size:11px;margin-bottom:2px}
+/* single-line fixes */
+.drow{flex-wrap:wrap;align-items:center;row-gap:4px;column-gap:10px}
+.drow span{white-space:nowrap;flex:0 0 auto}
+.drow b{white-space:nowrap;flex:1 1 auto;min-width:0;text-align:right}
+.stat span{white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:ellipsis}
+.btn,.pill,.dcount,.mapinfo .mi-count,.mapinfo .mi-eye{white-space:nowrap}
+.dtitle,.dunit{overflow-wrap:anywhere}
+@media(max-width:360px){.drow{font-size:12.5px;padding:12px}}
 </style>
 </head>
 <body>
@@ -478,6 +486,7 @@ textarea:focus{border-color:var(--blue)}textarea::placeholder{color:#6f6f78}
     <div><label for="status">বর্তমান অবস্থা</label><select id="status"><option value="পরিকল্পনায়">পরিকল্পনায়</option><option value="আবেদন চলছে">আবেদন চলছে</option><option value="আবেদন সম্পন্ন">আবেদন সম্পন্ন</option><option value="অ্যাডমিট কার্ড প্রকাশিত">অ্যাডমিট কার্ড প্রকাশিত</option><option value="পরীক্ষা সম্পন্ন">পরীক্ষা সম্পন্ন</option></select></div>
     <div class="full"><label for="noteInput">গুরুত্বপূর্ণ নোট (ঐচ্ছিক)</label><textarea id="noteInput" maxlength="1000" placeholder="যেমন: ফি ৩০০ টাকা, কেন্দ্র মিরপুর, সঙ্গে প্রবেশপত্র ও ২ কপি ছবি আনতে হবে"></textarea></div>
    </div>
+   <div class="notehint" id="formHint">পরিবর্তন নিজে থেকেই সেভ হয়ে যাবে</div>
    <div class="btnrow"><button class="btn" type="submit" id="saveBtn">যোগ করো</button><button class="btn secondary" type="button" id="modalCancel">বাতিল</button></div>
   </form>
 </div></div>
@@ -488,6 +497,7 @@ textarea:focus{border-color:var(--blue)}textarea::placeholder{color:#6f6f78}
   <label for="remDate">তারিখ</label><input id="remDate" type="date" required>
   <label for="remTime">সময় (ঐচ্ছিক)</label><input id="remTime" type="time">
   <label for="remNote">নোট (ঐচ্ছিক)</label><input id="remNote" placeholder="যেমন: ব্যাংকে গিয়ে জমা দিতে হবে">
+  <div class="notehint" id="remHint">পরিবর্তন নিজে থেকেই সেভ হয়ে যাবে</div>
   <div class="btnrow"><button class="btn" type="submit" id="remSave">সেভ করো</button><button class="btn secondary" type="button" id="remCancel">বাতিল</button></div>
  </form>
 </div></div>
@@ -763,8 +773,8 @@ function fillDetail(){
  if(mine)add('বর্তমান অবস্থা',x.status||'—');else add('যোগ করেছে',`${bnum(x.count)} জন`);
  add('পরীক্ষার তারিখ',dtText(x,'examDate'));
  if(mine)add('আবেদন শুরু',dateText(x.applyStart));
- add('আবেদনের শেষ তারিখ',dtText(x,'applyEnd'));
- add('অ্যাডমিট কার্ড ডাউনলোড',dtText(x,'admitDate'));
+ add('আবেদন শেষ',dtText(x,'applyEnd'));
+ add('অ্যাডমিট কার্ড',dtText(x,'admitDate'));
  box.append(rows);
  if(mine){
   const l=document.createElement('label');l.textContent='অবস্থা আপডেট করো';l.htmlFor='detailStatus';
@@ -796,16 +806,22 @@ function openForm(id){
  $('modalTitle').textContent=x?'পরীক্ষা এডিট করো':'নতুন পরীক্ষা যোগ করো';$('saveBtn').textContent=x?'সেভ করো':'যোগ করো';
  $('addModal').hidden=false;
 }
-function closeForm(){$('addModal').hidden=true;editingId=null}
+function formVals(){return{uni:getUni(),unit:getUnit(),group:$('groupSel').value,examDate:$('examDate').value,applyStart:$('applyStart').value,applyEnd:$('applyEnd').value,admitDate:$('admitDate').value,examTime:$('examTime').value,applyEndTime:$('applyEndTime').value,admitTime:$('admitTime').value,status:$('status').value,note:$('noteInput').value.trim()}}
+let formT=null;
+function applyForm(){
+ formT=null;const v=formVals();if(!v.uni)return false;
+ if(editingId){const z=exams.find(a=>a.id===editingId);if(z)Object.assign(z,v);else{exams.push({id:editingId,...v})}}
+ else{const id=Date.now().toString();exams.push({id,...v});editingId=id;$('modalTitle').textContent='পরীক্ষা এডিট করো'}
+ save();$('formHint').textContent='✓ নিজে থেকেই সেভ হয়েছে';return true;
+}
+function closeForm(){if(formT){clearTimeout(formT);applyForm()}$('addModal').hidden=true;editingId=null}
+['input','change'].forEach(ev=>$('addForm').addEventListener(ev,()=>{clearTimeout(formT);$('formHint').textContent='লিখছ…';formT=setTimeout(applyForm,600)}));
 $('fabAdd').onclick=()=>view==='remind'?openRem():openForm();$('modalClose').onclick=closeForm;$('modalCancel').onclick=closeForm;
 $('addModal').addEventListener('click',e=>{if(e.target.id==='addModal')closeForm()});
 $('addForm').addEventListener('submit',e=>{
- e.preventDefault();
- const v={uni:getUni(),unit:getUnit(),group:$('groupSel').value,examDate:$('examDate').value,applyStart:$('applyStart').value,applyEnd:$('applyEnd').value,admitDate:$('admitDate').value,examTime:$('examTime').value,applyEndTime:$('applyEndTime').value,admitTime:$('admitTime').value,status:$('status').value,note:$('noteInput').value.trim()};
- if(!v.uni){showToast('বিশ্ববিদ্যালয়ের নাম দাও');return}
- if(editingId){Object.assign(exams.find(a=>a.id===editingId),v);selectedId=editingId}
- else{const id=Date.now().toString();exams.push({id,...v});selectedId=id}
- closeForm();save();
+ e.preventDefault();clearTimeout(formT);formT=null;
+ if(!getUni()){showToast('বিশ্ববিদ্যালয়ের নাম দাও');return}
+ applyForm();selectedId=editingId;closeForm();save();
 });
 let editingRem=null;
 function saveRems(){localStorage.setItem(remKey(currentUser),JSON.stringify(rems));markDirty();renderReminders()}
@@ -814,13 +830,22 @@ function openRem(id){
  if(r){$('remTitle').value=r.title;$('remDate').value=r.date;$('remTime').value=r.time||'';$('remNote').value=r.note||''}
  $('remModalTitle').textContent=r?'রিমাইন্ডার এডিট করো':'নতুন রিমাইন্ডার';$('remModal').hidden=false;setTimeout(()=>$('remTitle').focus(),50);
 }
-function closeRem(){$('remModal').hidden=true;editingRem=null}
+let remT=null;
+function applyRem(){
+ remT=null;const v={title:$('remTitle').value.trim(),date:$('remDate').value,time:$('remTime').value,note:$('remNote').value.trim()};
+ if(!v.title||!v.date)return false;
+ if(editingRem){const z=rems.find(a=>a.id===editingRem);if(z)Object.assign(z,v);else rems.push({id:editingRem,...v})}
+ else{const id=Date.now().toString();rems.push({id,...v});editingRem=id;$('remModalTitle').textContent='রিমাইন্ডার এডিট করো'}
+ saveRems();$('remHint').textContent='✓ নিজে থেকেই সেভ হয়েছে';return true;
+}
+function closeRem(){if(remT){clearTimeout(remT);applyRem()}$('remModal').hidden=true;editingRem=null}
+['input','change'].forEach(ev=>$('remForm').addEventListener(ev,()=>{clearTimeout(remT);$('remHint').textContent='লিখছ…';remT=setTimeout(applyRem,600)}));
 $('remClose').onclick=closeRem;$('remCancel').onclick=closeRem;
 $('remModal').addEventListener('click',e=>{if(e.target.id==='remModal')closeRem()});
 $('remForm').addEventListener('submit',e=>{
- e.preventDefault();const v={title:$('remTitle').value.trim(),date:$('remDate').value,time:$('remTime').value,note:$('remNote').value.trim()};
- if(editingRem)Object.assign(rems.find(a=>a.id===editingRem),v);else rems.push({id:Date.now().toString(),...v});
- closeRem();saveRems();
+ e.preventDefault();clearTimeout(remT);remT=null;
+ if(!$('remTitle').value.trim()||!$('remDate').value)return;
+ applyRem();closeRem();
 });
 $('exportBtn').onclick=()=>{const blob=new Blob([JSON.stringify({version:2,exams,reminders:rems},null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='admission-roadmap-data.json';a.click();URL.revokeObjectURL(a.href)};
 $('importBtn').onclick=()=>$('importFile').click();
