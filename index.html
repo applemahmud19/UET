@@ -342,6 +342,33 @@ body.mapfull .stats{position:fixed;top:calc(58px + env(safe-area-inset-top,0px))
 body.mapfull .stat{gap:2px}
 body.mapfull .stat strong{font-size:17px}
 body.mapfull .stat span{font-size:10px}
+/* account page: tidy layout */
+.prof{padding:20px}
+.profrow{display:flex;align-items:center;gap:14px}
+.avatar{width:56px;height:56px;border-radius:20px;background:var(--blue);color:#fff;display:grid;place-items:center;font-size:24px;font-weight:800;flex:none}
+.profinfo{min-width:0}.profname{font-size:19px;font-weight:800;overflow-wrap:anywhere}
+.syncline{display:flex;align-items:flex-start;gap:8px;margin-top:14px;padding:10px 14px;background:var(--panel2);border-radius:16px;font-size:12px;line-height:1.6;color:var(--muted)}
+.syncdot{width:8px;height:8px;border-radius:50%;background:var(--green);flex:none;margin-top:6px}
+.themerow{padding:14px 16px}
+.setlabel{font-size:13px;font-weight:700;color:var(--muted);margin:0 4px 10px}
+.acc{padding:0;overflow:hidden}
+.acc summary{list-style:none;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:18px 20px;font-size:16px;font-weight:700;cursor:pointer}
+.acc summary::-webkit-details-marker{display:none}
+.acc summary small{display:block;font-size:12px;font-weight:500;color:var(--muted);margin-top:2px}
+.chev{width:9px;height:9px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:rotate(45deg);transition:transform .2s;margin-right:4px;flex:none}
+.acc[open] .chev{transform:rotate(-135deg)}
+.accbody{padding:0 20px 20px}
+.accbody label:first-child{margin-top:0}
+.accfoot{padding:14px}
+.acc .btnrow{margin-top:0}
+/* unified top bar + map behind the nav */
+body.mapfull .maptop{position:absolute;top:calc(10px + env(safe-area-inset-top,0px));left:12px;right:12px;z-index:5;background:color-mix(in srgb,var(--panel) 90%,transparent);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border-radius:22px;padding:8px;box-shadow:0 6px 20px #0004}
+body.mapfull .maptop .mapfilter{position:static;margin:0}
+body.mapfull .maptop .mapfilter select{height:38px;font-size:13px;box-shadow:none;background-color:var(--panel2);border:0;border-radius:14px}
+body.mapfull .maptop .stats{position:static;margin:8px 0 0;padding:0;background:none;box-shadow:none;border-radius:0}
+body.mapfull .mappanel{bottom:0}
+body.mapfull .mapscroll{padding-top:126px;padding-bottom:calc(var(--navh,84px) + 8px);scrollbar-width:none}
+body.mapfull .mapscroll::-webkit-scrollbar{display:none}
 /* header (Admission Roadmap + page title) hidden for a bigger map */
 .brand{display:none}
 .top{margin:12px 6px 14px}
@@ -370,14 +397,16 @@ body.mapfull .stat span{font-size:10px}
  <div class="brand"><div class="eyebrow">Admission Roadmap</div><h1 id="viewTitle">My Map</h1></div>
  <div class="date"><span id="today"></span><span class="userbar"><span id="who"></span></span></div>
 </header>
-<section class="stats" data-v="main mine">
- <div class="stat"><span>মোট বিশ্ববিদ্যালয়</span><strong id="total">০</strong></div>
- <div class="stat"><span>তারিখ নির্ধারিত</span><strong id="dated">০</strong></div>
- <div class="stat"><span>পরীক্ষা বাকি</span><strong id="upcoming">০</strong></div>
- <div class="stat"><span>সম্পন্ন</span><strong id="completed">০</strong></div>
-</section>
 <div class="panel mappanel" data-v="main mine">
+ <div class="maptop">
  <div class="mapfilter"><select id="mapFilter" aria-label="ফিল্টার"><option value="all">সব পরীক্ষা</option><option value="exam">পরীক্ষার তারিখ</option><option value="apply">আবেদনের শেষ তারিখ</option><option value="admit">অ্যাডমিট কার্ড ডাউনলোড</option></select></div>
+ <div class="stats">
+ <div class="stat"><span>মোট</span><strong id="total">০</strong></div>
+ <div class="stat"><span>তারিখ ঠিক</span><strong id="dated">০</strong></div>
+ <div class="stat"><span>বাকি</span><strong id="upcoming">০</strong></div>
+ <div class="stat"><span>সম্পন্ন</span><strong id="completed">০</strong></div>
+</div>
+ </div>
  <div class="mapscroll" id="mapScroll"><svg id="mapSvg" role="img" aria-label="Admission roadmap"></svg></div>
  <div class="mapinfo" id="mapInfo"></div>
 </div>
@@ -393,36 +422,36 @@ body.mapfull .stat span{font-size:10px}
  <div class="sectionhead"><h3>Reminder</h3><span class="muted">+ চেপে নিজের রিমাইন্ডার যোগ করো</span></div>
  <div id="remindList"></div>
 </div>
-<div class="panel" data-v="account" hidden>
- <div class="sectionhead"><h3>My account</h3></div>
- <div style="font-size:15px">Username: <b id="accUser"></b></div><div class="muted" id="accCount" style="margin-top:4px"></div><div class="muted" id="syncMsg" style="margin-top:6px;font-size:12px;line-height:1.6"></div>
- </div>
-<div class="panel" data-v="account" hidden>
- <div class="sectionhead"><h3>Theme</h3></div>
+<div class="panel prof" data-v="account" hidden>
+ <div class="profrow"><div class="avatar" id="accAvatar"></div><div class="profinfo"><div class="profname" id="accUser"></div><div class="muted" id="accCount"></div></div></div>
+ <div class="syncline"><i class="syncdot"></i><span id="syncMsg"></span></div>
+</div>
+<div class="panel themerow" data-v="account" hidden>
+ <div class="setlabel">Theme</div>
  <div class="seg" id="themeSeg">
   <button type="button" data-theme="dark"><svg viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg>Night</button>
   <button type="button" data-theme="light"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.5M12 19v2.5M2.5 12H5M19 12h2.5M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M5.3 18.7l1.8-1.8M16.9 7.1l1.8-1.8"/></svg>White</button>
  </div>
 </div>
-<div class="panel" data-v="account" hidden>
- <div class="sectionhead"><h3>Change password</h3></div>
- <form id="pwForm">
+<details class="panel acc" data-v="account" hidden>
+ <summary><span>Change password</span><i class="chev"></i></summary>
+ <div class="accbody"><form id="pwForm">
   <label for="pwOld">Current password</label><div class="pwwrap"><input id="pwOld" type="password" autocomplete="current-password" required><button type="button" class="eye" data-for="pwOld" aria-label="পাসওয়ার্ড দেখাও"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></button></div>
   <label for="pwNew">New password</label><div class="pwwrap"><input id="pwNew" type="password" autocomplete="new-password" required><button type="button" class="eye" data-for="pwNew" aria-label="পাসওয়ার্ড দেখাও"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></button></div>
   <div class="autherr" id="pwMsg"></div>
   <button class="btn" type="submit">Update password</button>
- </form>
- </div>
-<div class="panel" data-v="account" hidden>
- <div class="sectionhead"><h3>Install app</h3></div>
- <div class="muted" id="installMsg" style="line-height:1.7;font-size:13px"></div>
- <div class="btnrow"><button class="btn" id="installBtn" type="button" hidden>Install</button></div>
- </div>
-<div class="panel" data-v="account" hidden>
- <div class="sectionhead"><h3>Data</h3><span class="muted">Move to another device</span></div>
- <div class="btnrow" style="margin-top:0"><button class="btn secondary" id="exportBtn" type="button">Export data</button><button class="btn secondary" id="importBtn" type="button">Import data</button><button class="btn danger" id="clearBtn" type="button">Clear all exams</button><input id="importFile" type="file" accept="application/json" hidden></div>
- </div>
-<div class="panel" data-v="account" hidden>
+ </form></div>
+</details>
+<details class="panel acc" data-v="account" hidden>
+ <summary><span>Install app</span><i class="chev"></i></summary>
+ <div class="accbody"><div class="muted" id="installMsg" style="line-height:1.7;font-size:13px"></div>
+ <div class="btnrow"><button class="btn" id="installBtn" type="button" hidden>Install</button></div></div>
+</details>
+<details class="panel acc" data-v="account" hidden>
+ <summary><span>Data<small>Move to another device</small></span><i class="chev"></i></summary>
+ <div class="accbody"><div class="btnrow" style="margin-top:0"><button class="btn secondary" id="exportBtn" type="button">Export data</button><button class="btn secondary" id="importBtn" type="button">Import data</button><button class="btn danger" id="clearBtn" type="button">Clear all exams</button><input id="importFile" type="file" accept="application/json" hidden></div></div>
+</details>
+<div class="panel accfoot" data-v="account" hidden>
  <div class="btnrow" style="margin-top:0"><button class="btn secondary" id="logoutBtn" type="button">Logout</button><button class="btn danger" id="delAccBtn" type="button">Delete account</button></div>
 </div>
 <div class="modal" id="addModal" hidden><div class="sheet">
@@ -560,7 +589,7 @@ function renderReminders(){
  if(!box.children.length)box.innerHTML='<div class="empty">কোনো রিমাইন্ডার নেই।<br>নিচের ডানের + বাটন চেপে নিজের রিমাইন্ডার যোগ করো, অথবা পরীক্ষার তারিখ দিলে এখানে নিজে থেকেই আসবে।</div>';
  const hot=ev.filter(e=>{const k=daysLeft(e.d);return k>=0&&k<=3}).length,bd=$('remindBadge');bd.hidden=!hot;bd.textContent=hot;
 }
-function renderAccount(){$('accUser').textContent=currentUser||'';$('accCount').textContent=`মোট ${bnum(exams.length)}টি পরীক্ষা যোগ করা আছে`}
+function renderAccount(){$('accUser').textContent=currentUser||'';$('accAvatar').textContent=(currentUser||'?').charAt(0).toUpperCase();$('accCount').textContent=`মোট ${bnum(exams.length)}টি পরীক্ষা যোগ করা আছে`}
 
 function renderMap(keepScroll){
  const NS='http://www.w3.org/2000/svg',svg=$('mapSvg'),box=$('mapScroll'),prev=box.scrollTop;
@@ -630,7 +659,7 @@ function renderMap(keepScroll){
  }
  renderCalendar();
  if(keepScroll)box.scrollTop=prev;
- else{const i=cur?list.indexOf(cur)+1:n+1;box.scrollTop=Math.max(0,pts[i].y*(svg.clientWidth/W)-box.clientHeight/2)}
+ else{const i=cur?list.indexOf(cur)+1:n+1;box.scrollTop=Math.max(0,pts[i].y*(svg.clientWidth/W)+parseFloat(getComputedStyle(box).paddingTop)-(parseFloat(getComputedStyle(box).paddingTop)+box.clientHeight-parseFloat(getComputedStyle(box).paddingBottom))/2)}
 }
 let calY=today.getFullYear(),calM=today.getMonth(),calSel=null;
 const p2=n=>String(n).padStart(2,'0');
