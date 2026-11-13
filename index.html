@@ -1,0 +1,1268 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0b1220">
+<script>try{if(localStorage.getItem('admission-roadmap-theme')==='light'){document.documentElement.setAttribute('data-theme','light');document.querySelector('meta[name=theme-color]').setAttribute('content','#f2f3f7')}}catch(e){}</script>
+<link rel="manifest" href="./manifest.json">
+<link rel="icon" href="./icon-192.png">
+<link rel="apple-touch-icon" href="./icon-192.png">
+<title>Admission Roadmap — University Exam Tracker</title>
+<style>
+:root{--bg:#0b1220;--panel:#121d2e;--panel2:#18263a;--line:#26364d;--text:#eef4ff;--muted:#9aabc2;--blue:#67a8ff;--cyan:#62dfd0;--amber:#ffc66d;--red:#ff8585;--green:#75d6a3}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 15% 0%,#1b3151 0,transparent 38%),var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Noto Sans Bengali","Noto Sans",sans-serif}
+.wrap{max-width:1100px;margin:auto;padding:26px 18px 110px}.top{display:flex;justify-content:space-between;align-items:center;gap:15px;margin-bottom:25px}.brand{display:flex;align-items:center;gap:12px}.logo{width:44px;height:44px;border-radius:14px;background:linear-gradient(135deg,#5b9cff,#65dfd0);display:grid;place-items:center;color:#071322;font-size:22px;font-weight:900}.eyebrow{color:var(--cyan);font-size:12px;letter-spacing:1.5px;text-transform:uppercase}.top h1{font-size:clamp(22px,4vw,32px);margin:2px 0}.date{color:var(--muted);font-size:13px;text-align:right}
+.hero{border:1px solid #29405d;background:linear-gradient(115deg,#172a44,#142235 65%,#173747);border-radius:24px;padding:25px;margin-bottom:18px;position:relative;overflow:hidden}.hero:after{content:"";position:absolute;width:210px;height:210px;border:1px solid #416487;border-radius:50%;right:-65px;top:-105px;box-shadow:0 0 0 25px #ffffff05,0 0 0 50px #ffffff04}.hero small{color:var(--cyan);font-weight:700}.hero h2{font-size:clamp(21px,4vw,30px);margin:8px 0}.hero p{color:#b6c6da;margin:0;max-width:600px;line-height:1.7}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:18px 0}.stat,.panel,.exam{background:var(--panel);border:1px solid var(--line);border-radius:17px}.stat{padding:16px}.stat span{display:block;color:var(--muted);font-size:12px}.stat strong{font-size:25px;display:block;margin-top:5px}.layout{display:grid;grid-template-columns:1.2fr .8fr;gap:16px}.panel{padding:18px}.sectionhead{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:14px}.sectionhead h3{margin:0;font-size:17px}.muted{color:var(--muted);font-size:12px}
+input,select,button{font:inherit}input,select{width:100%;background:#0c1625;border:1px solid #30445e;color:var(--text);border-radius:10px;padding:11px 12px;outline:none}input:focus,select:focus{border-color:var(--blue)}label{display:block;color:#b8c8dc;font-size:12px;margin:10px 0 6px}.formgrid{display:grid;grid-template-columns:1fr 1fr;gap:0 10px}.full{grid-column:1/-1}.btn{border:0;border-radius:10px;padding:11px 15px;font-weight:750;cursor:pointer;background:linear-gradient(100deg,#67a8ff,#62dfd0);color:#071322}.btn.secondary{background:#22344b;color:#dceaff;border:1px solid #354b67}.btn.danger{background:#3b2028;color:#ffb7b7;border:1px solid #653540}.btnrow{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}.timeline{position:relative;padding-left:23px}.timeline:before{content:"";position:absolute;left:7px;top:8px;bottom:8px;width:2px;background:linear-gradient(var(--blue),#36506c)}.step{position:relative;padding:0 0 18px 13px}.step:before{content:"";position:absolute;left:-21px;top:5px;width:11px;height:11px;border-radius:50%;background:var(--cyan);box-shadow:0 0 0 4px #62dfd01c}.step b{display:block;font-size:14px}.step p{margin:4px 0;color:var(--muted);font-size:12px;line-height:1.5}
+.exams{display:grid;gap:10px}.exam{padding:14px;background:#101b2b}.examtop{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}.exam h4{margin:0 0 4px;font-size:15px}.pill{font-size:11px;padding:5px 8px;border-radius:20px;background:#233b55;color:#b9d8ff;white-space:nowrap}.pill.done{background:#173c32;color:#9af0c1}.pill.wait{background:#3b3322;color:#ffdc9c}.exammeta{display:flex;gap:12px;flex-wrap:wrap;color:var(--muted);font-size:12px;margin:10px 0}.count{font-size:13px;color:var(--cyan);font-weight:750}.examactions{display:flex;gap:7px;margin-top:10px}.examactions button{font-size:11px;padding:7px 9px}.empty{padding:22px;text-align:center;color:var(--muted);border:1px dashed #40516a;border-radius:14px;line-height:1.7}.progress{height:7px;background:#26364b;border-radius:9px;overflow:hidden;margin-top:12px}.progress i{display:block;height:100%;background:linear-gradient(90deg,var(--blue),var(--cyan));width:0}
+footer{text-align:center;color:#71849e;font-size:11px;margin-top:22px;line-height:1.7}
+[hidden]{display:none!important}
+.ractions{display:flex;gap:14px;margin-top:8px}.ractions button{background:none;border:0;color:var(--blue);font-size:12px;font-weight:700;padding:0;cursor:pointer}.ractions button:last-child{color:var(--red)}
+.fab{position:fixed;right:18px;bottom:calc(84px + env(safe-area-inset-bottom));z-index:55;width:58px;height:58px;border-radius:50%;border:0;background:linear-gradient(135deg,#67a8ff,#62dfd0);color:#071322;display:grid;place-items:center;cursor:pointer;box-shadow:0 8px 26px #0009}.fab svg{width:28px;height:28px;stroke:currentColor;fill:none;stroke-width:2.6;stroke-linecap:round}.modal{position:fixed;inset:0;z-index:70;background:#000a;display:flex;align-items:flex-end;justify-content:center}.sheet{width:100%;max-width:520px;max-height:92vh;overflow-y:auto;background:var(--panel);border:1px solid var(--line);border-radius:22px 22px 0 0;padding:18px 18px calc(22px + env(safe-area-inset-bottom))}@media(min-width:600px){.modal{align-items:center}.sheet{border-radius:22px}}
+.offbar{background:#3b3322;color:#ffdc9c;border:1px solid #5d4d2a;border-radius:12px;padding:9px 12px;font-size:12px;margin-bottom:14px;text-align:center}.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:84px;z-index:60;background:#22344b;color:#eef4ff;border:1px solid #354b67;border-radius:12px;padding:10px 16px;font-size:13px;box-shadow:0 6px 24px #0008}
+.nav{position:fixed;left:0;right:0;bottom:0;z-index:50;display:grid;grid-template-columns:repeat(5,1fr);gap:2px;background:#0f1a2a;border-top:1px solid var(--line);padding:6px 8px calc(6px + env(safe-area-inset-bottom))}.nav button{background:none;border:0;color:var(--muted);display:flex;flex-direction:column;align-items:center;gap:3px;font-size:11px;font-weight:700;padding:7px 2px;cursor:pointer;position:relative;border-radius:12px}.nav button.on{color:var(--cyan);background:#16263a}.nav svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}.badge{position:absolute;top:2px;right:18%;background:var(--red);color:#071322;border-radius:10px;font-size:10px;font-weight:800;padding:0 5px;min-width:16px;text-align:center}.rgroup{margin-bottom:16px}.rgroup h4{margin:0 0 8px;font-size:13px;color:var(--cyan)}.ritem{display:flex;justify-content:space-between;gap:10px;align-items:center;background:#101b2b;border:1px solid var(--line);border-radius:13px;padding:12px;margin-bottom:8px}.ritem b{font-size:14px}.ritem .muted{margin-top:2px}.rdays{white-space:nowrap;font-size:12px;font-weight:800;color:var(--cyan)}.rdays.hot{color:var(--amber)}.rdays.late{color:var(--red)}
+.pwwrap{position:relative}.pwwrap input{padding-right:78px}.pwwrap .eye{position:absolute;right:6px;top:50%;transform:translateY(-50%);background:#22344b;color:#dceaff;border:1px solid #354b67;border-radius:8px;padding:6px 10px;font-size:12px;cursor:pointer}
+.mappanel{margin-bottom:16px}.mapscroll{max-height:calc(100vh - 360px);min-height:380px;overflow-y:auto;border-radius:16px;background:radial-gradient(circle at 50% 100%,#1c3a4a 0,transparent 55%),linear-gradient(#0e1a2b,#112238);border:1px solid #29405d;scrollbar-width:thin}.mapscroll svg{display:block;width:100%;max-width:420px;margin:auto}.node{cursor:pointer}.node circle.base{stroke-width:4;transition:.2s}.node.done circle.base{fill:#1f6b4d;stroke:#75d6a3}.node.cur circle.base{fill:#8a5a12;stroke:#ffc66d;animation:pulse 1.6s infinite}.node.up circle.base{fill:#18263a;stroke:#3d5877}.node.sel circle.ring{opacity:1}.node circle.ring{fill:none;stroke:#fff;stroke-width:2;opacity:0;stroke-dasharray:4 4}.node text{pointer-events:none;text-anchor:middle}.nlabel{fill:#dbe8fb;font-size:12px;font-weight:700;paint-order:stroke;stroke:#0e1a2b;stroke-width:4px;stroke-linejoin:round}.nstars{fill:#ffc66d;font-size:13px;letter-spacing:2px}.nstars.off{fill:#40536c}.nicon{font-size:22px;dominant-baseline:central}.nnum{fill:#9aabc2;font-size:18px;font-weight:800;dominant-baseline:central}@keyframes pulse{0%,100%{filter:drop-shadow(0 0 2px #ffc66d)}50%{filter:drop-shadow(0 0 12px #ffc66d)}}.mapinfo{margin-top:12px;background:#101b2b;border:1px solid var(--line);border-radius:14px;padding:14px;line-height:1.7;font-size:13px}.mapinfo h4{margin:0 0 4px;font-size:16px}.mapinfo .count{margin-top:6px}.maplegend{display:flex;gap:14px;flex-wrap:wrap;margin-top:10px;font-size:11px;color:var(--muted)}
+.authbox{min-height:100vh;display:grid;place-items:center;padding:18px}.authcard{width:100%;max-width:400px;background:var(--panel);border:1px solid var(--line);border-radius:22px;padding:26px 22px}.authcard .logo{margin:0 auto 14px}.authcard h2{text-align:center;margin:0 0 4px;font-size:22px}.authcard .sub{text-align:center;color:var(--muted);font-size:13px;margin-bottom:12px;line-height:1.6}.authtabs{display:grid;grid-template-columns:1fr 1fr;gap:6px;background:#0c1625;border-radius:12px;padding:4px;margin:14px 0 4px}.authtabs button{border:0;background:none;color:var(--muted);padding:9px;border-radius:9px;font-weight:700;cursor:pointer}.authtabs button.on{background:#22344b;color:var(--text)}.autherr{color:var(--red);font-size:12px;min-height:18px;margin-top:10px;line-height:1.5}.authcard .btn{width:100%;margin-top:6px}.userbar{display:flex;gap:8px;align-items:center;justify-content:flex-end;margin-top:6px}.userbar span{color:var(--cyan);font-weight:700}.userbar button{padding:6px 10px;font-size:11px}
+@media(max-width:760px){.stats{grid-template-columns:repeat(2,1fr)}.layout{grid-template-columns:1fr}.top{align-items:flex-start}.date{max-width:115px}.hero{padding:20px}.panel{padding:15px}}
+@media(max-width:420px){.formgrid{grid-template-columns:1fr}.full{grid-column:auto}.stats{gap:8px}.stat{padding:12px}.stat strong{font-size:22px}}
+@media(max-width:760px){.stats{grid-template-columns:repeat(4,1fr);gap:6px}.stat{padding:10px 8px;border-radius:13px}.stat span{font-size:10.5px;line-height:1.35}.stat strong{font-size:20px}}
+.mapscroll{max-height:calc(100vh - 330px)}
+/* click/tap korle highlight na hoy */
+*{-webkit-tap-highlight-color:transparent}
+body{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+input,textarea,select{-webkit-user-select:text;user-select:text}
+button,.btn,.nav *,[onclick],[role=button]{-webkit-user-select:none;user-select:none;touch-action:manipulation}
+button:focus:not(:focus-visible),[onclick]:focus:not(:focus-visible){outline:none}
+::selection{background:transparent}
+input::selection,textarea::selection{background:#67a8ff55}
+
+.toast{z-index:90}
+html{color-scheme:dark}
+input,select{height:46px}
+input[type=date]{min-height:46px;display:block}
+.nicon{fill:#eef4ff}
+.calpanel{margin-bottom:16px;padding:14px 10px}
+.nav button{font-size:10.5px!important}
+.calhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.calhead h3{margin:0;font-size:17px}
+.calnav{width:38px;height:38px;border-radius:50%;border:1px solid #354b67;background:#22344b;color:#dceaff;font-size:22px;line-height:1;cursor:pointer;display:grid;place-items:center;padding:0 0 3px}
+.calgrid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}
+.calw{text-align:center;font-size:11px;color:var(--muted);padding:4px 0 6px;font-weight:700}
+.calday{min-height:68px;border:1px solid transparent;border-radius:9px;background:#0f1a2a;color:var(--text);font-size:12px;display:flex;flex-direction:column;align-items:stretch;justify-content:flex-start;gap:2px;padding:4px 2px 3px;cursor:pointer;min-width:0;overflow:hidden}
+.calday>span{text-align:center;line-height:1.2}
+.cchip{display:block;border-radius:4px;font-size:9.5px;line-height:1.35;padding:1px 2px;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:700}
+.cchip.exam{background:#8a5a12;color:#ffe3b0}.cchip.exam.past{background:#1f6b4d;color:#c9f5dd}.cchip.apply{background:#1d4f8f;color:#cfe3ff}.cchip.admit{background:#1b5d5a;color:#c9f7f2}
+.cmore{font-size:9px;color:var(--muted);text-align:center}
+.calday.empty{background:none;cursor:default}
+.calday.today{border-color:var(--cyan);color:var(--cyan);font-weight:800}
+.calday.exam{border-color:#6b5320}
+.calday.sel{box-shadow:0 0 0 2px #fff}
+.cdots{display:flex;gap:3px;height:5px;align-items:center}
+.dot,.cdots i{display:inline-block;width:5px;height:5px;border-radius:50%}
+.d-apply{background:#67a8ff}.d-admit{background:#75d6a3}
+.callegend{display:flex;gap:6px 14px;flex-wrap:wrap;margin:12px 0 4px;font-size:11px;color:var(--muted);align-items:center}
+.callegend span{display:flex;align-items:center;gap:6px}
+.sw{display:inline-block;width:12px;height:12px;border-radius:4px}.sw-apply{background:#1d4f8f;border:1px solid #67a8ff}.sw-admit{background:#1b5d5a;border:1px solid #62dfd0}
+.sw-exam{background:#8a5a12;border:1px solid #ffc66d}.sw-past{background:#1f6b4d;border:1px solid #75d6a3}
+.callist{margin-top:10px}.callist h4{margin:0 0 8px;font-size:13px;color:var(--cyan)}
+.callist .ritem{cursor:pointer}.callist .ritem .muted{margin-top:3px}
+.ntag{fill:#7fa6d6;font-size:10.5px;font-weight:700;paint-order:stroke;stroke:#0e1a2b;stroke-width:4px;stroke-linejoin:round}
+.ndate{fill:#9aabc2;font-size:11px;font-weight:700;paint-order:stroke;stroke:#0e1a2b;stroke-width:4px;stroke-linejoin:round}
+.node.cur .ndate{fill:#ffc66d}.node.done .ndate{fill:#75d6a3}
+.nnum{font-size:24px!important;fill:#c4d3e6!important}
+.sheet .btnrow .btn{flex:1}
+#pwForm .btn{width:100%}
+.btnrow:has(#installBtn[hidden]){display:none}
+.mapinfo .drows{margin-top:10px;margin-bottom:0}
+.mapinfo h4{overflow-wrap:anywhere}
+.dtitle{overflow-wrap:anywhere}
+@media(max-width:760px){
+ .top{flex-wrap:wrap;align-items:center;gap:12px}
+ .brand{min-width:0}.logo{flex:none}
+ .eyebrow{font-size:10.5px;letter-spacing:1.2px}
+ .top h1{font-size:22px;line-height:1.2}
+ .date{display:flex;justify-content:space-between;align-items:center;gap:10px;width:100%;max-width:none;text-align:left;font-size:12.5px;padding:8px 12px;background:#101b2b;border:1px solid var(--line);border-radius:12px}
+ .userbar{margin-top:0}
+ .wrap{padding-top:18px}
+}
+.dtitle{margin:0 0 2px;font-size:19px;line-height:1.4}
+.dunit{color:var(--muted);font-size:13px;margin-bottom:10px}
+.dcount{display:inline-block;background:#62dfd022;color:var(--cyan);border-radius:999px;padding:5px 12px;font-size:13px;font-weight:750;margin:4px 0 12px}
+.drows{display:grid;gap:8px;margin-bottom:6px}
+.drow{display:flex;justify-content:space-between;gap:12px;background:#101b2b;border:1px solid var(--line);border-radius:12px;padding:10px 12px;font-size:13px}
+.drow span{color:var(--muted)}.drow b{text-align:right}
+
+/* ===================== One UI theme ===================== */
+:root{--bg:#0b0b0d;--panel:#1c1c1f;--panel2:#26262a;--line:#2f2f35;--text:#f3f3f5;--muted:#9b9ba3;--blue:#3e91ff;--cyan:#7db8ff;--amber:#ffc66d;--red:#ff7a7a;--green:#5fd39a}
+body{background:var(--bg);font-family:"One UI Sans",system-ui,-apple-system,"Noto Sans Bengali","Noto Sans",sans-serif;-webkit-font-smoothing:antialiased}
+.wrap{max-width:640px;padding:calc(10px + env(safe-area-inset-top,0px)) 16px 130px}
+.top{display:block;margin:30px 6px 22px}
+.brand{display:block}
+.eyebrow{color:var(--cyan);font-size:12.5px;letter-spacing:.3px;text-transform:none;font-weight:700}
+.top h1{font-size:34px;line-height:1.15;margin:6px 0 10px;font-weight:800;letter-spacing:-.3px}
+.date{display:flex;align-items:center;justify-content:space-between;gap:10px;width:auto;max-width:none;padding:0;background:none;border:0;border-radius:0;text-align:left;font-size:13px;color:var(--muted)}
+.userbar{display:block;margin:0}.userbar span{display:block;background:var(--panel2);color:var(--text);padding:5px 14px;border-radius:999px;font-size:12px;font-weight:700}
+.stat,.panel,.exam{background:var(--panel);border:0;border-radius:28px}
+.panel{padding:20px;margin-bottom:14px}
+.sectionhead{margin-bottom:16px}.sectionhead h3{font-size:18px;font-weight:800}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;margin:0 0 14px;background:var(--panel);border-radius:28px;padding:18px 4px}
+.stat{background:none;border-radius:0;padding:0 4px;text-align:center;display:flex;flex-direction:column-reverse;align-items:center;justify-content:flex-end;gap:5px}
+.stat+.stat{border-left:1px solid var(--line)}
+.stat span{font-size:11px;line-height:1.35;color:var(--muted)}
+.stat strong{font-size:24px;margin:0;font-weight:800;line-height:1.1}
+.btn{border-radius:999px;padding:14px 22px;font-weight:700;font-size:15px;background:var(--blue);color:#fff;border:0}
+.btn.secondary{background:#2c2c32;color:#e9e9ee;border:0}
+.btn.danger{background:#35211f;color:#ff8a8a;border:0}
+.btnrow{gap:10px}
+[data-v=account] .btnrow .btn{flex:1 1 calc(50% - 5px)}
+input,select{height:52px;background:var(--panel2);border:1.5px solid transparent;border-radius:16px;padding:0 16px;color:var(--text)}
+input:focus,select:focus{border-color:var(--blue)}
+input[type=date]{min-height:52px}
+input::placeholder{color:#6f6f78}
+label{color:var(--muted);font-size:12.5px;margin:14px 0 8px 4px;font-weight:600}
+.formgrid{gap:0 12px}
+.pwwrap input{padding-right:88px}
+.pwwrap .eye{background:#35353c;border:0;color:#e9e9ee;border-radius:999px;padding:7px 14px}
+.modal{background:#000b}
+.sheet{background:var(--panel);border:0;border-radius:32px 32px 0 0;padding:12px 20px calc(24px + env(safe-area-inset-bottom,0px));max-width:560px}
+.sheet::before{content:"";display:block;width:40px;height:5px;border-radius:3px;background:#4a4a52;margin:0 auto 16px}
+@media(min-width:600px){.sheet{border-radius:32px}}
+.sheet .sectionhead h3{font-size:20px}
+.sheet .btnrow .btn{flex:1}
+.nav{left:50%;right:auto;width:100%;max-width:640px;transform:translateX(-50%);background:#131316;border-top:0;border-radius:28px 28px 0 0;padding:10px 8px calc(10px + env(safe-area-inset-bottom,0px));gap:0}
+.nav button{background:none!important;color:var(--muted);gap:5px;font-weight:600;padding:0;border-radius:0}
+.nav button svg{box-sizing:content-box;width:22px;height:22px;padding:5px 19px;border-radius:999px}
+.nav button.on{color:var(--text);font-weight:800}
+.nav button.on svg{background:#243a5e;color:#9cc7ff}
+.badge{top:-3px;right:calc(50% - 31px)}
+.fab{width:60px;height:60px;border-radius:20px;background:var(--blue);color:#fff;right:max(18px,calc(50% - 302px));bottom:calc(98px + env(safe-area-inset-bottom,0px));box-shadow:0 10px 28px #000a}
+.mappanel{padding:14px}
+.mapscroll{border:0;border-radius:22px;background:radial-gradient(circle at 50% 100%,#16324a 0,transparent 60%),#101216}
+.mapinfo{background:var(--panel2);border:0;border-radius:22px;padding:18px;margin-top:12px}
+.drow{background:var(--panel2);border:0;border-radius:16px;padding:13px 15px}
+.mapinfo .drow{background:var(--panel)}
+.dcount{background:#243a5e;color:#9cc7ff}
+.count{color:var(--cyan)}
+.calpanel{padding:18px 10px 16px}
+.calhead{margin:0 6px 14px}.calhead h3{font-size:20px;font-weight:800}
+.calnav{background:var(--panel2);border:0;color:#e9e9ee;width:40px;height:40px}
+.calgrid{gap:2px}
+.calw{color:var(--muted);font-size:12px;font-weight:600}.calw:nth-child(1){color:#ff8a8a}.calw:nth-child(7){color:#8ec2ff}
+.calday{background:none;border:0;border-radius:14px;min-height:70px;padding:5px 2px 3px;gap:3px;color:var(--text)}
+.calday>span:first-child{width:26px;height:26px;margin:0 auto;display:grid;place-items:center;border-radius:50%;font-size:13px}
+.calday.sun>span:first-child{color:#ff8a8a}
+.calday.exam{border:0}
+.calday.today{border:0;color:var(--text)}
+.calday.today>span:first-child{background:var(--blue);color:#fff;font-weight:800}
+.calday.sel{background:var(--panel2);box-shadow:none}
+.cchip{border-radius:6px}
+.callegend{margin:14px 6px 4px}
+.callist{margin-top:14px}.callist h4{margin:0 6px 10px;font-size:14px}
+.ritem{background:var(--panel2);border:0;border-radius:20px;padding:15px 16px}
+.rgroup h4{color:var(--cyan);margin:0 6px 10px;font-size:14px}
+.empty{border-radius:22px;border:1.5px dashed #3a3a42}
+.authcard{background:var(--panel);border:0;border-radius:32px;padding:32px 24px}
+.authcard .logo{width:64px;height:64px;border-radius:22px;font-size:30px;background:var(--blue);color:#fff}
+.authtabs{background:var(--panel2);border-radius:999px;padding:4px}.authtabs button{border-radius:999px;padding:11px}.authtabs button.on{background:#3a3a41;color:#fff}
+.toast{background:#2d2d33;border:0;border-radius:999px;padding:12px 20px;bottom:106px}
+.offbar{border-radius:18px;border:0;background:#3a3020}
+
+/* alignment polish */
+label{margin-left:2px}
+.rgroup h4,.callist h4{margin-left:2px}
+.callegend{margin-left:2px;margin-right:2px}
+.calhead{margin-left:4px;margin-right:4px}
+[data-v=remind] .sectionhead{justify-content:flex-start}
+[data-v=remind] .sectionhead h3{display:none}
+.calday{min-height:64px}
+
+/* ===================== Theme: segmented control + White mode ===================== */
+.road{stroke:#2a4058}
+.seg{display:flex;gap:4px;background:var(--panel2);border-radius:999px;padding:4px}
+.seg button{flex:1;border:0;border-radius:999px;padding:13px 10px;background:none;color:var(--muted);font-weight:700;font-size:14px;display:flex;align-items:center;justify-content:center;gap:8px;cursor:pointer}
+.seg button svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.seg button.on{background:var(--blue);color:#fff}
+html[data-theme=light]{color-scheme:light}
+html[data-theme=light]{--bg:#f2f3f7;--panel:#ffffff;--panel2:#f0f1f5;--line:#e3e5ec;--text:#16181d;--muted:#6b7080;--blue:#2f7bf0;--cyan:#2a6fd6;--amber:#b8750a;--red:#d93a3a;--green:#1f9d66}
+html[data-theme=light] .nav{background:#fff;box-shadow:0 -6px 24px #0000000f}
+html[data-theme=light] .nav button.on svg{background:#dce9ff;color:#2f7bf0}
+html[data-theme=light] .btn.secondary{background:#eceef3;color:#2a2d36}
+html[data-theme=light] .btn.danger{background:#fde8e8;color:#d93a3a}
+html[data-theme=light] input::placeholder{color:#9a9fae}
+html[data-theme=light] .pwwrap .eye{background:#e2e5ec;color:#2a2d36}
+html[data-theme=light] .modal{background:#0007}
+html[data-theme=light] .sheet::before{background:#c9ccd6}
+html[data-theme=light] .fab{box-shadow:0 10px 24px #2f7bf055}
+html[data-theme=light] .mapscroll{background:radial-gradient(circle at 50% 100%,#cfe6f5 0,transparent 60%),#e9eef6}
+html[data-theme=light] .road{stroke:#c5d1e2}
+html[data-theme=light] .node.up circle.base{fill:#fff;stroke:#b3c2d8}
+html[data-theme=light] .node.done circle.base{fill:#d9f5e6;stroke:#35b87a}
+html[data-theme=light] .node.cur circle.base{fill:#ffe9bf;stroke:#f0a020}
+html[data-theme=light] .node circle.ring{stroke:#2f7bf0}
+html[data-theme=light] .nlabel{fill:#1b2330;stroke:#f2f6fc}
+html[data-theme=light] .ntag{fill:#2f6bc4;stroke:#f2f6fc}
+html[data-theme=light] .ndate{fill:#5b667a;stroke:#f2f6fc}
+html[data-theme=light] .node.cur .ndate{fill:#b8750a}
+html[data-theme=light] .node.done .ndate{fill:#1f8a5b}
+html[data-theme=light] .nnum{fill:#52617a!important}
+html[data-theme=light] .nicon{fill:#16181d}
+html[data-theme=light] .dcount{background:#dce9ff;color:#2a6fd6}
+html[data-theme=light] .calnav{color:var(--text)}
+html[data-theme=light] .calw:nth-child(1),html[data-theme=light] .calday.sun>span:first-child{color:#e5484d}
+html[data-theme=light] .calw:nth-child(7){color:#2f7bf0}
+html[data-theme=light] .cchip.exam{background:#ffe3b0;color:#7a4a00}
+html[data-theme=light] .cchip.exam.past{background:#cdf3de;color:#14683f}
+html[data-theme=light] .cchip.apply{background:#d7e6ff;color:#1b4f9c}
+html[data-theme=light] .cchip.admit{background:#cbf1ee;color:#12615b}
+html[data-theme=light] .sw-exam{background:#ffe3b0;border-color:#f0a020}
+html[data-theme=light] .sw-past{background:#cdf3de;border-color:#35b87a}
+html[data-theme=light] .sw-apply{background:#d7e6ff;border-color:#2f7bf0}
+html[data-theme=light] .sw-admit{background:#cbf1ee;border-color:#1fb3a3}
+html[data-theme=light] .empty{border-color:#c9ccd6}
+html[data-theme=light] .authtabs button.on{background:#fff;color:var(--text);box-shadow:0 1px 4px #0002}
+html[data-theme=light] .offbar{background:#fff3d6;color:#7a4a00}
+[data-v=account] .btnrow .btn{white-space:nowrap;padding-left:12px;padding-right:12px}
+
+/* ===== Splash / logo animation ===== */
+html.splash-on,html.splash-on body{overflow:hidden}
+#splash{position:fixed;inset:0;z-index:9999;display:grid;place-items:center;align-content:center;gap:0;background:radial-gradient(ellipse at 50% 38%,#1b3151 0,#0b1220 62%);transition:opacity .55s ease,visibility .55s ease,transform .55s ease;animation:splashFailsafe .5s 4s forwards}
+#splash.out{opacity:0;visibility:hidden;transform:scale(1.04)}
+@keyframes splashFailsafe{to{opacity:0;visibility:hidden}}
+.sp-inner{display:flex;flex-direction:column;align-items:center;text-align:center}
+.sp-logo{position:relative;width:128px;height:128px;animation:spPop .8s cubic-bezier(.2,.9,.3,1.25) both}
+.sp-logo::before{content:"";position:absolute;inset:-26px;border-radius:50%;background:radial-gradient(circle,#5b9cff55 0,#65dfd022 45%,transparent 70%);animation:spGlow 2.4s ease-in-out infinite}
+.sp-logo svg{position:relative;width:100%;height:100%;display:block;filter:drop-shadow(0 10px 28px #5b9cff55)}
+.sp-ring{stroke-dasharray:189;stroke-dashoffset:189;animation:spDraw 1s .35s ease-out forwards}
+.sp-min{transform-origin:60px 60px;animation:spSpin 1.3s .5s cubic-bezier(.5,0,.2,1) both}
+.sp-hr{transform-origin:60px 60px;animation:spSpin2 1.3s .5s cubic-bezier(.5,0,.2,1) both}
+.sp-dot{transform-origin:60px 60px;animation:spDot .5s .45s ease-out both}
+.sp-title{margin-top:30px;font-size:26px;font-weight:800;letter-spacing:.5px;color:#eef4ff;animation:spUp .7s .75s ease-out both}
+.sp-sub{margin-top:6px;font-size:12px;letter-spacing:3px;text-transform:uppercase;color:#62dfd0;animation:spUp .7s .95s ease-out both}
+.sp-bar{margin-top:30px;width:150px;height:3px;border-radius:3px;background:#ffffff1c;overflow:hidden;animation:spUp .5s 1s ease-out both}
+.sp-bar i{display:block;height:100%;width:100%;border-radius:3px;background:linear-gradient(90deg,#5b9cff,#65dfd0);transform:translateX(-100%);animation:spBar 1.1s 1s ease-in-out forwards}
+@keyframes spPop{0%{opacity:0;transform:scale(.4) rotate(-14deg)}100%{opacity:1;transform:none}}
+@keyframes spGlow{0%,100%{opacity:.55;transform:scale(.92)}50%{opacity:1;transform:scale(1.08)}}
+@keyframes spDraw{to{stroke-dashoffset:0}}
+@keyframes spSpin{from{transform:rotate(-360deg)}to{transform:rotate(0)}}
+@keyframes spSpin2{from{transform:rotate(-120deg)}to{transform:rotate(0)}}
+@keyframes spDot{from{transform:scale(0)}to{transform:scale(1)}}
+@keyframes spUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes spBar{to{transform:translateX(0)}}
+.authcard .logo.svgl{background:none;width:72px;height:72px;border-radius:0;font-size:0;margin:0 auto 14px;animation:spPop .8s .1s cubic-bezier(.2,.9,.3,1.25) both}
+.authcard .logo.svgl svg{width:100%;height:100%;display:block;filter:drop-shadow(0 6px 16px #5b9cff44)}
+.authcard{animation:spUp .6s .1s ease-out both}
+@media (prefers-reduced-motion:reduce){#splash *,#splash{animation-duration:.01s!important;animation-delay:0s!important}.authcard,.authcard .logo.svgl{animation:none}}
+.pwwrap input{padding-right:52px}
+.pwwrap .eye,html[data-theme=light] .pwwrap .eye{display:grid;place-items:center;width:38px;height:34px;padding:0;right:7px;border-radius:10px;line-height:0}
+.pwwrap .eye svg{display:block}
+.mapfilter{display:flex;justify-content:flex-end;margin-bottom:10px}
+.mapfilter select{appearance:none;-webkit-appearance:none;max-width:100%;background:var(--panel2) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%239aabc2' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat right 12px center;color:var(--text);border:1px solid var(--line);border-radius:12px;padding:9px 34px 9px 14px;font:inherit;font-size:13px;font-weight:700;cursor:pointer}
+.mapfilter select:focus{outline:2px solid var(--blue);outline-offset:1px}
+/* compact add-exam form: 2 columns, no scrolling */
+#addModal .sheet{padding-top:10px;padding-bottom:calc(16px + env(safe-area-inset-bottom,0px))}
+#addModal .sheet::before{margin-bottom:10px}
+#addModal .sectionhead{margin-bottom:6px}
+#addForm label{margin:8px 0 4px 2px;font-size:12px}
+#addForm input,#addForm select{height:42px;min-height:42px;font-size:14px;padding:0 10px;border-radius:14px}
+#addForm .btnrow{margin-top:14px}
+#addForm .btn{padding:11px 18px}
+@media(max-width:420px){#addForm .formgrid{grid-template-columns:1fr 1fr;gap:0 8px}#addForm .full{grid-column:1/-1}}
+/* calendar: clearer dots, legend and list */
+.calday{min-height:54px}
+.calday .cdots{height:auto;justify-content:center;flex-wrap:wrap;gap:3px;margin-top:3px}
+.calday .cdots .cd{width:8px;height:8px;border-radius:50%}
+.cd-exam{background:#ffc66d}.cd-exam.past{background:#75d6a3}.cd-apply{background:#67a8ff}.cd-admit{background:#62dfd0}
+.calday.exam:not(.sel){background:rgba(255,198,109,.13)}.calday.exam.past:not(.sel){background:rgba(117,214,163,.13)}
+.callegend{margin:0 6px 12px;font-size:12px;gap:8px 14px}
+.callegend .sw{width:10px;height:10px;border-radius:50%;border:0}
+.callegend .sw-exam{background:#ffc66d}.callegend .sw-past{background:#75d6a3}.callegend .sw-apply{background:#67a8ff}.callegend .sw-admit{background:#62dfd0}
+.calhint{margin:10px 6px 0;font-size:11.5px}
+.tpill{display:inline-block;font-size:10.5px;font-weight:800;padding:2px 8px;border-radius:999px;margin-right:2px}
+.tpill.t-exam{background:#ffc66d26;color:#ffc66d}.tpill.t-apply{background:#67a8ff26;color:#67a8ff}.tpill.t-admit{background:#62dfd026;color:#62dfd0}
+.ritem.cr-exam{box-shadow:inset 4px 0 0 #ffc66d}.ritem.cr-apply{box-shadow:inset 4px 0 0 #67a8ff}.ritem.cr-admit{box-shadow:inset 4px 0 0 #62dfd0}
+html[data-theme=light] .cd-exam{background:#f0a020}html[data-theme=light] .cd-exam.past{background:#35b87a}html[data-theme=light] .cd-apply{background:#2f7bf0}html[data-theme=light] .cd-admit{background:#1fb3a3}
+html[data-theme=light] .calday.exam:not(.sel){background:#fff3d6}html[data-theme=light] .calday.exam.past:not(.sel){background:#e0f6ea}
+html[data-theme=light] .callegend .sw-exam{background:#f0a020}html[data-theme=light] .callegend .sw-past{background:#35b87a}html[data-theme=light] .callegend .sw-apply{background:#2f7bf0}html[data-theme=light] .callegend .sw-admit{background:#1fb3a3}
+html[data-theme=light] .tpill.t-exam{background:#ffe3b0;color:#7a4a00}html[data-theme=light] .tpill.t-apply{background:#d7e6ff;color:#1b4f9c}html[data-theme=light] .tpill.t-admit{background:#cbf1ee;color:#12615b}
+html[data-theme=light] .ritem.cr-exam{box-shadow:inset 4px 0 0 #f0a020}html[data-theme=light] .ritem.cr-apply{box-shadow:inset 4px 0 0 #2f7bf0}html[data-theme=light] .ritem.cr-admit{box-shadow:inset 4px 0 0 #1fb3a3}
+/* map: readable cards beside nodes + nicer info card */
+.ncard{fill:var(--panel);stroke:var(--line);stroke-width:1;filter:drop-shadow(0 2px 6px rgba(0,0,0,.22))}
+.node.done .ncard{stroke:var(--green)}.node.cur .ncard{stroke:var(--amber);stroke-width:1.6}.node.sel .ncard{stroke:var(--blue);stroke-width:2}
+.node text.nname{fill:var(--text);font-size:14px;font-weight:800;text-anchor:start}
+.node text.ndate2{fill:var(--muted);font-size:12px;font-weight:600;text-anchor:start}
+.node text.ntag2{fill:var(--cyan);font-size:11.5px;font-weight:700;text-anchor:start}
+.node text.ncd{fill:var(--cyan);font-size:11.5px;font-weight:800;text-anchor:end}
+.node.cur text.ncd{fill:var(--amber)}.node.done text.ncd{fill:var(--green)}
+.mapinfo .mi-eye{color:var(--cyan);font-size:12.5px;font-weight:700;margin-bottom:3px}
+.mapinfo h4{font-size:19px;line-height:1.35;margin:0 0 10px}
+.mapinfo .mi-count{display:inline-block;background:#243a5e;color:#9cc7ff;border-radius:999px;padding:6px 14px;font-size:13px;font-weight:800;margin:0 0 12px}
+html[data-theme=light] .mapinfo .mi-count{background:#dce9ff;color:#2a6fd6}
+/* full-screen map (Main Map / My Map) */
+body.mapfull{overflow:hidden}
+body.mapfull .wrap{padding:0;max-width:none}
+body.mapfull .top,body.mapfull .mapinfo{display:none}
+body.mapfull .mappanel{position:fixed;left:0;right:0;top:0;bottom:var(--navh,84px);margin:0;padding:0;border-radius:0;background:transparent;z-index:20}
+body.mapfull .mapscroll{height:100%;max-height:none;min-height:0;border-radius:0;padding-top:66px;box-sizing:border-box}
+body.mapfull .mapscroll svg{max-width:520px}
+body.mapfull .mapfilter{position:absolute;top:calc(10px + env(safe-area-inset-top,0px));left:12px;right:12px;z-index:5;margin:0}
+body.mapfull .mapfilter select{width:100%;height:46px;background-color:var(--panel);box-shadow:0 4px 16px #0005;border-radius:16px}
+body.mapfull .offbar{position:fixed;left:12px;right:12px;top:64px;z-index:30;margin:0}
+/* exam within 7 days: red instead of yellow */
+.node.hot circle.base{fill:#7a1f24;stroke:#ff6b6b}
+.node.cur.hot circle.base{animation-name:pulseRed}
+@keyframes pulseRed{0%,100%{filter:drop-shadow(0 0 2px #ff6b6b)}50%{filter:drop-shadow(0 0 12px #ff6b6b)}}
+.node.hot .ncard{stroke:#ff6b6b;stroke-width:1.6}
+.node.hot text.ncd{fill:#ff6b6b}
+.dcount.hot{background:#4a1d21;color:#ff8a8a}
+.cd-exam.hot{background:#ff6b6b}
+.calday.exam.hot:not(.sel){background:rgba(255,107,107,.14)}
+.callegend .sw-hot{background:#ff6b6b}
+html[data-theme=light] .node.hot circle.base{fill:#ffd9d9;stroke:#e5484d}
+html[data-theme=light] .node.hot .ncard{stroke:#e5484d}
+html[data-theme=light] .node.hot text.ncd{fill:#d93a3a}
+html[data-theme=light] .dcount.hot{background:#fde1e1;color:#d93a3a}
+html[data-theme=light] .cd-exam.hot,html[data-theme=light] .callegend .sw-hot{background:#e5484d}
+html[data-theme=light] .calday.exam.hot:not(.sel){background:#fde1e1}
+/* smaller sizing */
+.node text.nname{font-size:13px}
+.node text.ndate2{font-size:11px}
+.node text.ntag2,.node text.ncd{font-size:10.5px}
+.nnum{font-size:23px!important}
+.nicon{font-size:18px}
+.road{stroke-width:11}
+body.mapfull .mapscroll{padding-top:120px}
+body.mapfull .mapscroll svg{max-width:440px}
+body.mapfull .mapfilter select{height:40px;font-size:13px;padding:0 34px 0 14px}
+.fab{width:52px;height:52px;border-radius:18px}
+.fab svg{width:24px;height:24px}
+/* compact stats strip floating over the full-screen map */
+body.mapfull .stats{position:fixed;top:calc(58px + env(safe-area-inset-top,0px));left:12px;right:12px;z-index:21;margin:0;padding:8px 2px;border-radius:16px;box-shadow:0 4px 16px #0005}
+body.mapfull .stat{gap:2px}
+body.mapfull .stat strong{font-size:17px}
+body.mapfull .stat span{font-size:10px}
+/* account page: tidy layout */
+.prof{padding:20px}
+.profrow{display:flex;align-items:center;gap:14px}
+.avatar{width:56px;height:56px;border-radius:20px;background:var(--blue);color:#fff;display:grid;place-items:center;font-size:24px;font-weight:800;flex:none}
+.profinfo{min-width:0}.profname{font-size:19px;font-weight:800;overflow-wrap:anywhere}
+.syncline{display:flex;align-items:flex-start;gap:8px;margin-top:14px;padding:10px 14px;background:var(--panel2);border-radius:16px;font-size:12px;line-height:1.6;color:var(--muted)}
+.syncdot{width:8px;height:8px;border-radius:50%;background:var(--green);flex:none;margin-top:6px}
+.themerow{padding:14px 16px}
+.setlabel{font-size:13px;font-weight:700;color:var(--muted);margin:0 4px 10px}
+.acc{padding:0;overflow:hidden}
+.acc summary{list-style:none;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:18px 20px;font-size:16px;font-weight:700;cursor:pointer}
+.acc summary::-webkit-details-marker{display:none}
+.acc summary small{display:block;font-size:12px;font-weight:500;color:var(--muted);margin-top:2px}
+.chev{width:9px;height:9px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:rotate(45deg);transition:transform .2s;margin-right:4px;flex:none}
+.acc[open] .chev{transform:rotate(-135deg)}
+.accbody{padding:0 20px 20px}
+.accbody label:first-child{margin-top:0}
+.accfoot{padding:14px}
+.acc .btnrow{margin-top:0}
+/* unified top bar + map behind the nav */
+body.mapfull .maptop{position:absolute;top:calc(10px + env(safe-area-inset-top,0px));left:12px;right:12px;z-index:5;background:color-mix(in srgb,var(--panel) 90%,transparent);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border-radius:22px;padding:8px;box-shadow:0 6px 20px #0004}
+body.mapfull .maptop .mapfilter{position:static;margin:0}
+body.mapfull .maptop .mapfilter select{height:38px;font-size:13px;box-shadow:none;background-color:var(--panel2);border:0;border-radius:14px}
+body.mapfull .maptop .stats{position:static;margin:8px 0 0;padding:0;background:none;box-shadow:none;border-radius:0}
+body.mapfull .mappanel{bottom:0}
+body.mapfull .mapscroll{padding-top:126px;padding-bottom:calc(var(--navh,84px) + 8px);scrollbar-width:none}
+body.mapfull .mapscroll::-webkit-scrollbar{display:none}
+/* header (Admission Roadmap + page title) hidden for a bigger map */
+.brand{display:none}
+.top{margin:12px 6px 14px}
+.mapscroll{max-height:calc(100vh - 280px)}
+textarea{width:100%;font:inherit;background:var(--panel2,#0c1625);border:1.5px solid transparent;color:var(--text);border-radius:16px;padding:13px 16px;outline:none;resize:vertical;min-height:96px;line-height:1.6}
+textarea:focus{border-color:var(--blue)}textarea::placeholder{color:#6f6f78}
+.notehint{font-size:11.5px;color:var(--muted);margin:6px 4px 0;min-height:14px}
+.notebox{background:var(--panel);border-radius:14px;padding:10px 12px;margin-top:8px;font-size:13px;line-height:1.55;white-space:pre-wrap;word-break:break-word}
+.notebox small{display:block;color:var(--muted);font-size:11px;margin-bottom:2px}
+/* single-line fixes */
+.drow{flex-wrap:wrap;align-items:center;row-gap:4px;column-gap:10px}
+.drow span{white-space:nowrap;flex:0 0 auto}
+.drow b{white-space:nowrap;flex:1 1 auto;min-width:0;text-align:right}
+.stat span{white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:ellipsis}
+.btn,.pill,.dcount,.mapinfo .mi-count,.mapinfo .mi-eye{white-space:nowrap}
+.dtitle,.dunit{overflow-wrap:anywhere}
+@media(max-width:360px){.drow{font-size:12.5px;padding:12px}}
+
+/* Language selector */
+#languageSeg button.on{background:var(--blue);color:#fff}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><linearGradient id="lgGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#5b9cff"/><stop offset="1" stop-color="#65dfd0"/></linearGradient></defs></svg>
+<div id="splash" role="presentation"><div class="sp-inner"><div class="sp-logo"><svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="6" y="6" width="108" height="108" rx="32" fill="url(#lgGrad)"/><circle cx="60" cy="60" r="31" fill="#0f1a2c"/><circle class="sp-ring" cx="60" cy="60" r="30" fill="none" stroke="#eafffb" stroke-opacity=".9" stroke-width="2.4" stroke-linecap="round" transform="rotate(-90 60 60)"/><g class="sp-min"><line x1="60" y1="60" x2="60" y2="38" stroke="#62dfd0" stroke-width="5" stroke-linecap="round"/></g><g class="sp-hr"><line x1="60" y1="60" x2="75" y2="69" stroke="#62dfd0" stroke-width="5" stroke-linecap="round"/></g><circle class="sp-dot" cx="60" cy="60" r="7" fill="#62dfd0"/></svg></div><div class="sp-title">Admission Roadmap</div><div class="sp-sub">University Exam Tracker</div><div class="sp-bar"><i></i></div></div></div>
+<script>document.documentElement.classList.add("splash-on")</script>
+<div class="authbox" id="auth" hidden>
+ <form class="authcard" id="authForm" autocomplete="on">
+  <div class="logo svgl"><svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="6" y="6" width="108" height="108" rx="32" fill="url(#lgGrad)"/><circle cx="60" cy="60" r="31" fill="#0f1a2c"/><circle class="" cx="60" cy="60" r="30" fill="none" stroke="#eafffb" stroke-opacity=".9" stroke-width="2.4" stroke-linecap="round" transform="rotate(-90 60 60)"/><g class=""><line x1="60" y1="60" x2="60" y2="38" stroke="#62dfd0" stroke-width="5" stroke-linecap="round"/></g><g class=""><line x1="60" y1="60" x2="75" y2="69" stroke="#62dfd0" stroke-width="5" stroke-linecap="round"/></g><circle class="" cx="60" cy="60" r="7" fill="#62dfd0"/></svg></div>
+  <h2>Admission Roadmap</h2>
+  <div class="sub" id="authSub">অ্যাকাউন্টে ঢুকতে নিচের তথ্য দাও।</div>
+  <div class="authtabs"><button type="button" id="tabLogin" class="on">Login</button><button type="button" id="tabSignup">Sign up</button></div>
+  <label for="authUser">Username</label><input id="authUser" autocomplete="username" autocapitalize="none" required>
+  <label for="authPass">Password</label><div class="pwwrap"><input id="authPass" type="password" autocomplete="current-password" required><button type="button" class="eye" data-for="authPass" aria-label="পাসওয়ার্ড দেখাও"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></button></div>
+  <div class="autherr" id="authErr"></div>
+  <button class="btn" type="submit" id="authBtn">Login</button>
+ </form>
+</div>
+<div class="wrap" id="app" hidden>
+<div class="offbar" id="offlineBar" hidden>অফলাইন আছো। তোমার সব পরিবর্তন এই ফোনে সেভ হচ্ছে।</div>
+<header class="top">
+ <div class="brand"><div class="eyebrow">Admission Roadmap</div><h1 id="viewTitle">My Map</h1></div>
+ <div class="date"><span id="today"></span><span class="userbar"><span id="who"></span></span></div>
+</header>
+<div class="panel mappanel" data-v="main mine">
+ <div class="maptop">
+ <div class="mapfilter"><select id="mapFilter" aria-label="ফিল্টার"><option value="all">সব পরীক্ষা</option><option value="exam">পরীক্ষার তারিখ</option><option value="apply">আবেদনের শেষ তারিখ</option><option value="admit">অ্যাডমিট কার্ড ডাউনলোড</option></select></div>
+ <div class="stats">
+ <div class="stat"><span>মোট</span><strong id="total">০</strong></div>
+ <div class="stat"><span>তারিখ ঠিক</span><strong id="dated">০</strong></div>
+ <div class="stat"><span>বাকি</span><strong id="upcoming">০</strong></div>
+ <div class="stat"><span>সম্পন্ন</span><strong id="completed">০</strong></div>
+</div>
+ </div>
+ <div class="mapscroll" id="mapScroll"><svg id="mapSvg" role="img" aria-label="Admission roadmap"></svg></div>
+ <div class="mapinfo" id="mapInfo"></div>
+</div>
+<div class="panel calpanel" data-v="calendar" hidden>
+ <div class="mapfilter"><select id="calFilter" aria-label="ফিল্টার"><option value="all">সব পরীক্ষা</option><option value="exam">পরীক্ষার তারিখ</option><option value="apply">আবেদনের শেষ তারিখ</option><option value="admit">অ্যাডমিট কার্ড ডাউনলোড</option></select></div>
+ <div class="calhead"><button type="button" class="calnav" id="calPrev" aria-label="আগের মাস">‹</button><h3 id="calTitle"></h3><button type="button" class="calnav" id="calNext" aria-label="পরের মাস">›</button></div>
+ <div class="callegend"><span><i class="sw sw-exam"></i>পরীক্ষা</span><span><i class="sw sw-hot"></i>৭ দিনের মধ্যে</span><span><i class="sw sw-past"></i>হয়ে গেছে</span><span><i class="sw sw-apply"></i>আবেদনের শেষ</span><span><i class="sw sw-admit"></i>অ্যাডমিট কার্ড</span></div>
+ <div class="calgrid" id="calGrid"></div>
+ <div class="muted calhint">কোনো দিনে চাপ দিলে নিচে সেই দিনের বিস্তারিত দেখাবে</div>
+ <div class="callist" id="calList"></div>
+</div>
+<div class="panel" data-v="remind" hidden>
+ <div id="remindList"></div>
+</div>
+<div class="panel prof" data-v="account" hidden>
+ <div class="profrow"><div class="avatar" id="accAvatar"></div><div class="profinfo"><div class="profname" id="accUser"></div><div class="muted" id="accCount"></div></div></div>
+ <div class="syncline"><i class="syncdot"></i><span id="syncMsg"></span></div>
+</div>
+<div class="panel themerow" data-v="account" hidden>
+ <div class="setlabel">Theme</div>
+ <div class="seg" id="themeSeg">
+  <button type="button" data-theme="dark"><svg viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg>Night</button>
+  <button type="button" data-theme="light"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.5M12 19v2.5M2.5 12H5M19 12h2.5M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M5.3 18.7l1.8-1.8M16.9 7.1l1.8-1.8"/></svg>White</button>
+ </div>
+</div>
+<div class="panel themerow" data-v="account" hidden>
+ <div class="setlabel" data-lang-label>Language / ভাষা</div>
+ <div class="seg" id="languageSeg">
+  <button type="button" data-language="bn">🇧🇩 বাংলা</button>
+  <button type="button" data-language="en">🇬🇧 English</button>
+ </div>
+</div>
+<details class="panel acc" data-v="account" hidden>
+ <summary><span>Change password</span><i class="chev"></i></summary>
+ <div class="accbody"><form id="pwForm">
+  <label for="pwOld">Current password</label><div class="pwwrap"><input id="pwOld" type="password" autocomplete="current-password" required><button type="button" class="eye" data-for="pwOld" aria-label="পাসওয়ার্ড দেখাও"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></button></div>
+  <label for="pwNew">New password</label><div class="pwwrap"><input id="pwNew" type="password" autocomplete="new-password" required><button type="button" class="eye" data-for="pwNew" aria-label="পাসওয়ার্ড দেখাও"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></button></div>
+  <div class="autherr" id="pwMsg"></div>
+  <button class="btn" type="submit">Update password</button>
+ </form></div>
+</details>
+<details class="panel acc" data-v="account" hidden>
+ <summary><span>Install app</span><i class="chev"></i></summary>
+ <div class="accbody"><div class="muted" id="installMsg" style="line-height:1.7;font-size:13px"></div>
+ <div class="btnrow"><button class="btn" id="installBtn" type="button" hidden>Install</button></div></div>
+</details>
+<details class="panel acc" data-v="account" hidden>
+ <summary><span>Data<small>Move to another device</small></span><i class="chev"></i></summary>
+ <div class="accbody"><div class="btnrow" style="margin-top:0"><button class="btn secondary" id="exportBtn" type="button">Export data</button><button class="btn secondary" id="importBtn" type="button">Import data</button><button class="btn danger" id="clearBtn" type="button">Clear all exams</button><input id="importFile" type="file" accept="application/json" hidden></div></div>
+</details>
+<div class="panel accfoot" data-v="account" hidden>
+ <a id="adminLink" class="btn" href="./admin.html" hidden style="display:block;text-align:center;text-decoration:none;margin-bottom:10px">Admin Panel</a>
+ <div class="btnrow" style="margin-top:0"><button class="btn secondary" id="logoutBtn" type="button">Logout</button><button class="btn danger" id="delAccBtn" type="button">Delete account</button></div>
+</div>
+<div class="modal" id="addModal" hidden><div class="sheet">
+ <div class="sectionhead"><h3 id="modalTitle">নতুন পরীক্ষা যোগ করো</h3><button class="btn secondary" type="button" id="modalClose" style="padding:6px 12px;font-size:12px">বন্ধ</button></div>
+<form id="addForm">
+   <div class="formgrid">
+    <div class="full"><label for="uniSel">বিশ্ববিদ্যালয়ের নাম</label><select id="uniSel" required><option value="">নির্বাচন করো</option><option value="__other">অন্যান্য (নিজে লিখো)</option></select></div>
+    <div class="full" id="uniOtherWrap" hidden><label for="uni">বিশ্ববিদ্যালয়ের নাম লেখো</label><input id="uni" maxlength="80" placeholder="যেমন: ঢাকা বিশ্ববিদ্যালয়"></div>
+    <div><label for="unitSel">Unit</label><select id="unitSel"><option value="">Select</option><option value="A Unit">A Unit</option><option value="B Unit">B Unit</option><option value="C Unit">C Unit</option><option value="D Unit">D Unit</option><option value="E Unit">E Unit</option><option value="__other">Other</option></select></div>
+    <div><label for="groupSel">বিভাগ</label><select id="groupSel"><option value="">নির্বাচন করো</option><option value="বিজ্ঞান">বিজ্ঞান</option><option value="মানবিক">মানবিক</option><option value="বাণিজ্য">বাণিজ্য</option></select></div>
+    <div class="full" id="unitOtherWrap" hidden><label for="unit">Unit name</label><input id="unit" placeholder="e.g. Arts Unit"></div>
+    <div><label for="examDate">পরীক্ষার তারিখ</label><input id="examDate" type="date"></div>
+    <div><label for="examTime">সময় (ঐচ্ছিক)</label><input id="examTime" type="time"></div>
+    <div><label for="applyEnd">আবেদনের শেষ তারিখ</label><input id="applyEnd" type="date"></div>
+    <div><label for="applyEndTime">সময় (ঐচ্ছিক)</label><input id="applyEndTime" type="time"></div>
+    <div><label for="admitDate">অ্যাডমিট কার্ড ডাউনলোড</label><input id="admitDate" type="date"></div>
+    <div><label for="admitTime">সময় (ঐচ্ছিক)</label><input id="admitTime" type="time"></div>
+        <div><label for="applyStart">আবেদন শুরুর তারিখ</label><input id="applyStart" type="date"></div>
+    <div><label for="status">বর্তমান অবস্থা</label><select id="status"><option value="পরিকল্পনায়">পরিকল্পনায়</option><option value="আবেদন চলছে">আবেদন চলছে</option><option value="আবেদন সম্পন্ন">আবেদন সম্পন্ন</option><option value="অ্যাডমিট কার্ড প্রকাশিত">অ্যাডমিট কার্ড প্রকাশিত</option><option value="পরীক্ষা সম্পন্ন">পরীক্ষা সম্পন্ন</option></select></div>
+    <div class="full"><label for="noteInput">গুরুত্বপূর্ণ নোট (ঐচ্ছিক)</label><textarea id="noteInput" maxlength="1000" placeholder="যেমন: ফি ৩০০ টাকা, কেন্দ্র মিরপুর, সঙ্গে প্রবেশপত্র ও ২ কপি ছবি আনতে হবে"></textarea></div>
+   </div>
+   <div class="notehint" id="formHint">পরিবর্তন নিজে থেকেই সেভ হয়ে যাবে</div>
+   <div class="btnrow"><button class="btn" type="submit" id="saveBtn">যোগ করো</button><button class="btn secondary" type="button" id="modalCancel">বাতিল</button></div>
+  </form>
+</div></div>
+<div class="modal" id="remModal" hidden><div class="sheet">
+ <div class="sectionhead"><h3 id="remModalTitle">নতুন রিমাইন্ডার</h3><button class="btn secondary" type="button" id="remClose" style="padding:6px 12px;font-size:12px">বন্ধ</button></div>
+ <form id="remForm">
+  <label for="remTitle">কী মনে করিয়ে দেব?</label><input id="remTitle" placeholder="যেমন: ফি জমা দেওয়া" required>
+  <label for="remDate">তারিখ</label><input id="remDate" type="date" required>
+  <label for="remTime">সময় (ঐচ্ছিক)</label><input id="remTime" type="time">
+  <label for="remNote">নোট (ঐচ্ছিক)</label><input id="remNote" placeholder="যেমন: ব্যাংকে গিয়ে জমা দিতে হবে">
+  <div class="notehint" id="remHint">পরিবর্তন নিজে থেকেই সেভ হয়ে যাবে</div>
+  <div class="btnrow"><button class="btn" type="submit" id="remSave">সেভ করো</button><button class="btn secondary" type="button" id="remCancel">বাতিল</button></div>
+ </form>
+</div></div>
+<button class="fab" id="fabAdd" data-v="mine remind calendar" type="button" aria-label="নতুন যোগ করো"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>
+<div class="modal" id="detailModal" hidden><div class="sheet">
+ <div class="sectionhead"><h3>পরীক্ষার বিস্তারিত</h3><button class="btn secondary" type="button" id="detailClose" style="padding:6px 12px;font-size:12px">বন্ধ</button></div>
+ <div id="detailBody"></div>
+</div></div>
+<div class="toast" id="toast" hidden></div>
+<nav class="nav" id="nav">
+ <button type="button" data-go="main"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/></svg>Main Map</button>
+ <button type="button" data-go="mine" class="on"><svg viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11a7 7 0 0114 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>My Map</button>
+ <button type="button" data-go="calendar"><svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>Calendar</button>
+ <button type="button" data-go="remind"><svg viewBox="0 0 24 24"><path d="M6 9a6 6 0 0112 0c0 6 2 7 2 7H4s2-1 2-7z"/><path d="M10 20a2 2 0 004 0"/></svg>Reminder<span class="badge" id="remindBadge" hidden></span></button>
+ <button type="button" data-go="account"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>Account</button>
+</nav>
+</div>
+<script src="./config.js"></script>
+<script>
+const KEY='admission-roadmap-2026-27';
+const USERS_KEY='admission-roadmap-users',SESSION_KEY='admission-roadmap-session';
+let exams=[],rems=[],currentUser=null;
+const remKey=u=>KEY+':rem:'+u;
+const userKey=u=>KEY+':'+u;
+function loadExams(){try{exams=JSON.parse(localStorage.getItem(userKey(currentUser))||'[]');exams.forEach(x=>{if(x.status)x.status=fixSt(x.status)})}catch(e){exams=[]}try{rems=JSON.parse(localStorage.getItem(remKey(currentUser))||'[]').filter(r=>r&&r.kind!=='alarm')}catch(e){rems=[]}}
+const $=id=>document.getElementById(id);
+const bnum=n=>String(n).replace(/\d/g,d=>localStorage.getItem('admission-roadmap-language')==='en'?d:'০১২৩৪৫৬৭৮৯'[d]);
+const gr=s=>{try{return Array.from(new Intl.Segmenter('bn',{granularity:'grapheme'}).segment(s),x=>x.segment)}catch(e){return Array.from(s)}};
+const clip=(s,n)=>{const g=gr(s);return g.length>n?g.slice(0,n-1).join('')+'…':s};
+function wrapLabel(s,n){
+ const words=s.trim().split(/\s+/);let l1='',l2='';
+ for(const w of words){const t=l2?null:(l1?l1+' '+w:w);
+  if(t!==null&&gr(t).length<=n)l1=t;else l2=l2?l2+' '+w:w}
+ if(!l1){const g=gr(l2);l1=g.slice(0,n).join('');l2=g.slice(n).join('')}
+ return [clip(l1,n+1),l2?clip(l2,n+1):''];
+}
+const today=new Date();today.setHours(0,0,0,0);
+$('today').textContent=new Intl.DateTimeFormat(localStorage.getItem('admission-roadmap-language')==='en'?'en-US':'bn-BD',{weekday:'long',day:'numeric',month:'long',year:'numeric'}).format(new Date());
+function save(){localStorage.setItem(userKey(currentUser),JSON.stringify(exams));markDirty();render()}
+function dateText(s){if(!s)return 'তারিখ যোগ করা হয়নি';return new Intl.DateTimeFormat(localStorage.getItem('admission-roadmap-language')==='en'?'en-US':'bn-BD',{weekday:'long',day:'numeric',month:'short',year:'numeric'}).format(new Date(s+'T00:00:00'))}
+function timeText(t){if(!t)return '';try{return new Intl.DateTimeFormat(localStorage.getItem('admission-roadmap-language')==='en'?'en-US':'bn-BD',{hour:'numeric',minute:'2-digit',hour12:true}).format(new Date('1970-01-01T'+t))}catch(e){return t}}
+const TF={examDate:'examTime',applyEnd:'applyEndTime',admitDate:'admitTime'};
+const dtText=(x,f)=>dateText(x[f])+(x[f]&&x[TF[f]]?'  •  '+timeText(x[TF[f]]):'');
+function daysLeft(s){if(!s)return null;return Math.ceil((new Date(s+'T00:00:00')-today)/86400000)}
+/* ---------- Game-style Level Map ---------- */
+const OLD_ST={'Admit Card প্রকাশিত':'অ্যাডমিট কার্ড প্রকাশিত'};const fixSt=v=>{v=(v||'').normalize('NFC');return OLD_ST[v]||v};
+const STARS={'পরিকল্পনায়':0,'আবেদন চলছে':0,'আবেদন সম্পন্ন':1,'অ্যাডমিট কার্ড প্রকাশিত':2,'পরীক্ষা সম্পন্ন':3};
+let selectedId=null,mapMode='mine';
+const byDate=(a,b)=>(a.examDate||'9999').localeCompare(b.examDate||'9999');
+function allExams(){
+ const g={};
+ ((CLOUD&&commRows)?[commRows]:Object.keys(getUsers()).map(u=>{let a=[];try{a=JSON.parse(localStorage.getItem(userKey(u))||'[]')}catch(e){}return a})).forEach(a=>{
+  a.forEach(x=>{if(!x||!x.uni||String(x.uni).length>100)return;const k=[x.uni,x.unit||'',x.group||'',x.examDate||''].map(v=>String(v).trim().toLowerCase()).join('|');
+   const m=g[k]||(g[k]={id:k,uni:x.uni,unit:x.unit||'',group:x.group||'',examDate:x.examDate||'',examTime:x.examTime||'',applyEnd:'',applyEndTime:'',admitDate:'',admitTime:'',status:'',count:0});
+   m.count++;if(!m.applyEnd&&x.applyEnd){m.applyEnd=x.applyEnd;m.applyEndTime=x.applyEndTime||''}if(!m.admitDate&&x.admitDate){m.admitDate=x.admitDate;m.admitTime=x.admitTime||''}})});
+ return Object.values(g).sort(byDate);
+}
+let mapFilter='all';const FILT={exam:'examDate',apply:'applyEnd',admit:'admitDate'},FNAME={examDate:'পরীক্ষা',applyEnd:'আবেদনের শেষ তারিখ',admitDate:'অ্যাডমিট কার্ড ডাউনলোড'};const FF=()=>FILT[mapFilter]||'examDate';
+function sortedExams(){const base=mapMode==='all'?allExams():[...exams].sort(byDate);if(mapFilter==='all')return base;const f=FF();return base.filter(x=>x[f]).sort((a,b)=>String(a[f]).localeCompare(String(b[f])))}
+const isDone=x=>mapFilter!=='all'?!!(x[FF()]&&daysLeft(x[FF()])<0):(mapMode==='all'?!!(x.examDate&&daysLeft(x.examDate)<0):x.status==='পরীক্ষা সম্পন্ন');
+function setFilter(v){mapFilter=v;$('mapFilter').value=v;$('calFilter').value=v;selectedId=null;calSel=null;renderMap()}
+$('mapFilter').onchange=e=>setFilter(e.target.value);$('calFilter').onchange=e=>setFilter(e.target.value);
+function setMapMode(m){
+ mapMode=m;selectedId=null;
+ renderMap();
+}
+let view='mine';
+function showView(v){
+ view=v;
+ document.body.classList.toggle('mapfull',v==='main'||v==='mine');document.documentElement.style.setProperty('--navh',$('nav').offsetHeight+'px');
+ document.querySelectorAll('[data-v]').forEach(e=>e.hidden=!e.dataset.v.split(' ').includes(v));
+ document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('on',b.dataset.go===v));
+ if(v==='main'){setMapMode('all');fetchCommunity()}else if(v==='mine'||v==='calendar')setMapMode('mine');
+ window.scrollTo(0,0);
+ const TT={main:'Main Map',mine:'My Map',calendar:'Calendar',remind:'Reminder',account:'Account'};$('viewTitle').textContent=TT[v]||'';
+}
+document.querySelectorAll('#nav button').forEach(b=>b.onclick=()=>showView(b.dataset.go));
+function renderReminders(){
+ const ev=[];
+ exams.forEach(x=>{const si=STARS[x.status]||0;
+  if(x.applyStart&&x.status==='পরিকল্পনায়')ev.push({d:x.applyStart,t:'আবেদন শুরু',x});
+  if(x.applyEnd&&si<1)ev.push({d:x.applyEnd,tm:x.applyEndTime,t:'আবেদনের শেষ তারিখ',x});
+  if(x.admitDate&&si<2)ev.push({d:x.admitDate,tm:x.admitTime,t:'অ্যাডমিট কার্ড ডাউনলোড',x});
+  if(x.examDate&&si<3)ev.push({d:x.examDate,tm:x.examTime,t:'ভর্তি পরীক্ষা',x});
+ });
+ rems.forEach(r=>{if(r.kind!=='alarm'&&r.date)ev.push({d:r.date,tm:r.time,custom:true,r})});
+ ev.sort((a,b)=>a.d.localeCompare(b.d)||(a.tm||'').localeCompare(b.tm||''));
+ const groups=[['আজ',e=>daysLeft(e.d)===0],['আগামী ৭ দিন',e=>{const k=daysLeft(e.d);return k>=1&&k<=7}],['এর পরে',e=>daysLeft(e.d)>7],['সময় পার হয়ে গেছে (অবস্থা আপডেট করো)',e=>daysLeft(e.d)<0]];
+ const box=$('remindList');box.innerHTML='';
+ groups.forEach(([title,f])=>{
+  const items=ev.filter(f);if(!items.length)return;
+  const g=document.createElement('div');g.className='rgroup';const h=document.createElement('h4');h.textContent=title;g.append(h);
+  items.forEach(e=>{
+   const k=daysLeft(e.d),r=document.createElement('div');r.className='ritem';
+   const l=document.createElement('div'),b=document.createElement('b');b.textContent=e.custom?e.r.title:e.t+': '+e.x.uni;
+   const m=document.createElement('div');m.className='muted';m.textContent=dateText(e.d)+(e.tm?'  •  '+timeText(e.tm):'')+(e.custom?(e.r.note?'  •  '+e.r.note:''):(tagText(e.x)?'  •  '+tagText(e.x):''));l.append(b,m);
+   if(e.custom){const ac=document.createElement('div');ac.className='ractions';
+    const eb=document.createElement('button');eb.type='button';eb.textContent='Edit';eb.onclick=()=>openRem(e.r.id);
+    const db=document.createElement('button');db.type='button';db.textContent='মুছো';db.onclick=()=>{if(confirm('এই রিমাইন্ডারটি মুছে ফেলবে?')){rems=rems.filter(a=>a.id!==e.r.id);saveRems()}};
+    ac.append(eb,db);l.append(ac)}
+   const dd=document.createElement('div');dd.className='rdays'+(k<0?' late':k<=3?' hot':'');dd.textContent=k===0?'আজ':k>0?`${bnum(k)} দিন বাকি`:`${bnum(Math.abs(k))} দিন আগে`;
+   r.append(l,dd);g.append(r);
+  });box.append(g);
+ });
+ if(!box.children.length)box.innerHTML='<div class="empty">কোনো রিমাইন্ডার নেই।<br>নিচের ডানের + বাটন চেপে নিজের রিমাইন্ডার যোগ করো, অথবা পরীক্ষার তারিখ দিলে এখানে নিজে থেকেই আসবে।</div>';
+ const hot=ev.filter(e=>{const k=daysLeft(e.d);return k>=0&&k<=3}).length,bd=$('remindBadge');bd.hidden=!hot;bd.textContent=hot;
+}
+function renderAccount(){checkAdmin();$('accUser').textContent=currentUser||'';$('accAvatar').textContent=(currentUser||'?').charAt(0).toUpperCase();$('accCount').textContent=`মোট ${bnum(exams.length)}টি পরীক্ষা যোগ করা আছে`}
+
+const exKey=x=>[x.uni,x.unit||'',x.group||'',x.examDate||''].map(v=>String(v).trim().toLowerCase()).join('|');
+const inMine=x=>exams.some(e=>exKey(e)===exKey(x));
+function addToMine(x){
+ if(inMine(x)){showToast('এটি আগে থেকেই My Map-এ আছে');return}
+ exams.push({id:Date.now().toString(),uni:x.uni,unit:x.unit||'',group:x.group||'',examDate:x.examDate||'',examTime:x.examTime||'',applyStart:'',applyEnd:x.applyEnd||'',applyEndTime:x.applyEndTime||'',admitDate:x.admitDate||'',admitTime:x.admitTime||'',status:'পরিকল্পনায়'});
+ save();showToast('My Map-এ যোগ হয়েছে');
+}
+function mineBtn(x,full){
+ const b=document.createElement('button');b.type='button';b.className='btn'+(inMine(x)?' secondary':'');
+ b.style.cssText='padding:8px 14px;font-size:13px'+(full?';width:100%':'');
+ b.textContent=inMine(x)?'My Map-এ আছে':'My Map-এ যোগ করো';b.disabled=inMine(x);if(b.disabled)b.style.opacity='.7';
+ b.onclick=()=>addToMine(x);return b;
+}
+function renderMap(keepScroll){
+ const NS='http://www.w3.org/2000/svg',svg=$('mapSvg'),box=$('mapScroll'),prev=box.scrollTop;
+ const list=sortedExams(),n=list.length,GAP=130,W=340,H=(n+2)*GAP;
+ const cur=list.find(x=>!isDone(x));
+ const bn=v=>v.toLocaleString(localStorage.getItem('admission-roadmap-language')==='en'?'en-US':'bn-BD'),ff=FF();
+ const hot=x=>{if(isDone(x)||!x[ff])return false;const d=daysLeft(x[ff]);return d>=0&&d<=7};
+ const cdt=x=>{if(!x[ff])return '';const d=daysLeft(x[ff]);return d>0?bn(d)+' দিন বাকি':d===0?'আজ':bn(Math.abs(d))+' দিন আগে'};
+ $('total').textContent=bn(n);$('dated').textContent=bn(list.filter(x=>x[ff]).length);
+ $('upcoming').textContent=bn(list.filter(x=>x[ff]&&daysLeft(x[ff])>=0&&!isDone(x)).length);
+ $('completed').textContent=bn(list.filter(isDone).length);
+ if(!list.find(x=>x.id===selectedId))selectedId=cur?cur.id:(list[n-1]?list[n-1].id:null);
+ svg.setAttribute('viewBox',`0 0 ${W} ${H}`);svg.innerHTML='';
+ const el=(t,a,txt)=>{const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);if(txt!==undefined)e.textContent=txt;return e};
+ const XS=[30,310];
+ const pts=[];for(let i=0;i<n+2;i++)pts.push({x:XS[i%2],y:H-GAP/2-i*GAP});
+ for(let i=0;i<n+1;i++){
+  const a=pts[i],b=pts[i+1],m=(a.y+b.y)/2,d=`M${a.x} ${a.y} C${a.x} ${m},${b.x} ${m},${b.x} ${b.y}`;
+  svg.append(el('path',{d,fill:'none',class:'road','stroke-width':14,'stroke-linecap':'round'}));
+  const reached=i===0||isDone(list[i-1]);
+  if(reached)svg.append(el('path',{d,fill:'none',stroke:'#62dfd0','stroke-width':5,'stroke-linecap':'round','stroke-dasharray':'2 12'}));
+ }
+ const mk=(p,cls,icon,label,stars,onclick,sub,sub2,cd)=>{
+  const g=el('g',{class:'node '+cls,transform:`translate(${p.x} ${p.y})`});
+  g.append(el('circle',{class:'ring',r:30}),el('circle',{class:'base',r:24}));
+  if(icon==='__start_icon__'){
+   const flag=el('g',{transform:'translate(-12 -12)',fill:'none',stroke:'currentColor','stroke-width':2,'stroke-linecap':'round','stroke-linejoin':'round'});
+   flag.append(el('path',{d:'M5 21V4'}),el('path',{d:'M5 4c5-3 9 3 14 0v10c-5 3-9-3-14 0'}));
+   g.append(flag);
+  }else{
+   g.append(el('text',{class:(!isNaN(icon)||/^[০-৯]+$/.test(icon))?'nnum':'nicon'},icon));
+  }
+  const right=p.x<W/2;
+  if(!sub){
+   const pw=72,ph=26,px=right?31:-31-pw;
+   g.append(el('rect',{class:'ncard',x:px,y:-ph/2,width:pw,height:ph,rx:13}),el('text',{class:'nname',x:px+12,y:4.5},label));
+  }else{
+   const CW=186,cx=right?31:-31-CW,ls=wrapLabel(label,19),nl=ls[1]?2:1,hasTag=!!(sub2||cd),h=22+(nl-1)*16+18+(hasTag?16:0)+10,top=-h/2,by=top+22+(nl-1)*16;
+   g.append(el('rect',{class:'ncard',x:cx,y:top,width:CW,height:h,rx:14}));
+   ls.filter(Boolean).forEach((t,k)=>g.append(el('text',{class:'nname',x:cx+11,y:top+22+k*16},t)));
+   g.append(el('text',{class:'ndate2',x:cx+11,y:by+18},sub));
+   if(sub2)g.append(el('text',{class:'ntag2',x:cx+11,y:by+34},clip(sub2,14)));
+   if(cd)g.append(el('text',{class:'ncd',x:cx+CW-11,y:by+34},cd));
+  }
+  if(onclick)g.addEventListener('click',onclick);svg.append(g);return g;
+ };
+ mk(pts[0],'done','__start_icon__','শুরু',null);
+ list.forEach((x,i)=>{
+  const st=isDone(x)?'done':(cur&&cur.id===x.id?'cur':'up');
+  mk(pts[i+1],st+(hot(x)?' hot':'')+(x.id===selectedId?' sel':''),st==='done'?'✓':bnum(i+1),x.uni,mapMode==='all'?null:(STARS[x.status]||0),()=>{selectedId=x.id;renderMap(true);openDetail(x.id)},x[ff]?dateText(x[ff]):'তারিখ অপেক্ষমাণ',tagText(x),cdt(x));
+ });
+ mk(pts[n+1],list.length&&!cur?'done':'up','★','লক্ষ্য',null);
+ const info=$('mapInfo');info.innerHTML='';
+ const x=list.find(a=>a.id===selectedId);
+ if(!x){info.textContent=mapFilter!=='all'?'এই ফিল্টারে দেখানোর মতো কোনো তারিখ যোগ করা নেই।':mapMode==='all'?'এখনো কেউ কোনো পরীক্ষা যোগ করেনি।':'এখনো কোনো পরীক্ষা নেই। নিচের ডানের + বাটন চেপে প্রথম পরীক্ষা যোগ করো।'}
+ else{
+  const d=daysLeft(x[ff]),h=document.createElement('h4'),m=document.createElement('div'),c=document.createElement('div');
+  h.textContent=x.uni;m.className='mi-eye';m.textContent=`পরীক্ষা ${bnum(list.indexOf(x)+1)}`+(tagText(x)?'  •  '+tagText(x):'');
+  
+  c.className='count mi-count';c.textContent=ff==='examDate'?(x.examDate?(d>0?`আর ${bnum(d)} দিন বাকি`:d===0?'আজ পরীক্ষা!':`${bnum(Math.abs(d))} দিন আগে হয়ে গেছে`):'পরীক্ষার তারিখ অপেক্ষমাণ'):`${FNAME[ff]}: `+(d>0?`আর ${bnum(d)} দিন বাকি`:d===0?'আজই':`${bnum(Math.abs(d))} দিন আগে পার হয়েছে`);
+  const rw=document.createElement('div');rw.className='drows';
+  (mapMode==='all'?[['যোগ করেছে',bnum(x.count)+' জন']]:[['অবস্থা',x.status||'—']]).concat(x.group?[['বিভাগ',x.group]]:[]).concat([['পরীক্ষা',dtText(x,'examDate')],['আবেদন শেষ',dtText(x,'applyEnd')],['অ্যাডমিট কার্ড',dtText(x,'admitDate')]]).forEach(([k,v])=>{const r=document.createElement('div');r.className='drow';const a=document.createElement('span'),b=document.createElement('b');a.textContent=k;b.textContent=v;r.append(a,b);rw.append(r)});
+  info.append(m,h,c,rw);
+  if(mapMode==='mine'&&x.note){const nb=document.createElement('div');nb.className='notebox';const sm=document.createElement('small');sm.textContent='নোট';nb.append(sm,document.createTextNode(x.note));info.append(nb)}
+  if(mapMode==='all'){const r0=document.createElement('div');r0.className='btnrow';r0.style.marginTop='10px';r0.append(mineBtn(x));info.append(r0)}
+  if(mapMode==='mine'){
+   const row=document.createElement('div');row.className='btnrow';row.style.marginTop='10px';
+   const mk2=(t,cls,fn)=>{const b=document.createElement('button');b.type='button';b.className='btn '+cls;b.style.cssText='padding:8px 12px;font-size:12px';b.textContent=t;b.onclick=fn;return b};
+   row.append(
+    mk2('Edit','secondary',()=>openForm(x.id)),
+    mk2(x.status==='পরীক্ষা সম্পন্ন'?'আবার চালু করো':'পরীক্ষা সম্পন্ন','secondary',()=>{const z=exams.find(a=>a.id===x.id);z.status=z.status==='পরীক্ষা সম্পন্ন'?'আবেদন সম্পন্ন':'পরীক্ষা সম্পন্ন';save()}),
+    mk2('Delete','danger',()=>{if(confirm('এই পরীক্ষাটি মুছে ফেলবে?')){exams=exams.filter(a=>a.id!==x.id);save()}}));
+   info.append(row);
+  }
+ }
+ renderCalendar();
+ if(keepScroll)box.scrollTop=prev;
+ else{const i=cur?list.indexOf(cur)+1:n+1;box.scrollTop=Math.max(0,pts[i].y*(svg.clientWidth/W)+parseFloat(getComputedStyle(box).paddingTop)-(parseFloat(getComputedStyle(box).paddingTop)+box.clientHeight-parseFloat(getComputedStyle(box).paddingBottom))/2)}
+}
+let calY=today.getFullYear(),calM=today.getMonth(),calSel=null;
+const p2=n=>String(n).padStart(2,'0');
+const CAL_T={exam:'পরীক্ষা',apply:'আবেদনের শেষ দিন',admit:'অ্যাডমিট কার্ড ডাউনলোড'};
+function calEvents(){const ev={};exams.forEach(x=>{[['examDate','exam'],['applyEnd','apply'],['admitDate','admit']].forEach(([f,t])=>{if(x[f]&&(mapFilter==='all'||mapFilter===t))(ev[x[f]]=ev[x[f]]||[]).push({t,x})})});return ev}
+function renderCalendar(){
+ const grid=$('calGrid');if(!grid)return;
+ const ev=calEvents(),first=new Date(calY,calM,1),dim=new Date(calY,calM+1,0).getDate(),lead=first.getDay();
+ $('calTitle').textContent=new Intl.DateTimeFormat(localStorage.getItem('admission-roadmap-language')==='en'?'en-US':'bn-BD',{month:'long',year:'numeric'}).format(first);
+ grid.innerHTML='';
+ (localStorage.getItem('admission-roadmap-language')==='en'?['Sun','Mon','Tue','Wed','Thu','Fri','Sat']:['রবি','সোম','মঙ্গল','বুধ','বৃহ','শুক্র','শনি']).forEach(w=>{const e=document.createElement('div');e.className='calw';e.textContent=w;grid.append(e)});
+ for(let i=0;i<lead;i++){const e=document.createElement('div');e.className='calday empty';grid.append(e)}
+ for(let d=1;d<=dim;d++){
+  const key=`${calY}-${p2(calM+1)}-${p2(d)}`,items=ev[key]||[],isExam=items.some(i=>i.t==='exam');
+  const b=document.createElement('button');b.type='button';
+  b.className='calday'+(isExam?' exam':'')+(isExam&&daysLeft(key)<0?' past':'')+(isExam&&daysLeft(key)>=0&&daysLeft(key)<=7?' hot':'')+(daysLeft(key)===0?' today':'')+(calSel===key?' sel':'')+(((lead+d-1)%7)===0?' sun':'');
+  const n=document.createElement('span');n.textContent=bnum(d);b.append(n);
+  const ord={exam:0,apply:1,admit:2};
+  if(items.length){const dw=document.createElement('span');dw.className='cdots';
+   items.slice().sort((a,c)=>ord[a.t]-ord[c.t]).slice(0,4).forEach(i=>{const dt=document.createElement('i');dt.className='cd cd-'+i.t+(i.t==='exam'&&daysLeft(key)<0?' past':'')+(i.t==='exam'&&daysLeft(key)>=0&&daysLeft(key)<=7?' hot':'');dw.append(dt)});
+   if(items.length>4){const m=document.createElement('span');m.className='cmore';m.textContent='+'+bnum(items.length-4);dw.append(m)}
+   b.append(dw)}
+  b.onclick=()=>{calSel=calSel===key?null:key;renderCalendar()};
+  grid.append(b);
+ }
+ const list=$('calList');list.innerHTML='';
+ const mk=`${calY}-${p2(calM+1)}-`;
+ let rows=[];
+ Object.keys(ev).sort().forEach(k=>{if(calSel?k===calSel:k.startsWith(mk))ev[k].forEach(i=>rows.push({k,...i}))});
+ const h=document.createElement('h4');
+ if(calSel)h.textContent=dateText(calSel);
+ else{const c=rows.filter(r=>r.t==='exam').length,fl=mapFilter!=='all',n2=fl?rows.length:c,nm=fl?CAL_T[mapFilter]:'পরীক্ষা';h.textContent=n2?`এই মাসে ${bnum(n2)}টি ${nm} আছে`:`এই মাসে কোনো ${nm} নেই`}
+ list.append(h);
+ if(calSel&&!rows.length){const e=document.createElement('div');e.className='empty';e.textContent='এই দিনে কোনো পরীক্ষা নেই';list.append(e)}
+ rows.forEach(r=>{
+  const it=document.createElement('div');it.className='ritem cr-'+r.t;
+  const l=document.createElement('div'),b=document.createElement('b'),m=document.createElement('div');m.className='muted';
+  b.textContent=r.x.uni;const pl=document.createElement('span');pl.className='tpill t-'+r.t;pl.textContent=CAL_T[r.t];m.append(pl,' '+[timeText(r.x[({exam:'examTime',apply:'applyEndTime',admit:'admitTime'})[r.t]]),tagText(r.x)].filter(Boolean).join('  •  '));
+  l.append(b,m);
+  if(!calSel){const m2=document.createElement('div');m2.className='muted';m2.textContent=dateText(r.k);l.append(m2)}
+  const dd=document.createElement('div'),k=daysLeft(r.k);dd.className='rdays'+(k<0?' late':k<=3?' hot':'');
+  dd.textContent=k===0?'আজ':k>0?`${bnum(k)} দিন বাকি`:`${bnum(Math.abs(k))} দিন আগে`;
+  it.append(l,dd);it.onclick=()=>{selectedId=r.x.id;renderMap(true);openDetail(r.x.id)};list.append(it);
+ });
+}
+function calMove(n){calM+=n;if(calM<0){calM=11;calY--}if(calM>11){calM=0;calY++}calSel=null;renderCalendar()}
+$('calPrev').onclick=()=>calMove(-1);$('calNext').onclick=()=>calMove(1);
+function setTheme(t){
+ t=t==='light'?'light':'dark';
+ document.documentElement.setAttribute('data-theme',t);
+ try{localStorage.setItem('admission-roadmap-theme',t)}catch(e){}
+ const m=document.querySelector('meta[name=theme-color]');if(m)m.setAttribute('content',t==='light'?'#f2f3f7':'#0b0b0d');
+ document.querySelectorAll('#themeSeg button').forEach(b=>b.classList.toggle('on',b.dataset.theme===t));
+}
+document.querySelectorAll('#themeSeg button').forEach(b=>b.onclick=()=>setTheme(b.dataset.theme));
+setTheme(document.documentElement.getAttribute('data-theme')==='light'?'light':'dark');
+function render(){
+ renderMap();renderReminders();renderAccount();
+ if(!$('detailModal').hidden)fillDetail();
+}
+const UNI_LIST=['ঢাকা বিশ্ববিদ্যালয়','রাজশাহী বিশ্ববিদ্যালয়','চট্টগ্রাম বিশ্ববিদ্যালয়','জাহাঙ্গীরনগর বিশ্ববিদ্যালয়','জগন্নাথ বিশ্ববিদ্যালয়','ইসলামী বিশ্ববিদ্যালয়','খুলনা বিশ্ববিদ্যালয়','বরিশাল বিশ্ববিদ্যালয়','কুমিল্লা বিশ্ববিদ্যালয়','বেগম রোকেয়া বিশ্ববিদ্যালয়','শাহজালাল বিজ্ঞান ও প্রযুক্তি বিশ্ববিদ্যালয়','বাংলাদেশ কৃষি বিশ্ববিদ্যালয়','বুয়েট','জাতীয় বিশ্ববিদ্যালয়','গুচ্ছ ভর্তি পরীক্ষা (GST)'];
+UNI_LIST.forEach(n=>$('uniSel').add(new Option(n,n)));
+function syncUniOther(){$('uniOtherWrap').hidden=$('uniSel').value!=='__other';if(!$('uniOtherWrap').hidden)setTimeout(()=>$('uni').focus(),30)}
+function setUniFields(n){n=(n||'').trim();if(!n){$('uniSel').value='';$('uni').value=''}else if(UNI_LIST.includes(n)){$('uniSel').value=n;$('uni').value=''}else{$('uniSel').value='__other';$('uni').value=n}$('uniOtherWrap').hidden=$('uniSel').value!=='__other'}
+function getUni(){const v=$('uniSel').value;return v==='__other'?$('uni').value.trim():v}
+$('uniSel').addEventListener('change',syncUniOther);
+const UNIT_PRESETS=['A Unit','B Unit','C Unit','D Unit','E Unit'];
+const tagText=x=>[x.unit,x.group].filter(Boolean).join(' • ');
+function syncUnitOther(){$('unitOtherWrap').hidden=$('unitSel').value!=='__other';if(!$('unitOtherWrap').hidden)setTimeout(()=>$('unit').focus(),30)}
+function setUnitFields(u,g){
+ u=(u||'').trim();$('groupSel').value=g||'';
+ if(!u){$('unitSel').value='';$('unit').value=''}
+ else if(UNIT_PRESETS.includes(u)){$('unitSel').value=u;$('unit').value=''}
+ else{$('unitSel').value='__other';$('unit').value=u}
+ $('unitOtherWrap').hidden=$('unitSel').value!=='__other';
+}
+function getUnit(){const v=$('unitSel').value;return v==='__other'?$('unit').value.trim():v}
+$('unitSel').addEventListener('change',syncUnitOther);
+let detailId=null;
+function openDetail(id){detailId=id;fillDetail();if(detailId)$('detailModal').hidden=false}
+let noteChanged=false;
+function closeDetail(){const t=document.getElementById('detailNote');if(t&&t._t){clearTimeout(t._t);t._t=null;const z=exams.find(a=>a.id===detailId);if(z&&(z.note||'')!==t.value.trim()){z.note=t.value.trim();try{localStorage.setItem(userKey(currentUser),JSON.stringify(exams))}catch(e){}markDirty();noteChanged=true}}$('detailModal').hidden=true;detailId=null;if(noteChanged){noteChanged=false;render()}}
+function fillDetail(){
+ const x=sortedExams().find(a=>a.id===detailId),box=$('detailBody');
+ if(!x){closeDetail();return}
+ const mine=mapMode==='mine',d=daysLeft(x.examDate);
+ box.innerHTML='';
+ const h=document.createElement('h3');h.className='dtitle';h.textContent=x.uni;box.append(h);
+ if(tagText(x)){const u=document.createElement('div');u.className='dunit';u.textContent=tagText(x);box.append(u)}
+ const c=document.createElement('div');c.className='dcount';if(x.examDate&&d>=0&&d<=7)c.classList.add('hot');
+ c.textContent=x.examDate?(d>0?`আর ${bnum(d)} দিন বাকি`:d===0?'আজ পরীক্ষা!':`${bnum(Math.abs(d))} দিন আগে হয়ে গেছে`):'পরীক্ষার তারিখ অপেক্ষমাণ';box.append(c);
+ const rows=document.createElement('div');rows.className='drows';
+ const add=(k,v)=>{const r=document.createElement('div');r.className='drow';const a=document.createElement('span'),b=document.createElement('b');a.textContent=k;b.textContent=v;r.append(a,b);rows.append(r)};
+ if(mine)add('বর্তমান অবস্থা',x.status||'—');else add('যোগ করেছে',`${bnum(x.count)} জন`);
+ add('পরীক্ষার তারিখ',dtText(x,'examDate'));
+ if(mine)add('আবেদন শুরু',dateText(x.applyStart));
+ add('আবেদন শেষ',dtText(x,'applyEnd'));
+ add('অ্যাডমিট কার্ড',dtText(x,'admitDate'));
+ box.append(rows);
+ if(mine){
+  const l=document.createElement('label');l.textContent='অবস্থা আপডেট করো';l.htmlFor='detailStatus';
+  const sel=document.createElement('select');sel.id='detailStatus';
+  Array.from($('status').options).forEach(o=>{const op=document.createElement('option');op.value=o.value;op.textContent=o.value;sel.append(op)});
+  const cur=Array.from(sel.options).find(o=>o.value.normalize('NFC')===(x.status||'').normalize('NFC'));if(cur)sel.value=cur.value;
+  sel.onchange=()=>{const z=exams.find(a=>a.id===x.id);if(z){z.status=sel.value;save();showToast('অবস্থা আপডেট হয়েছে')}};
+  box.append(l,sel);
+  const nl=document.createElement('label');nl.textContent='গুরুত্বপূর্ণ নোট';nl.htmlFor='detailNote';
+  const ta=document.createElement('textarea');ta.id='detailNote';ta.maxLength=1000;ta.value=x.note||'';ta.placeholder='এখানে ফি, কেন্দ্র, কী কী আনতে হবে — যা মনে রাখা দরকার লিখে রাখো';
+  const hint=document.createElement('div');hint.className='notehint';
+  ta.oninput=()=>{hint.textContent='লিখছ…';clearTimeout(ta._t);ta._t=setTimeout(()=>{const z=exams.find(a=>a.id===x.id);if(!z)return;z.note=ta.value.trim();try{localStorage.setItem(userKey(currentUser),JSON.stringify(exams))}catch(e){}markDirty();noteChanged=true;hint.textContent='নোট সেভ হয়েছে'},500)};
+  box.append(nl,ta,hint);
+  const row=document.createElement('div');row.className='btnrow';
+  const eb=document.createElement('button');eb.type='button';eb.className='btn';eb.textContent='সব তথ্য আপডেট করো';
+  eb.onclick=()=>{const id=x.id;closeDetail();openForm(id)};
+  const db=document.createElement('button');db.type='button';db.className='btn danger';db.textContent='Delete';db.onclick=()=>{if(confirm('এই পরীক্ষাটি মুছে ফেলবে?')){exams=exams.filter(a=>a.id!==x.id);closeDetail();save()}};
+  row.append(eb,db);box.append(row);
+ }else{const r0=document.createElement('div');r0.className='btnrow';r0.append(mineBtn(x,true));box.append(r0)}
+}
+function showToast(m){const t=$('toast');t.textContent=m;t.hidden=false;clearTimeout(showToast.t);showToast.t=setTimeout(()=>t.hidden=true,1800)}
+$('detailClose').onclick=closeDetail;
+$('detailModal').addEventListener('click',e=>{if(e.target.id==='detailModal')closeDetail()});
+let editingId=null;
+function openForm(id){
+ editingId=id||null;const x=id?exams.find(a=>a.id===id):null;$('addForm').reset();
+ if(x){$('examDate').value=x.examDate||'';$('applyStart').value=x.applyStart||'';$('applyEnd').value=x.applyEnd||'';$('admitDate').value=x.admitDate||'';$('examTime').value=x.examTime||'';$('applyEndTime').value=x.applyEndTime||'';$('admitTime').value=x.admitTime||'';$('status').value=x.status;$('noteInput').value=x.note||''}
+ setUnitFields(x?x.unit:'',x?x.group:'');setUniFields(x?x.uni:'');
+ $('modalTitle').textContent=x?'পরীক্ষা এডিট করো':'নতুন পরীক্ষা যোগ করো';$('saveBtn').textContent=x?'সেভ করো':'যোগ করো';
+ $('addModal').hidden=false;
+}
+function formVals(){return{uni:getUni(),unit:getUnit(),group:$('groupSel').value,examDate:$('examDate').value,applyStart:$('applyStart').value,applyEnd:$('applyEnd').value,admitDate:$('admitDate').value,examTime:$('examTime').value,applyEndTime:$('applyEndTime').value,admitTime:$('admitTime').value,status:$('status').value,note:$('noteInput').value.trim()}}
+let formT=null;
+function applyForm(){
+ formT=null;const v=formVals();if(!v.uni)return false;
+ if(editingId){const z=exams.find(a=>a.id===editingId);if(z)Object.assign(z,v);else{exams.push({id:editingId,...v})}}
+ else{const id=Date.now().toString();exams.push({id,...v});editingId=id;$('modalTitle').textContent='পরীক্ষা এডিট করো'}
+ save();$('formHint').textContent='নিজে থেকেই সেভ হয়েছে';return true;
+}
+function closeForm(){if(formT){clearTimeout(formT);applyForm()}$('addModal').hidden=true;editingId=null}
+['input','change'].forEach(ev=>$('addForm').addEventListener(ev,()=>{clearTimeout(formT);$('formHint').textContent='লিখছ…';formT=setTimeout(applyForm,600)}));
+$('fabAdd').onclick=()=>view==='remind'?openRem():openForm();$('modalClose').onclick=closeForm;$('modalCancel').onclick=closeForm;
+$('addModal').addEventListener('click',e=>{if(e.target.id==='addModal')closeForm()});
+$('addForm').addEventListener('submit',e=>{
+ e.preventDefault();clearTimeout(formT);formT=null;
+ if(!getUni()){showToast('বিশ্ববিদ্যালয়ের নাম দাও');return}
+ applyForm();selectedId=editingId;closeForm();save();
+});
+let editingRem=null;
+function saveRems(){localStorage.setItem(remKey(currentUser),JSON.stringify(rems));markDirty();renderReminders()}
+function openRem(id){
+ editingRem=id||null;const r=id?rems.find(a=>a.id===id):null;$('remForm').reset();
+ if(r){$('remTitle').value=r.title;$('remDate').value=r.date;$('remTime').value=r.time||'';$('remNote').value=r.note||''}
+ $('remModalTitle').textContent=r?'রিমাইন্ডার এডিট করো':'নতুন রিমাইন্ডার';$('remModal').hidden=false;setTimeout(()=>$('remTitle').focus(),50);
+}
+let remT=null;
+function applyRem(){
+ remT=null;const v={title:$('remTitle').value.trim(),date:$('remDate').value,time:$('remTime').value,note:$('remNote').value.trim()};
+ if(!v.title||!v.date)return false;
+ if(editingRem){const z=rems.find(a=>a.id===editingRem);if(z)Object.assign(z,v);else rems.push({id:editingRem,...v})}
+ else{const id=Date.now().toString();rems.push({id,...v});editingRem=id;$('remModalTitle').textContent='রিমাইন্ডার এডিট করো'}
+ saveRems();$('remHint').textContent='নিজে থেকেই সেভ হয়েছে';return true;
+}
+function closeRem(){if(remT){clearTimeout(remT);applyRem()}$('remModal').hidden=true;editingRem=null}
+['input','change'].forEach(ev=>$('remForm').addEventListener(ev,()=>{clearTimeout(remT);$('remHint').textContent='লিখছ…';remT=setTimeout(applyRem,600)}));
+$('remClose').onclick=closeRem;$('remCancel').onclick=closeRem;
+$('remModal').addEventListener('click',e=>{if(e.target.id==='remModal')closeRem()});
+$('remForm').addEventListener('submit',e=>{
+ e.preventDefault();clearTimeout(remT);remT=null;
+ if(!$('remTitle').value.trim()||!$('remDate').value)return;
+ applyRem();closeRem();
+});
+$('exportBtn').onclick=()=>{const blob=new Blob([JSON.stringify({version:2,exams,reminders:rems},null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='admission-roadmap-data.json';a.click();URL.revokeObjectURL(a.href)};
+$('importBtn').onclick=()=>$('importFile').click();
+$('importFile').onchange=async e=>{const f=e.target.files[0];if(!f)return;try{const raw=JSON.parse(await f.text());const arr=Array.isArray(raw)?raw:(raw&&raw.exams),rr=(raw&&!Array.isArray(raw)&&raw.reminders)||[];if(!Array.isArray(arr)||!Array.isArray(rr))throw 0;if(confirm('বর্তমান তালিকার সঙ্গে ইম্পোর্ট করা হবে?')){exams=[...exams,...arr.map(x=>({...x,status:fixSt(x.status),id:String(Date.now()+Math.random())}))];rems=[...rems,...rr.map(x=>({...x,id:String(Date.now()+Math.random())}))];localStorage.setItem(remKey(currentUser),JSON.stringify(rems));save()}}catch(err){alert('ফাইলটি সঠিক নয়।')}e.target.value=''};
+$('clearBtn').onclick=()=>{if(confirm('সব বিশ্ববিদ্যালয়ের তথ্য মুছে ফেলবে? আগে এক্সপোর্ট করে রাখলে পরে ফিরিয়ে আনতে পারবে।')){exams=[];save()}};
+/* ---------- Login / Signup (এই ডিভাইসের ব্রাউজারে সেভ হয়) ---------- */
+function getUsers(){try{return JSON.parse(localStorage.getItem(USERS_KEY)||'{}')}catch(e){return{}}}
+function sha256hex(str){
+ const K=[];for(let i=2,n=0;n<64;i++){let p=1;for(let j=2;j*j<=i;j++)if(i%j===0){p=0;break}if(p){K[n++]=(Math.pow(i,1/3)%1*4294967296)|0}}
+ let H=[];for(let i=2,n=0;n<8;i++){let p=1;for(let j=2;j*j<=i;j++)if(i%j===0){p=0;break}if(p){H[n++]=(Math.pow(i,.5)%1*4294967296)|0}}
+ const bytes=[...unescape(encodeURIComponent(str))].map(c=>c.charCodeAt(0)),l=bytes.length*8;
+ bytes.push(128);while(bytes.length%64!==56)bytes.push(0);
+ for(let i=7;i>=0;i--)bytes.push(i>=4?0:(l>>>(i*8))&255);
+ const rr=(x,n)=>(x>>>n)|(x<<(32-n));
+ for(let o=0;o<bytes.length;o+=64){
+  const w=[];for(let i=0;i<16;i++)w[i]=(bytes[o+i*4]<<24)|(bytes[o+i*4+1]<<16)|(bytes[o+i*4+2]<<8)|bytes[o+i*4+3];
+  for(let i=16;i<64;i++){const s0=rr(w[i-15],7)^rr(w[i-15],18)^(w[i-15]>>>3),s1=rr(w[i-2],17)^rr(w[i-2],19)^(w[i-2]>>>10);w[i]=(w[i-16]+s0+w[i-7]+s1)|0}
+  let [a,b,c,d,e,f,g,h]=H;
+  for(let i=0;i<64;i++){const t1=(h+(rr(e,6)^rr(e,11)^rr(e,25))+((e&f)^(~e&g))+K[i]+w[i])|0,t2=((rr(a,2)^rr(a,13)^rr(a,22))+((a&b)^(a&c)^(b&c)))|0;h=g;g=f;f=e;e=(d+t1)|0;d=c;c=b;b=a;a=(t1+t2)|0}
+  H=[H[0]+a,H[1]+b,H[2]+c,H[3]+d,H[4]+e,H[5]+f,H[6]+g,H[7]+h].map(x=>x|0);
+ }
+ return H.map(x=>(x>>>0).toString(16).padStart(8,'0')).join('');
+}
+async function hashPw(pw,salt,alg){
+ if(alg==='js'){let h=salt+pw;for(let i=0;i<2000;i++)h=sha256hex(h+salt+pw);return h}
+ if(!(window.crypto&&crypto.subtle))throw new Error('nocrypto');
+ const enc=new TextEncoder(),k=await crypto.subtle.importKey('raw',enc.encode(pw),'PBKDF2',false,['deriveBits']);
+ const bits=await crypto.subtle.deriveBits({name:'PBKDF2',salt:enc.encode(salt),iterations:150000,hash:'SHA-256'},k,256);
+ return [...new Uint8Array(bits)].map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+function randSalt(){const a=new Uint8Array(16);if(window.crypto&&crypto.getRandomValues)crypto.getRandomValues(a);else for(let i=0;i<16;i++)a[i]=Math.random()*256;return [...a].map(b=>b.toString(16).padStart(2,'0')).join('')}
+let authMode='login';
+function setMode(m){
+ authMode=m;$('tabLogin').classList.toggle('on',m==='login');$('tabSignup').classList.toggle('on',m==='signup');
+ $('authPass').autocomplete=m==='signup'?'new-password':'current-password';
+ $('authBtn').textContent=m==='signup'?'Create account':'Login';
+ $('authSub').textContent=m==='signup'?'নতুন অ্যাকাউন্ট খুলতে নিচের তথ্য দাও।':'অ্যাকাউন্টে ঢুকতে নিচের তথ্য দাও।';
+ $('authErr').textContent='';
+}
+$('tabLogin').onclick=()=>setMode('login');$('tabSignup').onclick=()=>setMode('signup');
+function enterApp(u){
+ currentUser=u;localStorage.setItem(SESSION_KEY,u);loadExams();
+ $('auth').hidden=true;$('app').hidden=false;$('who').textContent=u;render();showView('mine');
+ syncState(CLOUD?'wait':'local');if(CLOUD)pullNow();
+}
+function showAuth(){
+ currentUser=null;exams=[];rems=[];document.body.classList.remove('mapfull');$('app').hidden=true;$('auth').hidden=false;
+ $('authForm').reset();setMode(Object.keys(getUsers()).length?'login':'signup');
+}
+$('authForm').addEventListener('submit',async e=>{
+ e.preventDefault();const err=$('authErr');err.textContent='';
+ const u=$('authUser').value.trim().toLowerCase(),p=$('authPass').value,btn=$('authBtn');
+ const isNet=ex=>ex&&(ex.name==='TypeError'||!navigator.onLine);
+ btn.disabled=true;
+ try{
+  const users=getUsers();
+  if(authMode==='signup'){
+   if(!/^[a-z0-9_.]{3,20}$/.test(u)){err.textContent='ইউজারনেম ৩–২০ অক্ষরের হতে হবে (a-z, 0-9, _ বা .)।';return}
+   if(p.length<6){err.textContent='পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের দাও।';return}
+   if(users[u]){err.textContent='এই ইউজারনেম আগে থেকেই আছে।';return}
+   if(CLOUD){
+    try{await cloudSignup(u,p)}catch(ex){
+     if(ex.code==='confirm')err.textContent='সেটআপে ভুল: Supabase-এ "Confirm email" বন্ধ করতে হবে।';
+     else if(isNet(ex))err.textContent='অ্যাকাউন্ট খুলতে ইন্টারনেট লাগবে।';
+     else if(ex.code==='user_already_exists'||/already/i.test(ex.message))err.textContent='এই ইউজারনেম আগে থেকেই আছে।';
+     else err.textContent='অ্যাকাউন্ট তৈরি হয়নি: '+ex.message;
+     return}
+   }
+   const salt=randSalt(),alg=(window.crypto&&crypto.subtle)?'pbkdf2':'js';users[u]={salt,alg,hash:await hashPw(p,salt,alg)};
+   localStorage.setItem(USERS_KEY,JSON.stringify(users));
+   const old=localStorage.getItem(KEY);
+   if(old&&Object.keys(users).length===1){localStorage.setItem(userKey(u),old);localStorage.removeItem(KEY)}
+   enterApp(u);
+  }else{
+   const rec=users[u];
+   const localOk=async()=>!!rec&&await hashPw(p,rec.salt,rec.alg||'pbkdf2')===rec.hash;
+   if(CLOUD){
+    try{
+     const j=await cloudLogin(u,p);applySession(j,u);
+     if(!(await localOk())){const salt=randSalt(),alg=(window.crypto&&crypto.subtle)?'pbkdf2':'js';users[u]={salt,alg,hash:await hashPw(p,salt,alg)};localStorage.setItem(USERS_KEY,JSON.stringify(users))}
+     enterApp(u);
+    }catch(ex){
+     if(isNet(ex)){
+      if(await localOk()){enterApp(u)}else err.textContent='ইন্টারনেট নেই, আর এই ফোনে এই অ্যাকাউন্টও নেই।';
+     }else if(ex.code==='invalid_credentials'||ex.status===400){
+      if(await localOk()){
+       /* আগের (শুধু ফোনে থাকা) অ্যাকাউন্ট: ক্লাউডে তুলে দেওয়া হচ্ছে */
+       try{await cloudSignup(u,p);enterApp(u)}catch(e2){err.textContent='ইউজারনেম বা পাসওয়ার্ড ভুল।'}
+      }else err.textContent='ইউজারনেম বা পাসওয়ার্ড ভুল।';
+     }else err.textContent='লগইন হয়নি: '+ex.message;
+    }
+   }else{
+    if(!(await localOk())){err.textContent='ইউজারনেম বা পাসওয়ার্ড ভুল।';return}
+    enterApp(u);
+   }
+  }
+ }catch(ex){err.textContent=ex.message==='nocrypto'?'এই অ্যাকাউন্টটি অন্য ধরনের লিংকে খোলা হয়েছিল। আগের লিংকেই লগইন করো।':'অ্যাকাউন্ট তৈরি হয়নি ('+(ex.name||'error')+'): ব্রাউজারের প্রাইভেট মোড বন্ধ করে আবার চেষ্টা করো।'}
+ finally{btn.disabled=false}
+});
+const EYE_ON='<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>',EYE_OFF='<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17.9 17.9A10.4 10.4 0 0 1 12 19c-6.4 0-10-7-10-7a17.7 17.7 0 0 1 4.1-4.9M9.9 5.2A9.7 9.7 0 0 1 12 5c6.4 0 10 7 10 7a17.8 17.8 0 0 1-2.2 3.2M1 1l22 22"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/></svg>';
+document.querySelectorAll('.eye').forEach(b=>b.onclick=()=>{const i=$(b.dataset.for),show=i.type==='password';i.type=show?'text':'password';b.innerHTML=show?EYE_OFF:EYE_ON;b.setAttribute('aria-label',show?'পাসওয়ার্ড লুকাও':'পাসওয়ার্ড দেখাও')});
+$('pwForm').addEventListener('submit',async e=>{
+ e.preventDefault();const m=$('pwMsg');m.style.color='';m.textContent='';
+ try{
+  const users=getUsers(),rec=users[currentUser],np=$('pwNew').value;
+  if(!rec||await hashPw($('pwOld').value,rec.salt,rec.alg||'pbkdf2')!==rec.hash){m.textContent='বর্তমান পাসওয়ার্ড ভুল।';return}
+  if(np.length<6){m.textContent='নতুন পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের দাও।';return}
+  if(CLOUD){try{const t=await token();if(!t)throw new Error('login');await sb('/auth/v1/user',{method:'PUT',token:t,body:{password:np}})}catch(ex){m.textContent=(ex.name==='TypeError'||!navigator.onLine)?'পাসওয়ার্ড বদলাতে ইন্টারনেট লাগবে।':'পাসওয়ার্ড বদলানো যায়নি, লগআউট করে আবার লগইন করে চেষ্টা করো।';return}}
+  const salt=randSalt(),alg=(window.crypto&&crypto.subtle)?'pbkdf2':'js';
+  users[currentUser]={salt,alg,hash:await hashPw(np,salt,alg)};localStorage.setItem(USERS_KEY,JSON.stringify(users));
+  e.target.reset();m.style.color='var(--green)';m.textContent='পাসওয়ার্ড বদলানো হয়েছে।';
+ }catch(ex){m.textContent='পাসওয়ার্ড বদলানো যায়নি, আবার চেষ্টা করো।'}
+});
+$('delAccBtn').onclick=async()=>{if(!confirm('অ্যাকাউন্ট ও এর সব ডেটা চিরতরে মুছে যাবে। নিশ্চিত?'))return;
+ const u=currentUser;
+ if(CLOUD){try{const t=await token();if(!t)throw new Error('login');await sb('/rest/v1/rpc/delete_my_account',{method:'POST',token:t,body:{}})}catch(ex){alert((ex.name==='TypeError'||!navigator.onLine)?'অ্যাকাউন্ট মুছতে ইন্টারনেট লাগবে।':'অ্যাকাউন্ট মোছা যায়নি। লগআউট করে আবার লগইন করে চেষ্টা করো।');return}}
+ const users=getUsers();delete users[u];localStorage.setItem(USERS_KEY,JSON.stringify(users));localStorage.removeItem(userKey(u));localStorage.removeItem(remKey(u));localStorage.removeItem(dirtyKey(u));localStorage.removeItem(SESSION_KEY);setCloud(null);showAuth()};
+$('logoutBtn').onclick=async()=>{try{await pushNow()}catch(e){}localStorage.removeItem(SESSION_KEY);setCloud(null);showAuth()};
+/* ---------- Cloud sync (Supabase) ---------- */
+const CC=window.CLOUD_CONFIG||{},CLOUD=!!(CC.url&&CC.anonKey);
+const CS_KEY='admission-roadmap-cloud',COMM_KEY='admission-roadmap-community';
+const dirtyKey=u=>KEY+':dirty:'+u,emailOf=u=>u+'@'+(CC.emailDomain||'admissionroadmap.app');
+let cloud=null,commRows=null,rev=0,pushT=null,pushing=false;
+try{cloud=JSON.parse(localStorage.getItem(CS_KEY)||'null')}catch(e){}
+try{commRows=JSON.parse(localStorage.getItem(COMM_KEY)||'null')}catch(e){}
+async function sb(path,o){
+ o=o||{};
+ const r=await fetch(CC.url.replace(/\/$/,'')+path,{method:o.method||'GET',headers:Object.assign({apikey:CC.anonKey,'Content-Type':'application/json'},(o.token||/^eyJ/.test(CC.anonKey))?{Authorization:'Bearer '+(o.token||CC.anonKey)}:{},o.headers||{}),body:o.body===undefined?undefined:JSON.stringify(o.body)});
+ let j=null;try{j=await r.json()}catch(e){}
+ if(!r.ok){const er=new Error((j&&(j.msg||j.error_description||j.message||j.error))||('HTTP '+r.status));er.status=r.status;er.code=j&&(j.error_code||j.code);throw er}
+ return j;
+}
+function setCloud(x){cloud=x;if(x)localStorage.setItem(CS_KEY,JSON.stringify(x));else localStorage.removeItem(CS_KEY)}
+function applySession(j,u){setCloud({u,uid:j.user.id,at:j.access_token,rt:j.refresh_token,exp:Math.floor(Date.now()/1000)+(j.expires_in||3600)})}
+async function token(){
+ if(!cloud)return null;
+ if(cloud.exp-60>Date.now()/1000)return cloud.at;
+ try{const j=await sb('/auth/v1/token?grant_type=refresh_token',{method:'POST',body:{refresh_token:cloud.rt}});applySession(j,cloud.u);return cloud.at}
+ catch(e){if(e.status===400||e.status===401||e.status===403)setCloud(null);throw e}
+}
+async function cloudSignup(u,p){
+ const j=await sb('/auth/v1/signup',{method:'POST',body:{email:emailOf(u),password:p,data:{username:u}}});
+ if(!j||!j.access_token){const er=new Error('confirm');er.code='confirm';throw er}
+ applySession(j,u);
+}
+const cloudLogin=(u,p)=>sb('/auth/v1/token?grant_type=password',{method:'POST',body:{email:emailOf(u),password:p}});
+function syncState(st){
+ const el=$('syncMsg');if(!el)return;
+ el.textContent={local:'ডেটা শুধু এই ফোনে সেভ হচ্ছে।',wait:'সিঙ্ক হচ্ছে...',ok:'ক্লাউডে সেভ আছে। যেকোনো ডিভাইসে লগইন করলেই তোমার ডেটা পাবে।',err:'সংযোগ নেই। ইন্টারনেট এলে নিজে থেকেই ক্লাউডে সেভ হবে।',login:'ক্লাউডে সেভ করতে লগআউট করে আবার লগইন করো।'}[st]||'';
+}
+function markDirty(){
+ if(!CLOUD||!currentUser)return;
+ rev++;localStorage.setItem(dirtyKey(currentUser),'1');
+ clearTimeout(pushT);pushT=setTimeout(pushNow,700);
+}
+async function pushNow(){
+ if(!CLOUD||!currentUser||pushing)return;
+ if(!localStorage.getItem(dirtyKey(currentUser)))return;
+ if(!cloud||cloud.u!==currentUser){syncState('login');return}
+ if(!navigator.onLine){syncState('err');return}
+ pushing=true;const r=rev,u=currentUser;
+ try{
+  const t=await token();
+  await sb('/rest/v1/user_data?on_conflict=user_id',{method:'POST',token:t,headers:{Prefer:'resolution=merge-duplicates,return=minimal'},body:{user_id:cloud.uid,username:u,exams,rems,updated_at:new Date().toISOString()}});
+  if(rev===r){localStorage.removeItem(dirtyKey(u));syncState('ok');fetchCommunity()}else{clearTimeout(pushT);pushT=setTimeout(pushNow,300)}
+ }catch(e){syncState(cloud?'err':'login')}
+ finally{pushing=false}
+}
+async function pullNow(){
+ if(!CLOUD||!currentUser)return;
+ if(!cloud||cloud.u!==currentUser){syncState('login');return}
+ if(!navigator.onLine){syncState('err');return}
+ const u=currentUser;
+ try{
+  if(localStorage.getItem(dirtyKey(u))){await pushNow();return}
+  const t=await token();
+  const rows=await sb('/rest/v1/user_data?select=exams,rems&user_id=eq.'+cloud.uid,{token:t});
+  if(u!==currentUser)return;
+  if(rows&&rows.length){
+   localStorage.setItem(userKey(u),JSON.stringify(rows[0].exams||[]));
+   localStorage.setItem(remKey(u),JSON.stringify(rows[0].rems||[]));
+   loadExams();render();syncState('ok');
+  }else if(exams.length||rems.length){markDirty()}
+  else{syncState('ok')}
+  fetchCommunity();
+ }catch(e){syncState(cloud?'err':'login')}
+}
+async function fetchCommunity(){
+ if(!CLOUD||!cloud||!navigator.onLine)return;
+ try{
+  const t=await token();
+  const rows=await sb('/rest/v1/rpc/community_exams',{method:'POST',token:t,body:{}});
+  if(Array.isArray(rows)){commRows=rows;localStorage.setItem(COMM_KEY,JSON.stringify(rows));if(currentUser&&view==='main')renderMap(true)}
+ }catch(e){}
+}
+var adU=null;
+function checkAdmin(){
+ const el=$('adminLink');if(!el||!CLOUD||!cloud||!currentUser||adU===currentUser)return;
+ adU=currentUser;el.hidden=true;
+ token().then(t=>sb('/rest/v1/rpc/is_admin',{method:'POST',token:t,body:{}})).then(ok=>{el.hidden=ok!==true}).catch(()=>{adU=null});
+}
+window.addEventListener('online',()=>{pushNow();pullNow()});
+window.addEventListener('resize',()=>{const n=$('nav');if(n)document.documentElement.style.setProperty('--navh',n.offsetHeight+'px')});
+document.addEventListener('visibilitychange',()=>{if(!document.hidden&&currentUser)pullNow()});
+
+(function boot(){
+ const s=localStorage.getItem(SESSION_KEY);
+ if(s&&getUsers()[s]&&(!CLOUD||(cloud&&cloud.u===s)))enterApp(s);else showAuth();
+})();
+(function splashHide(){
+ const sp=document.getElementById('splash');if(!sp)return;
+ const MIN=2300,t0=performance.now();
+ const done=()=>{sp.classList.add('out');document.documentElement.classList.remove('splash-on');setTimeout(()=>sp.remove(),700)};
+ const go=()=>setTimeout(done,Math.max(0,MIN-(performance.now()-t0)));
+ if(document.fonts&&document.fonts.ready)document.fonts.ready.then(go,go);else go();
+})();
+</script>
+<script>
+/* ===================== Bengali / English interface =====================
+   UI-only translation: user-entered university names, notes and reminders
+   are preserved. Existing stored values and app logic are not modified. */
+(function(){
+ const LANG_KEY='admission-roadmap-language';
+ const exact={
+  'অ্যাকাউন্টে ঢুকতে নিচের তথ্য দাও।':'Enter your account details below.',
+  'নতুন অ্যাকাউন্ট খুলতে নিচের তথ্য দাও।':'Enter the details below to create an account.',
+  'অফলাইন আছো। তোমার সব পরিবর্তন এই ফোনে সেভ হচ্ছে।':'You are offline. Your changes are being saved on this device.',
+  'সব পরীক্ষা':'All exams','পরীক্ষার তারিখ':'Exam date','আবেদনের শেষ তারিখ':'Application deadline','অ্যাডমিট কার্ড ডাউনলোড':'Admit card download',
+  'মোট':'Total','তারিখ ঠিক':'Dates set','বাকি':'Upcoming','সম্পন্ন':'Completed',
+  'রবি':'Sun','সোম':'Mon','মঙ্গল':'Tue','বুধ':'Wed','বৃহ':'Thu','শুক্র':'Fri','শনি':'Sat',
+  'পরীক্ষা':'Exam','৭ দিনের মধ্যে':'Within 7 days','হয়ে গেছে':'Completed','আবেদনের শেষ':'Application deadline','অ্যাডমিট কার্ড':'Admit card',
+  'কোনো দিনে চাপ দিলে নিচে সেই দিনের বিস্তারিত দেখাবে':'Select a day to see its details below',
+  'আজ':'Today','আগামী ৭ দিন':'Next 7 days','এর পরে':'Later','সময় পার হয়ে গেছে (অবস্থা আপডেট করো)':'Past due (update the status)',
+  'কোনো রিমাইন্ডার নেই।':'No reminders.','নিচের ডানের + বাটন চেপে নিজের রিমাইন্ডার যোগ করো, অথবা পরীক্ষার তারিখ দিলে এখানে নিজে থেকেই আসবে।':'Tap the + button below to add a reminder, or add an exam date to see it here automatically.',
+  'মুছো':'Delete','দিন বাকি':'days left','দিন আগে':'days ago','আজ পরীক্ষা!':'Exam today!','পরীক্ষার তারিখ অপেক্ষমাণ':'Exam date pending',
+  'পরীক্ষার বিস্তারিত':'Exam details','পরীক্ষা এডিট করো':'Edit exam','নতুন পরীক্ষা যোগ করো':'Add a new exam','বন্ধ':'Close','বাতিল':'Cancel',
+  'বিশ্ববিদ্যালয়ের নাম':'University name','নির্বাচন করো':'Select','অন্যান্য (নিজে লিখো)':'Other (enter manually)','বিশ্ববিদ্যালয়ের নাম লেখো':'Enter university name',
+  'ঢাকা বিশ্ববিদ্যালয়':'University of Dhaka','রাজশাহী বিশ্ববিদ্যালয়':'University of Rajshahi','চট্টগ্রাম বিশ্ববিদ্যালয়':'University of Chittagong','জাহাঙ্গীরনগর বিশ্ববিদ্যালয়':'Jahangirnagar University','জগন্নাথ বিশ্ববিদ্যালয়':'Jagannath University','ইসলামী বিশ্ববিদ্যালয়':'Islamic University','খুলনা বিশ্ববিদ্যালয়':'Khulna University','বরিশাল বিশ্ববিদ্যালয়':'University of Barishal','কুমিল্লা বিশ্ববিদ্যালয়':'Comilla University','বেগম রোকেয়া বিশ্ববিদ্যালয়':'Begum Rokeya University','শাহজালাল বিজ্ঞান ও প্রযুক্তি বিশ্ববিদ্যালয়':'Shahjalal University of Science and Technology','বাংলাদেশ কৃষি বিশ্ববিদ্যালয়':'Bangladesh Agricultural University','বুয়েট':'BUET','জাতীয় বিশ্ববিদ্যালয়':'National University','গুচ্ছ ভর্তি পরীক্ষা (GST)':'GST Admission Test',
+  'যেমন: ঢাকা বিশ্ববিদ্যালয়':'e.g. University of Dhaka','যেমন: ফি ৩০০ টাকা, কেন্দ্র মিরপুর, সঙ্গে প্রবেশপত্র ও ২ কপি ছবি আনতে হবে':'e.g. Fee: ৳300, centre: Mirpur, bring your admit card and 2 passport-size photos','যেমন: ফি জমা দেওয়া':'e.g. Submit the fee','যেমন: ব্যাংকে গিয়ে জমা দিতে হবে':'e.g. Submit it at the bank','এখানে ফি, কেন্দ্র, কী কী আনতে হবে — যা মনে রাখা দরকার লিখে রাখো':'For example: fees, exam centre, required documents, and anything else you need to remember',
+  'বিভাগ':'Group','বিজ্ঞান':'Science','মানবিক':'Humanities','বাণিজ্য':'Business Studies','সময় (ঐচ্ছিক)':'Time (optional)',
+  'আবেদনের শেষ তারিখ':'Application deadline','আবেদন শুরুর তারিখ':'Application start date','বর্তমান অবস্থা':'Current status',
+  'পরিকল্পনায়':'Planned','আবেদন চলছে':'Applications open','আবেদন সম্পন্ন':'Application submitted','অ্যাডমিট কার্ড প্রকাশিত':'Admit card published','পরীক্ষা সম্পন্ন':'Exam completed',
+  'গুরুত্বপূর্ণ নোট (ঐচ্ছিক)':'Important note (optional)','পরিবর্তন নিজে থেকেই সেভ হয়ে যাবে':'Changes are saved automatically',
+  'যোগ করো':'Add','সেভ করো':'Save','নিজে থেকেই সেভ হয়েছে':'Saved automatically','লিখছ…':'Typing…','নোট সেভ হয়েছে':'Note saved',
+  'নতুন রিমাইন্ডার':'New reminder','কী মনে করিয়ে দেব?':'What should I remind you about?','তারিখ':'Date','নোট (ঐচ্ছিক)':'Note (optional)',
+  'পরীক্ষার বিস্তারিত':'Exam details','অবস্থা আপডেট করো':'Update status','গুরুত্বপূর্ণ নোট':'Important note','সব তথ্য আপডেট করো':'Update all details',
+  'পরীক্ষা এডিট করো':'Edit exam','রিমাইন্ডার এডিট করো':'Edit reminder','রিমাইন্ডার':'Reminder','পরীক্ষা সম্পন্ন':'Exam completed',
+  'থিম':'Theme','Theme':'Theme','Night':'Dark','White':'Light','Change password':'Change password','Current password':'Current password','New password':'New password','Update password':'Update password',
+  'Install app':'Install app','Data':'Data','Move to another device':'Move to another device','Export data':'Export data','Import data':'Import data','Clear all exams':'Clear all exams','Admin Panel':'Admin Panel','Logout':'Log out','Delete account':'Delete account',
+  'My Map':'My Map','Main Map':'Main Map','Calendar':'Calendar','Reminder':'Reminders','Account':'Account','Login':'Log in','Sign up':'Sign up','Username':'Username','Password':'Password',
+  'যোগ করেছে':'Added by','অবস্থা':'Status','আবেদন শুরু':'Application starts','আবেদন শেষ':'Application deadline','নোট':'Note','আজই':'Today','এই দিনে কোনো পরীক্ষা নেই':'No exams on this day',
+  'পরীক্ষার তারিখ যোগ করা হয়নি':'No exam date added','তারিখ যোগ করা হয়নি':'No date added','পরীক্ষার তারিখ অপেক্ষমাণ':'Exam date pending',
+  'পাসওয়ার্ড দেখাও':'Show password','পাসওয়ার্ড লুকাও':'Hide password','ফিল্টার':'Filter','আগের মাস':'Previous month','পরের মাস':'Next month',
+  'Language / ভাষা':'Language','🇧🇩 বাংলা':'🇧🇩 Bengali','নতুন যোগ করো':'Add new','তারিখ অপেক্ষমাণ':'Date pending','লক্ষ্য':'Goal','শুরু':'Start','শু':'Sun',
+  'এই ফিল্টারে দেখানোর মতো কোনো তারিখ যোগ করা নেই।':'No dates available for this filter.',
+  'এখনো কেউ কোনো পরীক্ষা যোগ করেনি।':'No one has added an exam yet.','এখনো কোনো পরীক্ষা নেই। নিচের ডানের + বাটন চেপে প্রথম পরীক্ষা যোগ করো।':'No exams yet. Tap the + button at the bottom right to add your first exam.',
+  'ভর্তি পরীক্ষা':'Admission test','আবেদনের শেষ দিন':'Application deadline','বিশ্ববিদ্যালয়ের নাম দাও':'Enter a university name',
+  'এই রিমাইন্ডারটি মুছে ফেলবে?':'Delete this reminder?','এই পরীক্ষাটি মুছে ফেলবে?':'Delete this exam?',
+  'বর্তমান তালিকার সঙ্গে ইম্পোর্ট করা হবে?':'Import these items into the current list?','ফাইলটি সঠিক নয়।':'The file is invalid.',
+  'সব বিশ্ববিদ্যালয়ের তথ্য মুছে ফেলবে? আগে এক্সপোর্ট করে রাখলে পরে ফিরিয়ে আনতে পারবে।':'Delete all university data? You can restore it later if you exported a backup.',
+  'ইউজারনেম ৩–২০ অক্ষরের হতে হবে (a-z, 0-9, _ বা .)।':'Username must be 3–20 characters (a-z, 0-9, _ or .).',
+  'পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের দাও।':'Password must be at least 6 characters.',
+  'এই ইউজারনেম আগে থেকেই আছে।':'This username is already taken.',
+  'সেটআপে ভুল: Supabase-এ "Confirm email" বন্ধ করতে হবে।':'Setup error: Disable "Confirm email" in Supabase.',
+  'অ্যাকাউন্ট খুলতে ইন্টারনেট লাগবে।':'An internet connection is required to create an account.',
+  'ইন্টারনেট নেই, আর এই ফোনে এই অ্যাকাউন্টও নেই।':'You are offline and this account is not saved on this device.',
+  'ইউজারনেম বা পাসওয়ার্ড ভুল।':'Incorrect username or password.',
+  'বর্তমান পাসওয়ার্ড ভুল।':'Current password is incorrect.','নতুন পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের দাও।':'New password must be at least 6 characters.',
+  'পাসওয়ার্ড বদলাতে ইন্টারনেট লাগবে।':'An internet connection is required to change your password.',
+  'পাসওয়ার্ড বদলানো যায়নি, লগআউট করে আবার লগইন করে চেষ্টা করো।':'Could not change password. Log out and sign in again.',
+  'পাসওয়ার্ড বদলানো হয়েছে।':'Password changed successfully.','পাসওয়ার্ড বদলানো যায়নি, আবার চেষ্টা করো।':'Could not change password. Please try again.',
+  'অ্যাকাউন্ট ও এর সব ডেটা চিরতরে মুছে যাবে। নিশ্চিত?':'Your account and all its data will be permanently deleted. Continue?',
+  'অ্যাকাউন্ট মুছতে ইন্টারনেট লাগবে।':'An internet connection is required to delete your account.',
+  'অ্যাকাউন্ট মোছা যায়নি। লগআউট করে আবার লগইন করে চেষ্টা করো।':'Could not delete the account. Log out and sign in again.',
+  'ডেটা শুধু এই ফোনে সেভ হচ্ছে।':'Data is saved on this device only.','সিঙ্ক হচ্ছে...':'Syncing...',
+  'ক্লাউডে সেভ আছে। যেকোনো ডিভাইসে লগইন করলেই তোমার ডেটা পাবে।':'Saved to the cloud. Sign in on any device to access your data.',
+  'সংযোগ নেই। ইন্টারনেট এলে নিজে থেকেই ক্লাউডে সেভ হবে।':'No connection. Data will sync to the cloud when you are back online.',
+  'ক্লাউডে সেভ করতে লগআউট করে আবার লগইন করো।':'Log out and sign in again to enable cloud saving.',
+  'নতুন ভার্সন পাওয়া গেছে, আপডেট হচ্ছে...':'A new version is available. Updating...',
+  'অ্যাপটি ইনস্টল করা আছে। ইন্টারনেট ছাড়াও চলবে, আর অনলাইনে এলে নিজে থেকেই আপডেট হবে।':'The app is installed. It works offline and updates automatically when you are online.',
+  'ফোনের হোম স্ক্রিনে অ্যাপ হিসেবে রাখো। ইনস্টলের পর ইন্টারনেট ছাড়াও চলবে।':'Add the app to your home screen. It will work offline after installation.'
+ };
+ const replacements=[
+  ['অ্যাকাউন্ট তৈরি হয়নি:','Account creation failed:'],['লগইন হয়নি:','Sign-in failed:'],['অ্যাকাউন্ট তৈরি হয়নি (','Account creation failed (' ],['এই মাসে কোনো ','No '],['এই মাসে ','This month: '],['টি ',' '],[' আছে',' scheduled'],[' নেই',' not scheduled'],
+  ['আর ','In '],[' দিন বাকি',' days left'],[' দিন আগে হয়ে গেছে',' days ago'],[' দিন আগে পার হয়েছে',' days ago'],[' দিন আগে',' days ago'],
+  ['টি পরীক্ষা যোগ করা আছে',' exams added'],['টি পরীক্ষা আছে',' exams'],[' জন',' people'],['পরীক্ষা ','Exam '],['আবেদন শেষ ','Application deadline '],
+  ['বিজ্ঞান','Science'],['মানবিক','Humanities'],['বাণিজ্য','Business Studies'],['পরিকল্পনায়','Planned'],['আবেদন চলছে','Applications open'],['আবেদন সম্পন্ন','Application submitted'],['অ্যাডমিট কার্ড প্রকাশিত','Admit card published'],['পরীক্ষা সম্পন্ন','Exam completed'],
+  ['অবস্থা আপডেট হয়েছে','Status updated'],['My Map-এ আছে','In My Map'],['My Map-এ যোগ করো','Add to My Map'],['My Map-এ যোগ হয়েছে','Added to My Map'],
+  ['এটি আগে থেকেই My Map-এ আছে','This is already in My Map'],['পরীক্ষা ','Exam '],['দিন বাকি','days left'],['দিন আগে','days ago']
+ ];
+ let originals=new WeakMap(), translating=new WeakSet();
+ const isEn=()=>localStorage.getItem(LANG_KEY)==='en';
+ const nativeConfirm=window.confirm.bind(window),nativeAlert=window.alert.bind(window);
+ window.confirm=message=>nativeConfirm(isEn()?tr(String(message)):message);
+ window.alert=message=>nativeAlert(isEn()?tr(String(message)):message);
+ function tr(value){
+  if(!isEn()||!value)return value;
+  let out=value;
+  const monthEmpty=out.match(/^এই মাসে কোনো (.+) নেই$/);
+  if(monthEmpty)return 'No '+tr(monthEmpty[1])+' scheduled this month';
+  const monthCount=out.match(/^এই মাসে (\d+)টি (.+) আছে$/);
+  if(monthCount)return 'This month: '+monthCount[1]+' '+tr(monthCount[2])+' scheduled';
+  const mapNumber=out.match(/^পরীক্ষা (\d+)$/);
+  if(mapNumber)return 'Exam '+mapNumber[1];
+  if(Object.prototype.hasOwnProperty.call(exact,out.trim())){
+   const lead=out.match(/^\s*/)?.[0]||'',trail=out.match(/\s*$/)?.[0]||'';
+   return lead+exact[out.trim()]+trail;
+  }
+  for(const [a,b] of replacements)out=out.split(a).join(b);
+  return out;
+ }
+ function translateNode(node){
+  if(node.nodeType===Node.TEXT_NODE){
+   if(!originals.has(node))originals.set(node,node.nodeValue);
+   const source=originals.get(node),next=isEn()?tr(source):source;
+   if(node.nodeValue!==next){translating.add(node);node.nodeValue=next;}
+  }else if(node.nodeType===Node.ELEMENT_NODE){
+   if(['SCRIPT','STYLE'].includes(node.tagName))return;
+   for(const a of ['placeholder','title','aria-label']){
+    if(node.hasAttribute(a)){
+     let store=node._langOriginalAttrs||(node._langOriginalAttrs={});
+     if(!(a in store))store[a]=node.getAttribute(a);
+     const next=isEn()?tr(store[a]):store[a];
+     if(node.getAttribute(a)!==next)node.setAttribute(a,next);
+    }
+   }
+   if(node.tagName==='TEXTAREA')return; // Translate its placeholder, never the user's typed note.
+   node.childNodes.forEach(translateNode);
+  }
+ }
+ function apply(lang){
+  localStorage.setItem(LANG_KEY,lang==='en'?'en':'bn');
+  document.documentElement.lang=lang==='en'?'en':'bn';
+  translateNode(document.body);
+  document.querySelectorAll('#languageSeg button').forEach(b=>b.classList.toggle('on',b.dataset.language===lang));
+  // Refresh date, calendar and other generated labels in the selected locale.
+  if(typeof render==='function'&&document.getElementById('app')&&!document.getElementById('app').hidden){
+   const t=document.getElementById('today');if(t)t.textContent=new Intl.DateTimeFormat(lang==='en'?'en-US':'bn-BD',{weekday:'long',day:'numeric',month:'long',year:'numeric'}).format(new Date());
+   if(typeof render==='function')render();
+   if(typeof renderCalendar==='function'&&typeof view!=='undefined'&&view==='calendar')renderCalendar();
+  }
+ }
+ document.querySelectorAll('#languageSeg button').forEach(b=>b.addEventListener('click',()=>apply(b.dataset.language)));
+ const observer=new MutationObserver(records=>{
+  for(const rec of records){
+   if(rec.type==='characterData'&&translating.has(rec.target)){translating.delete(rec.target);continue;}
+   if(rec.type==='characterData')translateNode(rec.target);
+   rec.addedNodes&&rec.addedNodes.forEach(translateNode);
+  }
+ });
+ observer.observe(document.body,{subtree:true,childList:true,characterData:true});
+ apply(isEn()?'en':'bn');
+})();
+</script>
+<script>
+if ("serviceWorker" in navigator && location.protocol.startsWith("http")) {
+  const hadController = !!navigator.serviceWorker.controller;
+  let reloading = false;
+  navigator.serviceWorker.addEventListener("controllerchange", () => {
+    if (!hadController || reloading) return; /* প্রথমবার ইনস্টলে রিলোড লাগে না */
+    reloading = true;
+    const t = document.getElementById("toast");
+    if (t) { t.textContent = "নতুন ভার্সন পাওয়া গেছে, আপডেট হচ্ছে..."; t.hidden = false; }
+    setTimeout(() => location.reload(), 1200);
+  });
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("./sw.js", { updateViaCache: "none" }).then(reg => {
+      const check = () => reg.update().catch(() => {});
+      document.addEventListener("visibilitychange", () => { if (!document.hidden) check(); });
+      setInterval(check, 30 * 60 * 1000);
+    }).catch(err => console.warn("Offline setup:", err));
+  });
+}
+/* অফলাইন স্ট্যাটাস + ইনস্টল বাটন */
+function syncOnline(){const o=document.getElementById("offlineBar");if(o)o.hidden=navigator.onLine}
+window.addEventListener("online",syncOnline);window.addEventListener("offline",syncOnline);syncOnline();
+let installEvt=null;
+const isStandalone=()=>matchMedia("(display-mode: standalone)").matches||navigator.standalone===true;
+function syncInstall(){
+ const b=document.getElementById("installBtn"),m=document.getElementById("installMsg");if(!b||!m)return;
+ if(isStandalone()){b.hidden=true;m.textContent="অ্যাপটি ইনস্টল করা আছে। ইন্টারনেট ছাড়াও চলবে, আর অনলাইনে এলে নিজে থেকেই আপডেট হবে।"}
+ else if(installEvt){b.hidden=false;m.textContent="ফোনের হোম স্ক্রিনে অ্যাপ হিসেবে রাখো। ইনস্টলের পর ইন্টারনেট ছাড়াও চলবে।"}
+ else{b.hidden=true;m.textContent="ইনস্টল করতে ব্রাউজারের মেনু থেকে 'Install app' বা 'Add to Home screen' চাপো (আইফোনে সাফারির শেয়ার বাটন থেকে 'Add to Home Screen')।"}
+}
+window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();installEvt=e;syncInstall()});
+window.addEventListener("appinstalled",()=>{installEvt=null;syncInstall()});
+document.getElementById("installBtn").onclick=async()=>{if(!installEvt)return;installEvt.prompt();await installEvt.userChoice;installEvt=null;syncInstall()};
+syncInstall();
+</script>
+</body></html>
