@@ -373,6 +373,11 @@ body.mapfull .mapscroll::-webkit-scrollbar{display:none}
 .brand{display:none}
 .top{margin:12px 6px 14px}
 .mapscroll{max-height:calc(100vh - 280px)}
+textarea{width:100%;font:inherit;background:var(--panel2,#0c1625);border:1.5px solid transparent;color:var(--text);border-radius:16px;padding:13px 16px;outline:none;resize:vertical;min-height:96px;line-height:1.6}
+textarea:focus{border-color:var(--blue)}textarea::placeholder{color:#6f6f78}
+.notehint{font-size:11.5px;color:var(--muted);margin:6px 4px 0;min-height:14px}
+.notebox{background:var(--panel);border-radius:14px;padding:10px 12px;margin-top:8px;font-size:13px;line-height:1.55;white-space:pre-wrap;word-break:break-word}
+.notebox small{display:block;color:var(--muted);font-size:11px;margin-bottom:2px}
 </style>
 </head>
 <body>
@@ -471,6 +476,7 @@ body.mapfull .mapscroll::-webkit-scrollbar{display:none}
     <div><label for="admitTime">সময় (ঐচ্ছিক)</label><input id="admitTime" type="time"></div>
         <div><label for="applyStart">আবেদন শুরুর তারিখ</label><input id="applyStart" type="date"></div>
     <div><label for="status">বর্তমান অবস্থা</label><select id="status"><option value="পরিকল্পনায়">পরিকল্পনায়</option><option value="আবেদন চলছে">আবেদন চলছে</option><option value="আবেদন সম্পন্ন">আবেদন সম্পন্ন</option><option value="অ্যাডমিট কার্ড প্রকাশিত">অ্যাডমিট কার্ড প্রকাশিত</option><option value="পরীক্ষা সম্পন্ন">পরীক্ষা সম্পন্ন</option></select></div>
+    <div class="full"><label for="noteInput">গুরুত্বপূর্ণ নোট (ঐচ্ছিক)</label><textarea id="noteInput" maxlength="1000" placeholder="যেমন: ফি ৩০০ টাকা, কেন্দ্র মিরপুর, সঙ্গে প্রবেশপত্র ও ২ কপি ছবি আনতে হবে"></textarea></div>
    </div>
    <div class="btnrow"><button class="btn" type="submit" id="saveBtn">যোগ করো</button><button class="btn secondary" type="button" id="modalCancel">বাতিল</button></div>
   </form>
@@ -647,6 +653,7 @@ function renderMap(keepScroll){
   const rw=document.createElement('div');rw.className='drows';
   (mapMode==='all'?[['যোগ করেছে',bnum(x.count)+' জন']]:[['অবস্থা',x.status||'—']]).concat(x.group?[['বিভাগ',x.group]]:[]).concat([['পরীক্ষা',dtText(x,'examDate')],['আবেদন শেষ',dtText(x,'applyEnd')],['অ্যাডমিট কার্ড',dtText(x,'admitDate')]]).forEach(([k,v])=>{const r=document.createElement('div');r.className='drow';const a=document.createElement('span'),b=document.createElement('b');a.textContent=k;b.textContent=v;r.append(a,b);rw.append(r)});
   info.append(m,h,c,rw);
+  if(mapMode==='mine'&&x.note){const nb=document.createElement('div');nb.className='notebox';const sm=document.createElement('small');sm.textContent='নোট';nb.append(sm,document.createTextNode(x.note));info.append(nb)}
   if(mapMode==='mine'){
    const row=document.createElement('div');row.className='btnrow';row.style.marginTop='10px';
    const mk2=(t,cls,fn)=>{const b=document.createElement('button');b.type='button';b.className='btn '+cls;b.style.cssText='padding:8px 12px;font-size:12px';b.textContent=t;b.onclick=fn;return b};
@@ -740,7 +747,8 @@ function getUnit(){const v=$('unitSel').value;return v==='__other'?$('unit').val
 $('unitSel').addEventListener('change',syncUnitOther);
 let detailId=null;
 function openDetail(id){detailId=id;fillDetail();if(detailId)$('detailModal').hidden=false}
-function closeDetail(){$('detailModal').hidden=true;detailId=null}
+let noteChanged=false;
+function closeDetail(){const t=document.getElementById('detailNote');if(t&&t._t){clearTimeout(t._t);t._t=null;const z=exams.find(a=>a.id===detailId);if(z&&(z.note||'')!==t.value.trim()){z.note=t.value.trim();try{localStorage.setItem(userKey(currentUser),JSON.stringify(exams))}catch(e){}markDirty();noteChanged=true}}$('detailModal').hidden=true;detailId=null;if(noteChanged){noteChanged=false;render()}}
 function fillDetail(){
  const x=sortedExams().find(a=>a.id===detailId),box=$('detailBody');
  if(!x){closeDetail();return}
@@ -765,6 +773,11 @@ function fillDetail(){
   const cur=Array.from(sel.options).find(o=>o.value.normalize('NFC')===(x.status||'').normalize('NFC'));if(cur)sel.value=cur.value;
   sel.onchange=()=>{const z=exams.find(a=>a.id===x.id);if(z){z.status=sel.value;save();showToast('অবস্থা আপডেট হয়েছে')}};
   box.append(l,sel);
+  const nl=document.createElement('label');nl.textContent='গুরুত্বপূর্ণ নোট';nl.htmlFor='detailNote';
+  const ta=document.createElement('textarea');ta.id='detailNote';ta.maxLength=1000;ta.value=x.note||'';ta.placeholder='এখানে ফি, কেন্দ্র, কী কী আনতে হবে — যা মনে রাখা দরকার লিখে রাখো';
+  const hint=document.createElement('div');hint.className='notehint';
+  ta.oninput=()=>{hint.textContent='লিখছ…';clearTimeout(ta._t);ta._t=setTimeout(()=>{const z=exams.find(a=>a.id===x.id);if(!z)return;z.note=ta.value.trim();try{localStorage.setItem(userKey(currentUser),JSON.stringify(exams))}catch(e){}markDirty();noteChanged=true;hint.textContent='✓ নোট সেভ হয়েছে'},500)};
+  box.append(nl,ta,hint);
   const row=document.createElement('div');row.className='btnrow';
   const eb=document.createElement('button');eb.type='button';eb.className='btn';eb.textContent='সব তথ্য আপডেট করো';
   eb.onclick=()=>{const id=x.id;closeDetail();openForm(id)};
@@ -778,7 +791,7 @@ $('detailModal').addEventListener('click',e=>{if(e.target.id==='detailModal')clo
 let editingId=null;
 function openForm(id){
  editingId=id||null;const x=id?exams.find(a=>a.id===id):null;$('addForm').reset();
- if(x){$('examDate').value=x.examDate||'';$('applyStart').value=x.applyStart||'';$('applyEnd').value=x.applyEnd||'';$('admitDate').value=x.admitDate||'';$('examTime').value=x.examTime||'';$('applyEndTime').value=x.applyEndTime||'';$('admitTime').value=x.admitTime||'';$('status').value=x.status}
+ if(x){$('examDate').value=x.examDate||'';$('applyStart').value=x.applyStart||'';$('applyEnd').value=x.applyEnd||'';$('admitDate').value=x.admitDate||'';$('examTime').value=x.examTime||'';$('applyEndTime').value=x.applyEndTime||'';$('admitTime').value=x.admitTime||'';$('status').value=x.status;$('noteInput').value=x.note||''}
  setUnitFields(x?x.unit:'',x?x.group:'');setUniFields(x?x.uni:'');
  $('modalTitle').textContent=x?'পরীক্ষা এডিট করো':'নতুন পরীক্ষা যোগ করো';$('saveBtn').textContent=x?'সেভ করো':'যোগ করো';
  $('addModal').hidden=false;
@@ -788,7 +801,7 @@ $('fabAdd').onclick=()=>view==='remind'?openRem():openForm();$('modalClose').onc
 $('addModal').addEventListener('click',e=>{if(e.target.id==='addModal')closeForm()});
 $('addForm').addEventListener('submit',e=>{
  e.preventDefault();
- const v={uni:getUni(),unit:getUnit(),group:$('groupSel').value,examDate:$('examDate').value,applyStart:$('applyStart').value,applyEnd:$('applyEnd').value,admitDate:$('admitDate').value,examTime:$('examTime').value,applyEndTime:$('applyEndTime').value,admitTime:$('admitTime').value,status:$('status').value};
+ const v={uni:getUni(),unit:getUnit(),group:$('groupSel').value,examDate:$('examDate').value,applyStart:$('applyStart').value,applyEnd:$('applyEnd').value,admitDate:$('admitDate').value,examTime:$('examTime').value,applyEndTime:$('applyEndTime').value,admitTime:$('admitTime').value,status:$('status').value,note:$('noteInput').value.trim()};
  if(!v.uni){showToast('বিশ্ববিদ্যালয়ের নাম দাও');return}
  if(editingId){Object.assign(exams.find(a=>a.id===editingId),v);selectedId=editingId}
  else{const id=Date.now().toString();exams.push({id,...v});selectedId=id}
