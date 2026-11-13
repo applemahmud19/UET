@@ -257,6 +257,9 @@ html.splash-on,html.splash-on body{overflow:hidden}
 .pwwrap input{padding-right:52px}
 .pwwrap .eye,html[data-theme=light] .pwwrap .eye{display:grid;place-items:center;width:38px;height:34px;padding:0;right:7px;border-radius:10px;line-height:0}
 .pwwrap .eye svg{display:block}
+.mapfilter{display:flex;justify-content:flex-end;margin-bottom:10px}
+.mapfilter select{appearance:none;-webkit-appearance:none;max-width:100%;background:var(--panel2) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%239aabc2' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat right 12px center;color:var(--text);border:1px solid var(--line);border-radius:12px;padding:9px 34px 9px 14px;font:inherit;font-size:13px;font-weight:700;cursor:pointer}
+.mapfilter select:focus{outline:2px solid var(--blue);outline-offset:1px}
 </style>
 </head>
 <body>
@@ -288,10 +291,12 @@ html.splash-on,html.splash-on body{overflow:hidden}
  <div class="stat"><span>সম্পন্ন</span><strong id="completed">০</strong></div>
 </section>
 <div class="panel mappanel" data-v="main mine">
+ <div class="mapfilter"><select id="mapFilter" aria-label="ফিল্টার"><option value="all">সব পরীক্ষা</option><option value="exam">পরীক্ষার তারিখ</option><option value="apply">আবেদনের শেষ তারিখ</option><option value="admit">অ্যাডমিট কার্ড ডাউনলোড</option></select></div>
  <div class="mapscroll" id="mapScroll"><svg id="mapSvg" role="img" aria-label="Admission roadmap"></svg></div>
  <div class="mapinfo" id="mapInfo"></div>
 </div>
 <div class="panel calpanel" data-v="calendar" hidden>
+ <div class="mapfilter"><select id="calFilter" aria-label="ফিল্টার"><option value="all">সব পরীক্ষা</option><option value="exam">পরীক্ষার তারিখ</option><option value="apply">আবেদনের শেষ তারিখ</option><option value="admit">অ্যাডমিট কার্ড ডাউনলোড</option></select></div>
  <div class="calhead"><button type="button" class="calnav" id="calPrev" aria-label="আগের মাস">‹</button><h3 id="calTitle"></h3><button type="button" class="calnav" id="calNext" aria-label="পরের মাস">›</button></div>
  <div class="calgrid" id="calGrid"></div>
  <div class="callegend"><span><i class="sw sw-exam"></i>পরীক্ষা</span><span><i class="sw sw-past"></i>হয়ে গেছে</span><span><i class="sw sw-apply"></i>আবেদনের শেষ</span><span><i class="sw sw-admit"></i>অ্যাডমিট কার্ড</span></div>
@@ -410,8 +415,11 @@ function allExams(){
    m.count++;m.applyEnd=m.applyEnd||x.applyEnd||'';m.admitDate=m.admitDate||x.admitDate||''})});
  return Object.values(g).sort(byDate);
 }
-function sortedExams(){return mapMode==='all'?allExams():[...exams].sort(byDate)}
-const isDone=x=>mapMode==='all'?!!(x.examDate&&daysLeft(x.examDate)<0):x.status==='পরীক্ষা সম্পন্ন';
+let mapFilter='all';const FILT={exam:'examDate',apply:'applyEnd',admit:'admitDate'},FNAME={examDate:'পরীক্ষা',applyEnd:'আবেদনের শেষ তারিখ',admitDate:'অ্যাডমিট কার্ড ডাউনলোড'};const FF=()=>FILT[mapFilter]||'examDate';
+function sortedExams(){const base=mapMode==='all'?allExams():[...exams].sort(byDate);if(mapFilter==='all')return base;const f=FF();return base.filter(x=>x[f]).sort((a,b)=>String(a[f]).localeCompare(String(b[f])))}
+const isDone=x=>mapFilter!=='all'?!!(x[FF()]&&daysLeft(x[FF()])<0):(mapMode==='all'?!!(x.examDate&&daysLeft(x.examDate)<0):x.status==='পরীক্ষা সম্পন্ন');
+function setFilter(v){mapFilter=v;$('mapFilter').value=v;$('calFilter').value=v;selectedId=null;calSel=null;renderMap()}
+$('mapFilter').onchange=e=>setFilter(e.target.value);$('calFilter').onchange=e=>setFilter(e.target.value);
 function setMapMode(m){
  mapMode=m;selectedId=null;
  renderMap();
@@ -462,9 +470,9 @@ function renderMap(keepScroll){
  const NS='http://www.w3.org/2000/svg',svg=$('mapSvg'),box=$('mapScroll'),prev=box.scrollTop;
  const list=sortedExams(),n=list.length,GAP=150,W=360,H=(n+2)*GAP;
  const cur=list.find(x=>!isDone(x));
- const bn=v=>v.toLocaleString('bn-BD');
- $('total').textContent=bn(n);$('dated').textContent=bn(list.filter(x=>x.examDate).length);
- $('upcoming').textContent=bn(list.filter(x=>x.examDate&&daysLeft(x.examDate)>=0&&!isDone(x)).length);
+ const bn=v=>v.toLocaleString('bn-BD'),ff=FF();
+ $('total').textContent=bn(n);$('dated').textContent=bn(list.filter(x=>x[ff]).length);
+ $('upcoming').textContent=bn(list.filter(x=>x[ff]&&daysLeft(x[ff])>=0&&!isDone(x)).length);
  $('completed').textContent=bn(list.filter(isDone).length);
  if(!list.find(x=>x.id===selectedId))selectedId=cur?cur.id:(list[n-1]?list[n-1].id:null);
  svg.setAttribute('viewBox',`0 0 ${W} ${H}`);svg.innerHTML='';
@@ -490,17 +498,17 @@ function renderMap(keepScroll){
  mk(pts[0],'done','শু','শুরু',null);
  list.forEach((x,i)=>{
   const st=isDone(x)?'done':(cur&&cur.id===x.id?'cur':'up');
-  mk(pts[i+1],st+(x.id===selectedId?' sel':''),st==='done'?'✓':bnum(i+1),x.uni,mapMode==='all'?null:(STARS[x.status]||0),()=>{selectedId=x.id;renderMap(true);openDetail(x.id)},x.examDate?dateText(x.examDate):'তারিখ অপেক্ষমাণ',tagText(x));
+  mk(pts[i+1],st+(x.id===selectedId?' sel':''),st==='done'?'✓':bnum(i+1),x.uni,mapMode==='all'?null:(STARS[x.status]||0),()=>{selectedId=x.id;renderMap(true);openDetail(x.id)},x[ff]?dateText(x[ff]):'তারিখ অপেক্ষমাণ',tagText(x));
  });
  mk(pts[n+1],list.length&&!cur?'done':'up','★','লক্ষ্য',null);
  const info=$('mapInfo');info.innerHTML='';
  const x=list.find(a=>a.id===selectedId);
- if(!x){info.textContent=mapMode==='all'?'এখনো কেউ কোনো পরীক্ষা যোগ করেনি।':'এখনো কোনো পরীক্ষা নেই। নিচের ডানের + বাটন চেপে প্রথম পরীক্ষা যোগ করো।'}
+ if(!x){info.textContent=mapFilter!=='all'?'এই ফিল্টারে দেখানোর মতো কোনো তারিখ যোগ করা নেই।':mapMode==='all'?'এখনো কেউ কোনো পরীক্ষা যোগ করেনি।':'এখনো কোনো পরীক্ষা নেই। নিচের ডানের + বাটন চেপে প্রথম পরীক্ষা যোগ করো।'}
  else{
-  const d=daysLeft(x.examDate),h=document.createElement('h4'),m=document.createElement('div'),c=document.createElement('div');
+  const d=daysLeft(x[ff]),h=document.createElement('h4'),m=document.createElement('div'),c=document.createElement('div');
   h.textContent=`পরীক্ষা ${bnum(list.indexOf(x)+1)}: ${x.uni}${x.unit?' ('+x.unit+')':''}`;
   
-  c.className='count';c.textContent=x.examDate?(d>0?`আর ${bnum(d)} দিন বাকি`:d===0?'আজ পরীক্ষা!':`${bnum(Math.abs(d))} দিন আগে হয়ে গেছে`):'পরীক্ষার তারিখ অপেক্ষমাণ';
+  c.className='count';c.textContent=ff==='examDate'?(x.examDate?(d>0?`আর ${bnum(d)} দিন বাকি`:d===0?'আজ পরীক্ষা!':`${bnum(Math.abs(d))} দিন আগে হয়ে গেছে`):'পরীক্ষার তারিখ অপেক্ষমাণ'):`${FNAME[ff]}: `+(d>0?`আর ${bnum(d)} দিন বাকি`:d===0?'আজই':`${bnum(Math.abs(d))} দিন আগে পার হয়েছে`);
   const rw=document.createElement('div');rw.className='drows';
   (mapMode==='all'?[['যোগ করেছে',bnum(x.count)+' জন']]:[['অবস্থা',x.status||'—']]).concat(x.group?[['বিভাগ',x.group]]:[]).concat([['পরীক্ষা',dateText(x.examDate)],['আবেদন শেষ',dateText(x.applyEnd)],['অ্যাডমিট কার্ড',dateText(x.admitDate)]]).forEach(([k,v])=>{const r=document.createElement('div');r.className='drow';const a=document.createElement('span'),b=document.createElement('b');a.textContent=k;b.textContent=v;r.append(a,b);rw.append(r)});
   info.append(h,c,rw);
@@ -521,7 +529,7 @@ function renderMap(keepScroll){
 let calY=today.getFullYear(),calM=today.getMonth(),calSel=null;
 const p2=n=>String(n).padStart(2,'0');
 const CAL_T={exam:'পরীক্ষা',apply:'আবেদনের শেষ দিন',admit:'অ্যাডমিট কার্ড ডাউনলোড'};
-function calEvents(){const ev={};exams.forEach(x=>{[['examDate','exam'],['applyEnd','apply'],['admitDate','admit']].forEach(([f,t])=>{if(x[f])(ev[x[f]]=ev[x[f]]||[]).push({t,x})})});return ev}
+function calEvents(){const ev={};exams.forEach(x=>{[['examDate','exam'],['applyEnd','apply'],['admitDate','admit']].forEach(([f,t])=>{if(x[f]&&(mapFilter==='all'||mapFilter===t))(ev[x[f]]=ev[x[f]]||[]).push({t,x})})});return ev}
 function renderCalendar(){
  const grid=$('calGrid');if(!grid)return;
  const ev=calEvents(),first=new Date(calY,calM,1),dim=new Date(calY,calM+1,0).getDate(),lead=first.getDay();
@@ -548,7 +556,7 @@ function renderCalendar(){
  Object.keys(ev).sort().forEach(k=>{if(calSel?k===calSel:k.startsWith(mk))ev[k].forEach(i=>rows.push({k,...i}))});
  const h=document.createElement('h4');
  if(calSel)h.textContent=dateText(calSel);
- else{const c=rows.filter(r=>r.t==='exam').length;h.textContent=c?`এই মাসে ${bnum(c)}টি পরীক্ষা আছে`:'এই মাসে কোনো পরীক্ষা নেই'}
+ else{const c=rows.filter(r=>r.t==='exam').length,fl=mapFilter!=='all',n2=fl?rows.length:c,nm=fl?CAL_T[mapFilter]:'পরীক্ষা';h.textContent=n2?`এই মাসে ${bnum(n2)}টি ${nm} আছে`:`এই মাসে কোনো ${nm} নেই`}
  list.append(h);
  if(calSel&&!rows.length){const e=document.createElement('div');e.className='empty';e.textContent='এই দিনে কোনো পরীক্ষা নেই';list.append(e)}
  rows.forEach(r=>{
