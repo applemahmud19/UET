@@ -302,7 +302,7 @@ html[data-theme=light] .mapinfo .mi-count{background:#dce9ff;color:#2a6fd6}
 /* full-screen map (Main Map / My Map) */
 body.mapfull{overflow:hidden}
 body.mapfull .wrap{padding:0;max-width:none}
-body.mapfull .top,body.mapfull .stats,body.mapfull .mapinfo{display:none}
+body.mapfull .top,body.mapfull .mapinfo{display:none}
 body.mapfull .mappanel{position:fixed;left:0;right:0;top:0;bottom:var(--navh,84px);margin:0;padding:0;border-radius:0;background:transparent;z-index:20}
 body.mapfull .mapscroll{height:100%;max-height:none;min-height:0;border-radius:0;padding-top:66px;box-sizing:border-box}
 body.mapfull .mapscroll svg{max-width:520px}
@@ -325,6 +325,23 @@ html[data-theme=light] .node.hot text.ncd{fill:#d93a3a}
 html[data-theme=light] .dcount.hot{background:#fde1e1;color:#d93a3a}
 html[data-theme=light] .cd-exam.hot,html[data-theme=light] .callegend .sw-hot{background:#e5484d}
 html[data-theme=light] .calday.exam.hot:not(.sel){background:#fde1e1}
+/* smaller sizing */
+.node text.nname{font-size:13px}
+.node text.ndate2{font-size:11px}
+.node text.ntag2,.node text.ncd{font-size:10.5px}
+.nnum{font-size:23px!important}
+.nicon{font-size:18px}
+.road{stroke-width:11}
+body.mapfull .mapscroll{padding-top:120px}
+body.mapfull .mapscroll svg{max-width:440px}
+body.mapfull .mapfilter select{height:40px;font-size:13px;padding:0 34px 0 14px}
+.fab{width:52px;height:52px;border-radius:18px}
+.fab svg{width:24px;height:24px}
+/* compact stats strip floating over the full-screen map */
+body.mapfull .stats{position:fixed;top:calc(58px + env(safe-area-inset-top,0px));left:12px;right:12px;z-index:21;margin:0;padding:8px 2px;border-radius:16px;box-shadow:0 4px 16px #0005}
+body.mapfull .stat{gap:2px}
+body.mapfull .stat strong{font-size:17px}
+body.mapfull .stat span{font-size:10px}
 /* header (Admission Roadmap + page title) hidden for a bigger map */
 .brand{display:none}
 .top{margin:12px 6px 14px}
@@ -547,7 +564,7 @@ function renderAccount(){$('accUser').textContent=currentUser||'';$('accCount').
 
 function renderMap(keepScroll){
  const NS='http://www.w3.org/2000/svg',svg=$('mapSvg'),box=$('mapScroll'),prev=box.scrollTop;
- const list=sortedExams(),n=list.length,GAP=140,W=280,H=(n+2)*GAP;
+ const list=sortedExams(),n=list.length,GAP=130,W=340,H=(n+2)*GAP;
  const cur=list.find(x=>!isDone(x));
  const bn=v=>v.toLocaleString('bn-BD'),ff=FF();
  const hot=x=>{if(isDone(x)||!x[ff])return false;const d=daysLeft(x[ff]);return d>=0&&d<=7};
@@ -558,7 +575,7 @@ function renderMap(keepScroll){
  if(!list.find(x=>x.id===selectedId))selectedId=cur?cur.id:(list[n-1]?list[n-1].id:null);
  svg.setAttribute('viewBox',`0 0 ${W} ${H}`);svg.innerHTML='';
  const el=(t,a,txt)=>{const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);if(txt!==undefined)e.textContent=txt;return e};
- const XS=[34,246];
+ const XS=[30,310];
  const pts=[];for(let i=0;i<n+2;i++)pts.push({x:XS[i%2],y:H-GAP/2-i*GAP});
  for(let i=0;i<n+1;i++){
   const a=pts[i],b=pts[i+1],m=(a.y+b.y)/2,d=`M${a.x} ${a.y} C${a.x} ${m},${b.x} ${m},${b.x} ${b.y}`;
@@ -568,19 +585,19 @@ function renderMap(keepScroll){
  }
  const mk=(p,cls,icon,label,stars,onclick,sub,sub2,cd)=>{
   const g=el('g',{class:'node '+cls,transform:`translate(${p.x} ${p.y})`});
-  g.append(el('circle',{class:'ring',r:34}),el('circle',{class:'base',r:27}));
+  g.append(el('circle',{class:'ring',r:30}),el('circle',{class:'base',r:24}));
   g.append(el('text',{class:(!isNaN(icon)||/^[০-৯]+$/.test(icon))?'nnum':'nicon'},icon));
   const right=p.x<W/2;
   if(!sub){
-   const pw=84,ph=30,px=right?35:-35-pw;
-   g.append(el('rect',{class:'ncard',x:px,y:-ph/2,width:pw,height:ph,rx:15}),el('text',{class:'nname',x:px+14,y:5},label));
+   const pw=72,ph=26,px=right?31:-31-pw;
+   g.append(el('rect',{class:'ncard',x:px,y:-ph/2,width:pw,height:ph,rx:13}),el('text',{class:'nname',x:px+12,y:4.5},label));
   }else{
-   const CW=200,cx=right?35:-35-CW,ls=wrapLabel(label,20),nl=ls[1]?2:1,hasTag=!!(sub2||cd),h=25+(nl-1)*18+20+(hasTag?18:0)+11,top=-h/2,by=top+25+(nl-1)*18;
-   g.append(el('rect',{class:'ncard',x:cx,y:top,width:CW,height:h,rx:16}));
-   ls.filter(Boolean).forEach((t,k)=>g.append(el('text',{class:'nname',x:cx+12,y:top+25+k*18},t)));
-   g.append(el('text',{class:'ndate2',x:cx+12,y:by+20},sub));
-   if(sub2)g.append(el('text',{class:'ntag2',x:cx+12,y:by+38},clip(sub2,16)));
-   if(cd)g.append(el('text',{class:'ncd',x:cx+CW-12,y:by+38},cd));
+   const CW=186,cx=right?31:-31-CW,ls=wrapLabel(label,19),nl=ls[1]?2:1,hasTag=!!(sub2||cd),h=22+(nl-1)*16+18+(hasTag?16:0)+10,top=-h/2,by=top+22+(nl-1)*16;
+   g.append(el('rect',{class:'ncard',x:cx,y:top,width:CW,height:h,rx:14}));
+   ls.filter(Boolean).forEach((t,k)=>g.append(el('text',{class:'nname',x:cx+11,y:top+22+k*16},t)));
+   g.append(el('text',{class:'ndate2',x:cx+11,y:by+18},sub));
+   if(sub2)g.append(el('text',{class:'ntag2',x:cx+11,y:by+34},clip(sub2,14)));
+   if(cd)g.append(el('text',{class:'ncd',x:cx+CW-11,y:by+34},cd));
   }
   if(onclick)g.addEventListener('click',onclick);svg.append(g);return g;
  };
