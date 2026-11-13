@@ -1,10 +1,12 @@
-const CACHE_NAME = "admission-roadmap-v8";
+const CACHE_NAME = "admission-roadmap-v10";
 const APP_SHELL = [
   "./",
   "./index.html",
   "./manifest.json",
+  "./config.js",
   "./icon-192.png",
-  "./icon-512.png"
+  "./icon-512.png",
+  "./icon-maskable-512.png"
 ];
 
 self.addEventListener("install", event => {
