@@ -1,0 +1,24 @@
+{
+  "id": "./index.html",
+  "lang": "bn",
+  "name": "Admission Roadmap — University Exam Tracker",
+  "short_name": "Admission Tracker",
+  "description": "University admission exam dates, countdown and roadmap tracker.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0b0b0d",
+  "theme_color": "#0b0b0d",
+  "icons": [
+    {
+      "src": "./icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "./icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
