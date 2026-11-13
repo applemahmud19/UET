@@ -351,9 +351,12 @@ html.splash-on,html.splash-on body{overflow:hidden}
     <div><label for="groupSel">বিভাগ</label><select id="groupSel"><option value="">নির্বাচন করো</option><option value="বিজ্ঞান">বিজ্ঞান</option><option value="মানবিক">মানবিক</option><option value="বাণিজ্য">বাণিজ্য</option></select></div>
     <div class="full" id="unitOtherWrap" hidden><label for="unit">Unit name</label><input id="unit" placeholder="e.g. Arts Unit"></div>
     <div><label for="examDate">পরীক্ষার তারিখ</label><input id="examDate" type="date"></div>
-    <div><label for="applyStart">আবেদন শুরুর তারিখ</label><input id="applyStart" type="date"></div>
+    <div><label for="examTime">সময় (ঐচ্ছিক)</label><input id="examTime" type="time"></div>
+    <div class="full"><label for="applyStart">আবেদন শুরুর তারিখ</label><input id="applyStart" type="date"></div>
     <div><label for="applyEnd">আবেদনের শেষ তারিখ</label><input id="applyEnd" type="date"></div>
+    <div><label for="applyEndTime">সময় (ঐচ্ছিক)</label><input id="applyEndTime" type="time"></div>
     <div><label for="admitDate">অ্যাডমিট কার্ড ডাউনলোড</label><input id="admitDate" type="date"></div>
+    <div><label for="admitTime">সময় (ঐচ্ছিক)</label><input id="admitTime" type="time"></div>
     <div class="full"><label for="status">বর্তমান অবস্থা</label><select id="status"><option value="পরিকল্পনায়">পরিকল্পনায়</option><option value="আবেদন চলছে">আবেদন চলছে</option><option value="আবেদন সম্পন্ন">আবেদন সম্পন্ন</option><option value="অ্যাডমিট কার্ড প্রকাশিত">অ্যাডমিট কার্ড প্রকাশিত</option><option value="পরীক্ষা সম্পন্ন">পরীক্ষা সম্পন্ন</option></select></div>
    </div>
    <div class="btnrow"><button class="btn" type="submit" id="saveBtn">যোগ করো</button><button class="btn secondary" type="button" id="modalCancel">বাতিল</button></div>
@@ -364,6 +367,7 @@ html.splash-on,html.splash-on body{overflow:hidden}
  <form id="remForm">
   <label for="remTitle">কী মনে করিয়ে দেব?</label><input id="remTitle" placeholder="যেমন: ফি জমা দেওয়া" required>
   <label for="remDate">তারিখ</label><input id="remDate" type="date" required>
+  <label for="remTime">সময় (ঐচ্ছিক)</label><input id="remTime" type="time">
   <label for="remNote">নোট (ঐচ্ছিক)</label><input id="remNote" placeholder="যেমন: ব্যাংকে গিয়ে জমা দিতে হবে">
   <div class="btnrow"><button class="btn" type="submit" id="remSave">সেভ করো</button><button class="btn secondary" type="button" id="remCancel">বাতিল</button></div>
  </form>
@@ -405,6 +409,9 @@ const today=new Date();today.setHours(0,0,0,0);
 $('today').textContent=new Intl.DateTimeFormat('bn-BD',{weekday:'long',day:'numeric',month:'long',year:'numeric'}).format(new Date());
 function save(){localStorage.setItem(userKey(currentUser),JSON.stringify(exams));markDirty();render()}
 function dateText(s){if(!s)return 'তারিখ যোগ করা হয়নি';return new Intl.DateTimeFormat('bn-BD',{weekday:'long',day:'numeric',month:'short',year:'numeric'}).format(new Date(s+'T00:00:00'))}
+function timeText(t){if(!t)return '';try{return new Intl.DateTimeFormat('bn-BD',{hour:'numeric',minute:'2-digit',hour12:true}).format(new Date('1970-01-01T'+t))}catch(e){return t}}
+const TF={examDate:'examTime',applyEnd:'applyEndTime',admitDate:'admitTime'};
+const dtText=(x,f)=>dateText(x[f])+(x[f]&&x[TF[f]]?'  •  '+timeText(x[TF[f]]):'');
 function daysLeft(s){if(!s)return null;return Math.ceil((new Date(s+'T00:00:00')-today)/86400000)}
 /* ---------- Game-style Level Map ---------- */
 const OLD_ST={'Admit Card প্রকাশিত':'অ্যাডমিট কার্ড প্রকাশিত'};const fixSt=v=>{v=(v||'').normalize('NFC');return OLD_ST[v]||v};
@@ -415,8 +422,8 @@ function allExams(){
  const g={};
  ((CLOUD&&commRows)?[commRows]:Object.keys(getUsers()).map(u=>{let a=[];try{a=JSON.parse(localStorage.getItem(userKey(u))||'[]')}catch(e){}return a})).forEach(a=>{
   a.forEach(x=>{if(!x||!x.uni||String(x.uni).length>100)return;const k=[x.uni,x.unit||'',x.group||'',x.examDate||''].map(v=>String(v).trim().toLowerCase()).join('|');
-   const m=g[k]||(g[k]={id:k,uni:x.uni,unit:x.unit||'',group:x.group||'',examDate:x.examDate||'',applyEnd:'',admitDate:'',status:'',count:0});
-   m.count++;m.applyEnd=m.applyEnd||x.applyEnd||'';m.admitDate=m.admitDate||x.admitDate||''})});
+   const m=g[k]||(g[k]={id:k,uni:x.uni,unit:x.unit||'',group:x.group||'',examDate:x.examDate||'',examTime:x.examTime||'',applyEnd:'',applyEndTime:'',admitDate:'',admitTime:'',status:'',count:0});
+   m.count++;if(!m.applyEnd&&x.applyEnd){m.applyEnd=x.applyEnd;m.applyEndTime=x.applyEndTime||''}if(!m.admitDate&&x.admitDate){m.admitDate=x.admitDate;m.admitTime=x.admitTime||''}})});
  return Object.values(g).sort(byDate);
 }
 let mapFilter='all';const FILT={exam:'examDate',apply:'applyEnd',admit:'admitDate'},FNAME={examDate:'পরীক্ষা',applyEnd:'আবেদনের শেষ তারিখ',admitDate:'অ্যাডমিট কার্ড ডাউনলোড'};const FF=()=>FILT[mapFilter]||'examDate';
@@ -442,12 +449,12 @@ function renderReminders(){
  const ev=[];
  exams.forEach(x=>{const si=STARS[x.status]||0;
   if(x.applyStart&&x.status==='পরিকল্পনায়')ev.push({d:x.applyStart,t:'আবেদন শুরু',x});
-  if(x.applyEnd&&si<1)ev.push({d:x.applyEnd,t:'আবেদনের শেষ তারিখ',x});
-  if(x.admitDate&&si<2)ev.push({d:x.admitDate,t:'অ্যাডমিট কার্ড ডাউনলোড',x});
-  if(x.examDate&&si<3)ev.push({d:x.examDate,t:'ভর্তি পরীক্ষা',x});
+  if(x.applyEnd&&si<1)ev.push({d:x.applyEnd,tm:x.applyEndTime,t:'আবেদনের শেষ তারিখ',x});
+  if(x.admitDate&&si<2)ev.push({d:x.admitDate,tm:x.admitTime,t:'অ্যাডমিট কার্ড ডাউনলোড',x});
+  if(x.examDate&&si<3)ev.push({d:x.examDate,tm:x.examTime,t:'ভর্তি পরীক্ষা',x});
  });
- rems.forEach(r=>{if(r.date)ev.push({d:r.date,custom:true,r})});
- ev.sort((a,b)=>a.d.localeCompare(b.d));
+ rems.forEach(r=>{if(r.date)ev.push({d:r.date,tm:r.time,custom:true,r})});
+ ev.sort((a,b)=>a.d.localeCompare(b.d)||(a.tm||'').localeCompare(b.tm||''));
  const groups=[['আজ',e=>daysLeft(e.d)===0],['আগামী ৭ দিন',e=>{const k=daysLeft(e.d);return k>=1&&k<=7}],['এর পরে',e=>daysLeft(e.d)>7],['সময় পার হয়ে গেছে (অবস্থা আপডেট করো)',e=>daysLeft(e.d)<0]];
  const box=$('remindList');box.innerHTML='';
  groups.forEach(([title,f])=>{
@@ -456,7 +463,7 @@ function renderReminders(){
   items.forEach(e=>{
    const k=daysLeft(e.d),r=document.createElement('div');r.className='ritem';
    const l=document.createElement('div'),b=document.createElement('b');b.textContent=e.custom?e.r.title:e.t+': '+e.x.uni;
-   const m=document.createElement('div');m.className='muted';m.textContent=dateText(e.d)+(e.custom?(e.r.note?'  •  '+e.r.note:''):(tagText(e.x)?'  •  '+tagText(e.x):''));l.append(b,m);
+   const m=document.createElement('div');m.className='muted';m.textContent=dateText(e.d)+(e.tm?'  •  '+timeText(e.tm):'')+(e.custom?(e.r.note?'  •  '+e.r.note:''):(tagText(e.x)?'  •  '+tagText(e.x):''));l.append(b,m);
    if(e.custom){const ac=document.createElement('div');ac.className='ractions';
     const eb=document.createElement('button');eb.type='button';eb.textContent='Edit';eb.onclick=()=>openRem(e.r.id);
     const db=document.createElement('button');db.type='button';db.textContent='মুছো';db.onclick=()=>{if(confirm('এই রিমাইন্ডারটি মুছে ফেলবে?')){rems=rems.filter(a=>a.id!==e.r.id);saveRems()}};
@@ -514,7 +521,7 @@ function renderMap(keepScroll){
   
   c.className='count';c.textContent=ff==='examDate'?(x.examDate?(d>0?`আর ${bnum(d)} দিন বাকি`:d===0?'আজ পরীক্ষা!':`${bnum(Math.abs(d))} দিন আগে হয়ে গেছে`):'পরীক্ষার তারিখ অপেক্ষমাণ'):`${FNAME[ff]}: `+(d>0?`আর ${bnum(d)} দিন বাকি`:d===0?'আজই':`${bnum(Math.abs(d))} দিন আগে পার হয়েছে`);
   const rw=document.createElement('div');rw.className='drows';
-  (mapMode==='all'?[['যোগ করেছে',bnum(x.count)+' জন']]:[['অবস্থা',x.status||'—']]).concat(x.group?[['বিভাগ',x.group]]:[]).concat([['পরীক্ষা',dateText(x.examDate)],['আবেদন শেষ',dateText(x.applyEnd)],['অ্যাডমিট কার্ড',dateText(x.admitDate)]]).forEach(([k,v])=>{const r=document.createElement('div');r.className='drow';const a=document.createElement('span'),b=document.createElement('b');a.textContent=k;b.textContent=v;r.append(a,b);rw.append(r)});
+  (mapMode==='all'?[['যোগ করেছে',bnum(x.count)+' জন']]:[['অবস্থা',x.status||'—']]).concat(x.group?[['বিভাগ',x.group]]:[]).concat([['পরীক্ষা',dtText(x,'examDate')],['আবেদন শেষ',dtText(x,'applyEnd')],['অ্যাডমিট কার্ড',dtText(x,'admitDate')]]).forEach(([k,v])=>{const r=document.createElement('div');r.className='drow';const a=document.createElement('span'),b=document.createElement('b');a.textContent=k;b.textContent=v;r.append(a,b);rw.append(r)});
   info.append(h,c,rw);
   if(mapMode==='mine'){
    const row=document.createElement('div');row.className='btnrow';row.style.marginTop='10px';
@@ -566,7 +573,7 @@ function renderCalendar(){
  rows.forEach(r=>{
   const it=document.createElement('div');it.className='ritem';
   const l=document.createElement('div'),b=document.createElement('b'),m=document.createElement('div');m.className='muted';
-  b.textContent=r.x.uni;m.textContent=[CAL_T[r.t],tagText(r.x)].filter(Boolean).join('  •  ');
+  b.textContent=r.x.uni;m.textContent=[CAL_T[r.t],timeText(r.x[({exam:'examTime',apply:'applyEndTime',admit:'admitTime'})[r.t]]),tagText(r.x)].filter(Boolean).join('  •  ');
   l.append(b,m);
   if(!calSel){const m2=document.createElement('div');m2.className='muted';m2.textContent=dateText(r.k);l.append(m2)}
   const dd=document.createElement('div'),k=daysLeft(r.k);dd.className='rdays'+(k<0?' late':k<=3?' hot':'');
@@ -616,10 +623,10 @@ function fillDetail(){
  const rows=document.createElement('div');rows.className='drows';
  const add=(k,v)=>{const r=document.createElement('div');r.className='drow';const a=document.createElement('span'),b=document.createElement('b');a.textContent=k;b.textContent=v;r.append(a,b);rows.append(r)};
  if(mine)add('বর্তমান অবস্থা',x.status||'—');else add('যোগ করেছে',`${bnum(x.count)} জন`);
- add('পরীক্ষার তারিখ',dateText(x.examDate));
+ add('পরীক্ষার তারিখ',dtText(x,'examDate'));
  if(mine)add('আবেদন শুরু',dateText(x.applyStart));
- add('আবেদনের শেষ তারিখ',dateText(x.applyEnd));
- add('অ্যাডমিট কার্ড ডাউনলোড',dateText(x.admitDate));
+ add('আবেদনের শেষ তারিখ',dtText(x,'applyEnd'));
+ add('অ্যাডমিট কার্ড ডাউনলোড',dtText(x,'admitDate'));
  box.append(rows);
  if(mine){
   const l=document.createElement('label');l.textContent='অবস্থা আপডেট করো';l.htmlFor='detailStatus';
@@ -640,7 +647,7 @@ $('detailModal').addEventListener('click',e=>{if(e.target.id==='detailModal')clo
 let editingId=null;
 function openForm(id){
  editingId=id||null;const x=id?exams.find(a=>a.id===id):null;$('addForm').reset();
- if(x){$('uni').value=x.uni;$('examDate').value=x.examDate||'';$('applyStart').value=x.applyStart||'';$('applyEnd').value=x.applyEnd||'';$('admitDate').value=x.admitDate||'';$('status').value=x.status}
+ if(x){$('uni').value=x.uni;$('examDate').value=x.examDate||'';$('applyStart').value=x.applyStart||'';$('applyEnd').value=x.applyEnd||'';$('admitDate').value=x.admitDate||'';$('examTime').value=x.examTime||'';$('applyEndTime').value=x.applyEndTime||'';$('admitTime').value=x.admitTime||'';$('status').value=x.status}
  setUnitFields(x?x.unit:'',x?x.group:'');
  $('modalTitle').textContent=x?'পরীক্ষা এডিট করো':'নতুন পরীক্ষা যোগ করো';$('saveBtn').textContent=x?'সেভ করো':'যোগ করো';
  $('addModal').hidden=false;setTimeout(()=>$('uni').focus(),50);
@@ -650,7 +657,7 @@ $('fabAdd').onclick=()=>view==='remind'?openRem():openForm();$('modalClose').onc
 $('addModal').addEventListener('click',e=>{if(e.target.id==='addModal')closeForm()});
 $('addForm').addEventListener('submit',e=>{
  e.preventDefault();
- const v={uni:$('uni').value.trim(),unit:getUnit(),group:$('groupSel').value,examDate:$('examDate').value,applyStart:$('applyStart').value,applyEnd:$('applyEnd').value,admitDate:$('admitDate').value,status:$('status').value};
+ const v={uni:$('uni').value.trim(),unit:getUnit(),group:$('groupSel').value,examDate:$('examDate').value,applyStart:$('applyStart').value,applyEnd:$('applyEnd').value,admitDate:$('admitDate').value,examTime:$('examTime').value,applyEndTime:$('applyEndTime').value,admitTime:$('admitTime').value,status:$('status').value};
  if(editingId){Object.assign(exams.find(a=>a.id===editingId),v);selectedId=editingId}
  else{const id=Date.now().toString();exams.push({id,...v});selectedId=id}
  closeForm();save();
@@ -659,14 +666,14 @@ let editingRem=null;
 function saveRems(){localStorage.setItem(remKey(currentUser),JSON.stringify(rems));markDirty();renderReminders()}
 function openRem(id){
  editingRem=id||null;const r=id?rems.find(a=>a.id===id):null;$('remForm').reset();
- if(r){$('remTitle').value=r.title;$('remDate').value=r.date;$('remNote').value=r.note||''}
+ if(r){$('remTitle').value=r.title;$('remDate').value=r.date;$('remTime').value=r.time||'';$('remNote').value=r.note||''}
  $('remModalTitle').textContent=r?'রিমাইন্ডার এডিট করো':'নতুন রিমাইন্ডার';$('remModal').hidden=false;setTimeout(()=>$('remTitle').focus(),50);
 }
 function closeRem(){$('remModal').hidden=true;editingRem=null}
 $('remClose').onclick=closeRem;$('remCancel').onclick=closeRem;
 $('remModal').addEventListener('click',e=>{if(e.target.id==='remModal')closeRem()});
 $('remForm').addEventListener('submit',e=>{
- e.preventDefault();const v={title:$('remTitle').value.trim(),date:$('remDate').value,note:$('remNote').value.trim()};
+ e.preventDefault();const v={title:$('remTitle').value.trim(),date:$('remDate').value,time:$('remTime').value,note:$('remNote').value.trim()};
  if(editingRem)Object.assign(rems.find(a=>a.id===editingRem),v);else rems.push({id:Date.now().toString(),...v});
  closeRem();saveRems();
 });
