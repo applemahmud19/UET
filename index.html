@@ -287,6 +287,18 @@ html[data-theme=light] .calday.exam:not(.sel){background:#fff3d6}html[data-theme
 html[data-theme=light] .callegend .sw-exam{background:#f0a020}html[data-theme=light] .callegend .sw-past{background:#35b87a}html[data-theme=light] .callegend .sw-apply{background:#2f7bf0}html[data-theme=light] .callegend .sw-admit{background:#1fb3a3}
 html[data-theme=light] .tpill.t-exam{background:#ffe3b0;color:#7a4a00}html[data-theme=light] .tpill.t-apply{background:#d7e6ff;color:#1b4f9c}html[data-theme=light] .tpill.t-admit{background:#cbf1ee;color:#12615b}
 html[data-theme=light] .ritem.cr-exam{box-shadow:inset 4px 0 0 #f0a020}html[data-theme=light] .ritem.cr-apply{box-shadow:inset 4px 0 0 #2f7bf0}html[data-theme=light] .ritem.cr-admit{box-shadow:inset 4px 0 0 #1fb3a3}
+/* map: readable cards beside nodes + nicer info card */
+.ncard{fill:var(--panel);stroke:var(--line);stroke-width:1;filter:drop-shadow(0 2px 6px rgba(0,0,0,.22))}
+.node.done .ncard{stroke:var(--green)}.node.cur .ncard{stroke:var(--amber);stroke-width:1.6}.node.sel .ncard{stroke:var(--blue);stroke-width:2}
+.node text.nname{fill:var(--text);font-size:14px;font-weight:800;text-anchor:start}
+.node text.ndate2{fill:var(--muted);font-size:12px;font-weight:600;text-anchor:start}
+.node text.ntag2{fill:var(--cyan);font-size:11.5px;font-weight:700;text-anchor:start}
+.node text.ncd{fill:var(--cyan);font-size:11.5px;font-weight:800;text-anchor:end}
+.node.cur text.ncd{fill:var(--amber)}.node.done text.ncd{fill:var(--green)}
+.mapinfo .mi-eye{color:var(--cyan);font-size:12.5px;font-weight:700;margin-bottom:3px}
+.mapinfo h4{font-size:19px;line-height:1.35;margin:0 0 10px}
+.mapinfo .mi-count{display:inline-block;background:#243a5e;color:#9cc7ff;border-radius:999px;padding:6px 14px;font-size:13px;font-weight:800;margin:0 0 12px}
+html[data-theme=light] .mapinfo .mi-count{background:#dce9ff;color:#2a6fd6}
 /* header (Admission Roadmap + page title) hidden for a bigger map */
 .brand{display:none}
 .top{margin:12px 6px 14px}
@@ -508,37 +520,46 @@ function renderAccount(){$('accUser').textContent=currentUser||'';$('accCount').
 
 function renderMap(keepScroll){
  const NS='http://www.w3.org/2000/svg',svg=$('mapSvg'),box=$('mapScroll'),prev=box.scrollTop;
- const list=sortedExams(),n=list.length,GAP=150,W=360,H=(n+2)*GAP;
+ const list=sortedExams(),n=list.length,GAP=140,W=280,H=(n+2)*GAP;
  const cur=list.find(x=>!isDone(x));
  const bn=v=>v.toLocaleString('bn-BD'),ff=FF();
+ const cdt=x=>{if(!x[ff])return '';const d=daysLeft(x[ff]);return d>0?bn(d)+' দিন বাকি':d===0?'আজ':bn(Math.abs(d))+' দিন আগে'};
  $('total').textContent=bn(n);$('dated').textContent=bn(list.filter(x=>x[ff]).length);
  $('upcoming').textContent=bn(list.filter(x=>x[ff]&&daysLeft(x[ff])>=0&&!isDone(x)).length);
  $('completed').textContent=bn(list.filter(isDone).length);
  if(!list.find(x=>x.id===selectedId))selectedId=cur?cur.id:(list[n-1]?list[n-1].id:null);
  svg.setAttribute('viewBox',`0 0 ${W} ${H}`);svg.innerHTML='';
  const el=(t,a,txt)=>{const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);if(txt!==undefined)e.textContent=txt;return e};
- const XS=[180,270,180,90];
- const pts=[];for(let i=0;i<n+2;i++)pts.push({x:XS[i%4],y:H-GAP/2-i*GAP});
+ const XS=[34,246];
+ const pts=[];for(let i=0;i<n+2;i++)pts.push({x:XS[i%2],y:H-GAP/2-i*GAP});
  for(let i=0;i<n+1;i++){
   const a=pts[i],b=pts[i+1],m=(a.y+b.y)/2,d=`M${a.x} ${a.y} C${a.x} ${m},${b.x} ${m},${b.x} ${b.y}`;
   svg.append(el('path',{d,fill:'none',class:'road','stroke-width':14,'stroke-linecap':'round'}));
   const reached=i===0||isDone(list[i-1]);
   if(reached)svg.append(el('path',{d,fill:'none',stroke:'#62dfd0','stroke-width':5,'stroke-linecap':'round','stroke-dasharray':'2 12'}));
  }
- const mk=(p,cls,icon,label,stars,onclick,sub,sub2)=>{
+ const mk=(p,cls,icon,label,stars,onclick,sub,sub2,cd)=>{
   const g=el('g',{class:'node '+cls,transform:`translate(${p.x} ${p.y})`});
   g.append(el('circle',{class:'ring',r:34}),el('circle',{class:'base',r:27}));
   g.append(el('text',{class:(!isNaN(icon)||/^[০-৯]+$/.test(icon))?'nnum':'nicon'},icon));
-  const ls=wrapLabel(label,13),lt=el('text',{class:'nlabel',y:50});
-  lt.append(el('tspan',{x:0},ls[0]));if(ls[1])lt.append(el('tspan',{x:0,dy:14},ls[1]));g.append(lt);
-  if(sub)g.append(el('text',{class:'ndate',y:52+14*(ls[1]?2:1)},sub));
-  if(sub2)g.append(el('text',{class:'ntag',y:52+14*(ls[1]?2:1)+14},clip(sub2,24)));
+  const right=p.x<W/2;
+  if(!sub){
+   const pw=84,ph=30,px=right?35:-35-pw;
+   g.append(el('rect',{class:'ncard',x:px,y:-ph/2,width:pw,height:ph,rx:15}),el('text',{class:'nname',x:px+14,y:5},label));
+  }else{
+   const CW=200,cx=right?35:-35-CW,ls=wrapLabel(label,20),nl=ls[1]?2:1,hasTag=!!(sub2||cd),h=25+(nl-1)*18+20+(hasTag?18:0)+11,top=-h/2,by=top+25+(nl-1)*18;
+   g.append(el('rect',{class:'ncard',x:cx,y:top,width:CW,height:h,rx:16}));
+   ls.filter(Boolean).forEach((t,k)=>g.append(el('text',{class:'nname',x:cx+12,y:top+25+k*18},t)));
+   g.append(el('text',{class:'ndate2',x:cx+12,y:by+20},sub));
+   if(sub2)g.append(el('text',{class:'ntag2',x:cx+12,y:by+38},clip(sub2,16)));
+   if(cd)g.append(el('text',{class:'ncd',x:cx+CW-12,y:by+38},cd));
+  }
   if(onclick)g.addEventListener('click',onclick);svg.append(g);return g;
  };
  mk(pts[0],'done','শু','শুরু',null);
  list.forEach((x,i)=>{
   const st=isDone(x)?'done':(cur&&cur.id===x.id?'cur':'up');
-  mk(pts[i+1],st+(x.id===selectedId?' sel':''),st==='done'?'✓':bnum(i+1),x.uni,mapMode==='all'?null:(STARS[x.status]||0),()=>{selectedId=x.id;renderMap(true);openDetail(x.id)},x[ff]?dateText(x[ff]):'তারিখ অপেক্ষমাণ',tagText(x));
+  mk(pts[i+1],st+(x.id===selectedId?' sel':''),st==='done'?'✓':bnum(i+1),x.uni,mapMode==='all'?null:(STARS[x.status]||0),()=>{selectedId=x.id;renderMap(true);openDetail(x.id)},x[ff]?dateText(x[ff]):'তারিখ অপেক্ষমাণ',tagText(x),cdt(x));
  });
  mk(pts[n+1],list.length&&!cur?'done':'up','★','লক্ষ্য',null);
  const info=$('mapInfo');info.innerHTML='';
@@ -546,12 +567,12 @@ function renderMap(keepScroll){
  if(!x){info.textContent=mapFilter!=='all'?'এই ফিল্টারে দেখানোর মতো কোনো তারিখ যোগ করা নেই।':mapMode==='all'?'এখনো কেউ কোনো পরীক্ষা যোগ করেনি।':'এখনো কোনো পরীক্ষা নেই। নিচের ডানের + বাটন চেপে প্রথম পরীক্ষা যোগ করো।'}
  else{
   const d=daysLeft(x[ff]),h=document.createElement('h4'),m=document.createElement('div'),c=document.createElement('div');
-  h.textContent=`পরীক্ষা ${bnum(list.indexOf(x)+1)}: ${x.uni}${x.unit?' ('+x.unit+')':''}`;
+  h.textContent=x.uni;m.className='mi-eye';m.textContent=`পরীক্ষা ${bnum(list.indexOf(x)+1)}`+(tagText(x)?'  •  '+tagText(x):'');
   
-  c.className='count';c.textContent=ff==='examDate'?(x.examDate?(d>0?`আর ${bnum(d)} দিন বাকি`:d===0?'আজ পরীক্ষা!':`${bnum(Math.abs(d))} দিন আগে হয়ে গেছে`):'পরীক্ষার তারিখ অপেক্ষমাণ'):`${FNAME[ff]}: `+(d>0?`আর ${bnum(d)} দিন বাকি`:d===0?'আজই':`${bnum(Math.abs(d))} দিন আগে পার হয়েছে`);
+  c.className='count mi-count';c.textContent=ff==='examDate'?(x.examDate?(d>0?`আর ${bnum(d)} দিন বাকি`:d===0?'আজ পরীক্ষা!':`${bnum(Math.abs(d))} দিন আগে হয়ে গেছে`):'পরীক্ষার তারিখ অপেক্ষমাণ'):`${FNAME[ff]}: `+(d>0?`আর ${bnum(d)} দিন বাকি`:d===0?'আজই':`${bnum(Math.abs(d))} দিন আগে পার হয়েছে`);
   const rw=document.createElement('div');rw.className='drows';
   (mapMode==='all'?[['যোগ করেছে',bnum(x.count)+' জন']]:[['অবস্থা',x.status||'—']]).concat(x.group?[['বিভাগ',x.group]]:[]).concat([['পরীক্ষা',dtText(x,'examDate')],['আবেদন শেষ',dtText(x,'applyEnd')],['অ্যাডমিট কার্ড',dtText(x,'admitDate')]]).forEach(([k,v])=>{const r=document.createElement('div');r.className='drow';const a=document.createElement('span'),b=document.createElement('b');a.textContent=k;b.textContent=v;r.append(a,b);rw.append(r)});
-  info.append(h,c,rw);
+  info.append(m,h,c,rw);
   if(mapMode==='mine'){
    const row=document.createElement('div');row.className='btnrow';row.style.marginTop='10px';
    const mk2=(t,cls,fn)=>{const b=document.createElement('button');b.type='button';b.className='btn '+cls;b.style.cssText='padding:8px 12px;font-size:12px';b.textContent=t;b.onclick=fn;return b};
