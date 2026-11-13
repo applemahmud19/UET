@@ -427,16 +427,22 @@ body.mapfull.apmode .mapscroll{padding-top:164px}
 html[data-theme=light] .node.done .nic{stroke:#1f8a5b}
 .node.cur .nic{stroke:#ffe3b0}
 .ico{flex:none;display:block}
+.node.start circle.base{fill:#1c3f78;stroke:#3e91ff}
+.node.start .ncard{stroke:#3e91ff}
+.node.start .nic{stroke:#d6e8ff}
+html[data-theme=light] .node.start circle.base{fill:#dce9ff;stroke:#2f7bf0}
+html[data-theme=light] .node.start .ncard{stroke:#2f7bf0}
+html[data-theme=light] .node.start .nic{stroke:#2f7bf0}
 .aptoggle button{display:flex;align-items:center;justify-content:center;gap:6px}
 .apchip{display:flex;align-items:center;justify-content:center;gap:4px}
 /* ===== map road ===== */
 .road{filter:drop-shadow(0 1px 3px rgba(0,0,0,.35))}
-.trail{stroke:#9fe9ff;opacity:.95;filter:drop-shadow(0 0 3px rgba(143,226,255,.85)) drop-shadow(0 0 9px rgba(95,180,255,.55))}
-.glow{stroke:#5fb4ff;opacity:.38;filter:blur(5px);animation:glowBreathe 4s ease-in-out infinite}
-@keyframes glowBreathe{0%,100%{opacity:.26}50%{opacity:.5}}
+.trail{stroke:#9fe9ff;opacity:.95;filter:drop-shadow(0 0 2px rgba(143,226,255,.6)) drop-shadow(0 0 5px rgba(95,180,255,.25))}
+.glow{stroke:#5fb4ff;opacity:.18;filter:blur(5px);animation:glowBreathe 4s ease-in-out infinite}
+@keyframes glowBreathe{0%,100%{opacity:.1}50%{opacity:.26}}
 .lane{stroke:#5b7694;stroke-dasharray:1 11;opacity:.6}
-html[data-theme=light] .trail{stroke:#4fb6e8;filter:drop-shadow(0 0 3px rgba(79,182,232,.7)) drop-shadow(0 0 8px rgba(47,123,240,.35))}
-html[data-theme=light] .glow{stroke:#7cc4ff;opacity:.45}
+html[data-theme=light] .trail{stroke:#4fb6e8;filter:drop-shadow(0 0 2px rgba(79,182,232,.5)) drop-shadow(0 0 5px rgba(47,123,240,.2))}
+html[data-theme=light] .glow{stroke:#7cc4ff;opacity:.22}
 html[data-theme=light] .lane{stroke:#9fb2cc}
 @media(prefers-reduced-motion:reduce){.glow{animation:none}}
 </style>
@@ -762,7 +768,7 @@ function renderMap(keepScroll){
   }
   if(onclick)g.addEventListener('click',onclick);svg.append(g);return g;
  };
- mk(pts[0],'done','__start__','শুরু',null);
+ mk(pts[0],'done start','__start__','শুরু',null);
  list.forEach((x,i)=>{
   const st=isDone(x)?'done':(cur&&cur.id===x.id?'cur':'up');
   const ng=mk(pts[i+1],st+(hot(x)?' hot':'')+(x.id===selectedId?' sel':''),st==='done'?'__check__':bnum(i+1),x.uni,mapMode==='all'?null:(STARS[x.status]||0),()=>{selectedId=x.id;renderMap(true);openDetail(x.id)},x[ff]?dateText(x[ff]):'তারিখ অপেক্ষমাণ',tagText(x),cdt(x),apInfo(x));
