@@ -666,12 +666,12 @@ function renderMap(keepScroll){
    const pw=72,ph=26,px=right?31:-31-pw;
    g.append(el('rect',{class:'ncard',x:px,y:-ph/2,width:pw,height:ph,rx:13}),el('text',{class:'nname',x:px+12,y:4.5},label));
   }else{
-   const CW=186,cx=right?31:-31-CW,ls=wrapLabel(label,19),nl=ls[1]?2:1,hasTag=!!(sub2||cd),h=22+(nl-1)*16+18+(hasTag?16:0)+10,top=-h/2,by=top+22+(nl-1)*16;
+   const CW=186,cx=right?31:-31-CW,ls=wrapLabel(label,19),nl=ls[1]?2:1,hasTag=!!(sub2||cd),stack=!!(sub2&&cd&&(()=>{try{return localStorage.getItem('admission-roadmap-language')==='en'}catch(e){return false}})()),h=22+(nl-1)*16+18+(hasTag?16:0)+(stack?16:0)+10,top=-h/2,by=top+22+(nl-1)*16;
    g.append(el('rect',{class:'ncard',x:cx,y:top,width:CW,height:h,rx:14}));
    ls.filter(Boolean).forEach((t,k)=>g.append(el('text',{class:'nname',x:cx+11,y:top+22+k*16},t)));
    g.append(el('text',{class:'ndate2',x:cx+11,y:by+18},sub));
    if(sub2)g.append(el('text',{class:'ntag2',x:cx+11,y:by+34},clip(sub2,14)));
-   if(cd)g.append(el('text',{class:'ncd',x:cx+CW-11,y:by+34},cd));
+   if(cd)g.append(stack?el('text',{class:'ncd',x:cx+11,y:by+50,style:'text-anchor:start'},cd):el('text',{class:'ncd',x:cx+CW-11,y:by+34},cd));
   }
   if(onclick)g.addEventListener('click',onclick);svg.append(g);return g;
  };
