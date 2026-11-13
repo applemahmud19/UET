@@ -260,6 +260,15 @@ html.splash-on,html.splash-on body{overflow:hidden}
 .mapfilter{display:flex;justify-content:flex-end;margin-bottom:10px}
 .mapfilter select{appearance:none;-webkit-appearance:none;max-width:100%;background:var(--panel2) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%239aabc2' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat right 12px center;color:var(--text);border:1px solid var(--line);border-radius:12px;padding:9px 34px 9px 14px;font:inherit;font-size:13px;font-weight:700;cursor:pointer}
 .mapfilter select:focus{outline:2px solid var(--blue);outline-offset:1px}
+/* compact add-exam form: 2 columns, no scrolling */
+#addModal .sheet{padding-top:10px;padding-bottom:calc(16px + env(safe-area-inset-bottom,0px))}
+#addModal .sheet::before{margin-bottom:10px}
+#addModal .sectionhead{margin-bottom:6px}
+#addForm label{margin:8px 0 4px 2px;font-size:12px}
+#addForm input,#addForm select{height:42px;min-height:42px;font-size:14px;padding:0 10px;border-radius:14px}
+#addForm .btnrow{margin-top:14px}
+#addForm .btn{padding:11px 18px}
+@media(max-width:420px){#addForm .formgrid{grid-template-columns:1fr 1fr;gap:0 8px}#addForm .full{grid-column:1/-1}}
 /* header (Admission Roadmap + page title) hidden for a bigger map */
 .brand{display:none}
 .top{margin:12px 6px 14px}
@@ -346,18 +355,19 @@ html.splash-on,html.splash-on body{overflow:hidden}
  <div class="sectionhead"><h3 id="modalTitle">নতুন পরীক্ষা যোগ করো</h3><button class="btn secondary" type="button" id="modalClose" style="padding:6px 12px;font-size:12px">বন্ধ</button></div>
 <form id="addForm">
    <div class="formgrid">
-    <div class="full"><label for="uni">বিশ্ববিদ্যালয়ের নাম</label><input id="uni" maxlength="80" placeholder="যেমন: ঢাকা বিশ্ববিদ্যালয়" required></div>
+    <div class="full"><label for="uniSel">বিশ্ববিদ্যালয়ের নাম</label><select id="uniSel" required><option value="">নির্বাচন করো</option><option value="__other">অন্যান্য (নিজে লিখো)</option></select></div>
+    <div class="full" id="uniOtherWrap" hidden><label for="uni">বিশ্ববিদ্যালয়ের নাম লেখো</label><input id="uni" maxlength="80" placeholder="যেমন: ঢাকা বিশ্ববিদ্যালয়"></div>
     <div><label for="unitSel">Unit</label><select id="unitSel"><option value="">Select</option><option value="A Unit">A Unit</option><option value="B Unit">B Unit</option><option value="C Unit">C Unit</option><option value="D Unit">D Unit</option><option value="E Unit">E Unit</option><option value="__other">Other</option></select></div>
     <div><label for="groupSel">বিভাগ</label><select id="groupSel"><option value="">নির্বাচন করো</option><option value="বিজ্ঞান">বিজ্ঞান</option><option value="মানবিক">মানবিক</option><option value="বাণিজ্য">বাণিজ্য</option></select></div>
     <div class="full" id="unitOtherWrap" hidden><label for="unit">Unit name</label><input id="unit" placeholder="e.g. Arts Unit"></div>
     <div><label for="examDate">পরীক্ষার তারিখ</label><input id="examDate" type="date"></div>
     <div><label for="examTime">সময় (ঐচ্ছিক)</label><input id="examTime" type="time"></div>
-    <div class="full"><label for="applyStart">আবেদন শুরুর তারিখ</label><input id="applyStart" type="date"></div>
     <div><label for="applyEnd">আবেদনের শেষ তারিখ</label><input id="applyEnd" type="date"></div>
     <div><label for="applyEndTime">সময় (ঐচ্ছিক)</label><input id="applyEndTime" type="time"></div>
     <div><label for="admitDate">অ্যাডমিট কার্ড ডাউনলোড</label><input id="admitDate" type="date"></div>
     <div><label for="admitTime">সময় (ঐচ্ছিক)</label><input id="admitTime" type="time"></div>
-    <div class="full"><label for="status">বর্তমান অবস্থা</label><select id="status"><option value="পরিকল্পনায়">পরিকল্পনায়</option><option value="আবেদন চলছে">আবেদন চলছে</option><option value="আবেদন সম্পন্ন">আবেদন সম্পন্ন</option><option value="অ্যাডমিট কার্ড প্রকাশিত">অ্যাডমিট কার্ড প্রকাশিত</option><option value="পরীক্ষা সম্পন্ন">পরীক্ষা সম্পন্ন</option></select></div>
+        <div><label for="applyStart">আবেদন শুরুর তারিখ</label><input id="applyStart" type="date"></div>
+    <div><label for="status">বর্তমান অবস্থা</label><select id="status"><option value="পরিকল্পনায়">পরিকল্পনায়</option><option value="আবেদন চলছে">আবেদন চলছে</option><option value="আবেদন সম্পন্ন">আবেদন সম্পন্ন</option><option value="অ্যাডমিট কার্ড প্রকাশিত">অ্যাডমিট কার্ড প্রকাশিত</option><option value="পরীক্ষা সম্পন্ন">পরীক্ষা সম্পন্ন</option></select></div>
    </div>
    <div class="btnrow"><button class="btn" type="submit" id="saveBtn">যোগ করো</button><button class="btn secondary" type="button" id="modalCancel">বাতিল</button></div>
   </form>
@@ -596,6 +606,12 @@ function render(){
  renderMap();renderReminders();renderAccount();
  if(!$('detailModal').hidden)fillDetail();
 }
+const UNI_LIST=['ঢাকা বিশ্ববিদ্যালয়','রাজশাহী বিশ্ববিদ্যালয়','চট্টগ্রাম বিশ্ববিদ্যালয়','জাহাঙ্গীরনগর বিশ্ববিদ্যালয়','জগন্নাথ বিশ্ববিদ্যালয়','ইসলামী বিশ্ববিদ্যালয়','খুলনা বিশ্ববিদ্যালয়','বরিশাল বিশ্ববিদ্যালয়','কুমিল্লা বিশ্ববিদ্যালয়','বেগম রোকেয়া বিশ্ববিদ্যালয়','শাহজালাল বিজ্ঞান ও প্রযুক্তি বিশ্ববিদ্যালয়','বাংলাদেশ কৃষি বিশ্ববিদ্যালয়','বুয়েট','জাতীয় বিশ্ববিদ্যালয়','গুচ্ছ ভর্তি পরীক্ষা (GST)'];
+UNI_LIST.forEach(n=>$('uniSel').add(new Option(n,n),$('uniSel').options.length-1));
+function syncUniOther(){$('uniOtherWrap').hidden=$('uniSel').value!=='__other';if(!$('uniOtherWrap').hidden)setTimeout(()=>$('uni').focus(),30)}
+function setUniFields(n){n=(n||'').trim();if(!n){$('uniSel').value='';$('uni').value=''}else if(UNI_LIST.includes(n)){$('uniSel').value=n;$('uni').value=''}else{$('uniSel').value='__other';$('uni').value=n}$('uniOtherWrap').hidden=$('uniSel').value!=='__other'}
+function getUni(){const v=$('uniSel').value;return v==='__other'?$('uni').value.trim():v}
+$('uniSel').addEventListener('change',syncUniOther);
 const UNIT_PRESETS=['A Unit','B Unit','C Unit','D Unit','E Unit'];
 const tagText=x=>[x.unit,x.group].filter(Boolean).join(' • ');
 function syncUnitOther(){$('unitOtherWrap').hidden=$('unitSel').value!=='__other';if(!$('unitOtherWrap').hidden)setTimeout(()=>$('unit').focus(),30)}
@@ -647,17 +663,18 @@ $('detailModal').addEventListener('click',e=>{if(e.target.id==='detailModal')clo
 let editingId=null;
 function openForm(id){
  editingId=id||null;const x=id?exams.find(a=>a.id===id):null;$('addForm').reset();
- if(x){$('uni').value=x.uni;$('examDate').value=x.examDate||'';$('applyStart').value=x.applyStart||'';$('applyEnd').value=x.applyEnd||'';$('admitDate').value=x.admitDate||'';$('examTime').value=x.examTime||'';$('applyEndTime').value=x.applyEndTime||'';$('admitTime').value=x.admitTime||'';$('status').value=x.status}
- setUnitFields(x?x.unit:'',x?x.group:'');
+ if(x){$('examDate').value=x.examDate||'';$('applyStart').value=x.applyStart||'';$('applyEnd').value=x.applyEnd||'';$('admitDate').value=x.admitDate||'';$('examTime').value=x.examTime||'';$('applyEndTime').value=x.applyEndTime||'';$('admitTime').value=x.admitTime||'';$('status').value=x.status}
+ setUnitFields(x?x.unit:'',x?x.group:'');setUniFields(x?x.uni:'');
  $('modalTitle').textContent=x?'পরীক্ষা এডিট করো':'নতুন পরীক্ষা যোগ করো';$('saveBtn').textContent=x?'সেভ করো':'যোগ করো';
- $('addModal').hidden=false;setTimeout(()=>$('uni').focus(),50);
+ $('addModal').hidden=false;
 }
 function closeForm(){$('addModal').hidden=true;editingId=null}
 $('fabAdd').onclick=()=>view==='remind'?openRem():openForm();$('modalClose').onclick=closeForm;$('modalCancel').onclick=closeForm;
 $('addModal').addEventListener('click',e=>{if(e.target.id==='addModal')closeForm()});
 $('addForm').addEventListener('submit',e=>{
  e.preventDefault();
- const v={uni:$('uni').value.trim(),unit:getUnit(),group:$('groupSel').value,examDate:$('examDate').value,applyStart:$('applyStart').value,applyEnd:$('applyEnd').value,admitDate:$('admitDate').value,examTime:$('examTime').value,applyEndTime:$('applyEndTime').value,admitTime:$('admitTime').value,status:$('status').value};
+ const v={uni:getUni(),unit:getUnit(),group:$('groupSel').value,examDate:$('examDate').value,applyStart:$('applyStart').value,applyEnd:$('applyEnd').value,admitDate:$('admitDate').value,examTime:$('examTime').value,applyEndTime:$('applyEndTime').value,admitTime:$('admitTime').value,status:$('status').value};
+ if(!v.uni){showToast('বিশ্ববিদ্যালয়ের নাম দাও');return}
  if(editingId){Object.assign(exams.find(a=>a.id===editingId),v);selectedId=editingId}
  else{const id=Date.now().toString();exams.push({id,...v});selectedId=id}
  closeForm();save();
