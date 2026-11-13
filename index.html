@@ -1100,6 +1100,8 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden&&currentUs
 (function(){
  const LANG_KEY='admission-roadmap-language';
  const exact={
+  'এটি আগে থেকেই My Map-এ আছে':'This is already in My Map','My Map-এ আছে':'In My Map','আবার চালু করো':'Reopen',
+  'এই অ্যাকাউন্টটি অন্য ধরনের লিংকে খোলা হয়েছিল। আগের লিংকেই লগইন করো।':'This account was opened with a different kind of link. Sign in using the original link.',
   'অ্যাকাউন্টে ঢুকতে নিচের তথ্য দাও।':'Enter your account details below.',
   'নতুন অ্যাকাউন্ট খুলতে নিচের তথ্য দাও।':'Enter the details below to create an account.',
   'অফলাইন আছো। তোমার সব পরিবর্তন এই ফোনে সেভ হচ্ছে।':'You are offline. Your changes are being saved on this device.',
@@ -1159,6 +1161,8 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden&&currentUs
   'ফোনের হোম স্ক্রিনে অ্যাপ হিসেবে রাখো। ইনস্টলের পর ইন্টারনেট ছাড়াও চলবে।':'Add the app to your home screen. It will work offline after installation.'
  };
  const replacements=[
+  ['): ব্রাউজারের প্রাইভেট মোড বন্ধ করে আবার চেষ্টা করো।','): Turn off your browser’s private mode and try again.'],
+  ['আবেদনের শেষ তারিখ','Application deadline'],['আবেদনের শেষ দিন','Application deadline'],['অ্যাডমিট কার্ড ডাউনলোড','Admit card download'],['আজ পরীক্ষা!','Exam today!'],['আজই','Today'],['পরীক্ষা:','Exam:'],
   ['অ্যাকাউন্ট তৈরি হয়নি:','Account creation failed:'],['লগইন হয়নি:','Sign-in failed:'],['অ্যাকাউন্ট তৈরি হয়নি (','Account creation failed (' ],['এই মাসে কোনো ','No '],['এই মাসে ','This month: '],['টি ',' '],[' আছে',' scheduled'],[' নেই',' not scheduled'],
   ['আর ','In '],[' দিন বাকি',' days left'],[' দিন আগে হয়ে গেছে',' days ago'],[' দিন আগে পার হয়েছে',' days ago'],[' দিন আগে',' days ago'],
   ['টি পরীক্ষা যোগ করা আছে',' exams added'],['টি পরীক্ষা আছে',' exams'],[' জন',' people'],['পরীক্ষা ','Exam '],['আবেদন শেষ ','Application deadline '],
@@ -1171,21 +1175,65 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden&&currentUs
  const nativeConfirm=window.confirm.bind(window),nativeAlert=window.alert.bind(window);
  window.confirm=message=>nativeConfirm(isEn()?tr(String(message)):message);
  window.alert=message=>nativeAlert(isEn()?tr(String(message)):message);
- function tr(value){
-  if(!isEn()||!value)return value;
+ const lat=s=>String(s).replace(/[০-৯]/g,d=>'০১২৩৪৫৬৭৮৯'.indexOf(d));
+ const pl=(n,one,many)=>parseInt(lat(n),10)===1?one:many;
+ let _ut=null;
+ function userTexts(){
+  if(_ut)return _ut;
+  const s=new Set(),add=v=>{v=String(v==null?'':v).trim();if(v.length>=3&&v.length<=1000&&!Object.prototype.hasOwnProperty.call(exact,v))s.add(v)};
+  try{if(typeof exams!=='undefined')exams.forEach(x=>{if(x){add(x.uni);add(x.note);add(x.unit)}})}catch(e){}
+  try{if(typeof rems!=='undefined')rems.forEach(r=>{if(r){add(r.title);add(r.note)}})}catch(e){}
+  try{if(typeof allExams==='function')allExams().forEach(x=>{if(x){add(x.uni);add(x.unit)}})}catch(e){}
+  _ut=[...s].sort((a,b)=>b.length-a.length);
+  queueMicrotask(()=>{_ut=null});
+  return _ut;
+ }
+ function trCore(value){
   let out=value;
   const monthEmpty=out.match(/^এই মাসে কোনো (.+) নেই$/);
-  if(monthEmpty)return 'No '+tr(monthEmpty[1])+' scheduled this month';
-  const monthCount=out.match(/^এই মাসে (\d+)টি (.+) আছে$/);
-  if(monthCount)return 'This month: '+monthCount[1]+' '+tr(monthCount[2])+' scheduled';
-  const mapNumber=out.match(/^পরীক্ষা (\d+)$/);
-  if(mapNumber)return 'Exam '+mapNumber[1];
+  if(monthEmpty)return 'No '+trCore(monthEmpty[1]).toLowerCase()+' scheduled this month';
+  const monthCount=out.match(/^এই মাসে ([\d০-৯]+)টি (.+) আছে$/);
+  if(monthCount){const w=trCore(monthCount[2]).toLowerCase();return 'This month: '+lat(monthCount[1])+' '+(parseInt(lat(monthCount[1]),10)===1?w:w+'s')+' scheduled'}
+  const mapNumber=out.match(/^পরীক্ষা ([\d০-৯]+)$/);
+  if(mapNumber)return 'Exam '+lat(mapNumber[1]);
+  const accCount=out.match(/^মোট ([\d০-৯]+)টি পরীক্ষা যোগ করা আছে$/);
+  if(accCount)return lat(accCount[1])+' '+pl(accCount[1],'exam','exams')+' added';
   if(Object.prototype.hasOwnProperty.call(exact,out.trim())){
    const lead=out.match(/^\s*/)?.[0]||'',trail=out.match(/\s*$/)?.[0]||'';
    return lead+exact[out.trim()]+trail;
   }
+  out=out.replace(/(?:আর )?([\d০-৯]+) দিন বাকি/g,(m,n)=>lat(n)+' '+pl(n,'day','days')+' left');
+  out=out.replace(/(?:আর )?([\d০-৯]+) দিন আগে(?: হয়ে গেছে| পার হয়েছে)?/g,(m,n)=>lat(n)+' '+pl(n,'day','days')+' ago');
+  out=out.replace(/([\d০-৯]+) জন/g,(m,n)=>lat(n)+' '+pl(n,'person','people'));
   for(const [a,b] of replacements)out=out.split(a).join(b);
   return out;
+ }
+ let _lk=null;
+ function tr(value){
+  if(!isEn()||!value)return value;
+  const keep=userTexts(),slots=[];
+  let out=value;
+  for(const u of keep){
+   if(out.indexOf(u)<0)continue;
+   out=out.split(u).join('\uE000'+slots.length+'\uE001');slots.push(u);
+  }
+  if(!_lk)_lk=Object.keys(exact).filter(k=>k.length>=8).sort((a,b)=>b.length-a.length);
+  for(const k of _lk){
+   if(out.indexOf(k)<0)continue;
+   out=out.split(k).join('\uE000'+slots.length+'\uE001');slots.push(exact[k]);
+  }
+  out=trCore(out);
+  return slots.length?out.replace(/\uE000(\d+)\uE001/g,(m,i)=>slots[+i]):out;
+ }
+ function translateAttrs(node){
+  for(const a of ['placeholder','title','aria-label']){
+   if(!node.hasAttribute(a))continue;
+   const store=node._langOriginalAttrs||(node._langOriginalAttrs={}),outs=node._langOut||(node._langOut={}),cur=node.getAttribute(a);
+   if(!(a in store)||(a in outs&&cur!==outs[a]))store[a]=cur;
+   const next=isEn()?tr(store[a]):store[a];
+   outs[a]=next;
+   if(cur!==next)node.setAttribute(a,next);
+  }
  }
  function translateNode(node){
   if(node.nodeType===Node.TEXT_NODE){
@@ -1194,14 +1242,7 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden&&currentUs
    if(node.nodeValue!==next){translating.add(node);node.nodeValue=next;}
   }else if(node.nodeType===Node.ELEMENT_NODE){
    if(['SCRIPT','STYLE'].includes(node.tagName))return;
-   for(const a of ['placeholder','title','aria-label']){
-    if(node.hasAttribute(a)){
-     let store=node._langOriginalAttrs||(node._langOriginalAttrs={});
-     if(!(a in store))store[a]=node.getAttribute(a);
-     const next=isEn()?tr(store[a]):store[a];
-     if(node.getAttribute(a)!==next)node.setAttribute(a,next);
-    }
-   }
+    translateAttrs(node);
    if(node.tagName==='TEXTAREA')return; // Translate its placeholder, never the user's typed note.
    node.childNodes.forEach(translateNode);
   }
@@ -1221,12 +1262,16 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden&&currentUs
  document.querySelectorAll('#languageSeg button').forEach(b=>b.addEventListener('click',()=>apply(b.dataset.language)));
  const observer=new MutationObserver(records=>{
   for(const rec of records){
-   if(rec.type==='characterData'&&translating.has(rec.target)){translating.delete(rec.target);continue;}
-   if(rec.type==='characterData')translateNode(rec.target);
+   if(rec.type==='attributes'){if(rec.target.nodeType===1)translateAttrs(rec.target);continue;}
+   if(rec.type==='characterData'){
+    if(translating.has(rec.target)){translating.delete(rec.target);continue;}
+    originals.set(rec.target,rec.target.nodeValue);
+    translateNode(rec.target);continue;
+   }
    rec.addedNodes&&rec.addedNodes.forEach(translateNode);
   }
  });
- observer.observe(document.body,{subtree:true,childList:true,characterData:true});
+ observer.observe(document.body,{subtree:true,childList:true,characterData:true,attributes:true,attributeFilter:['placeholder','title','aria-label']});
  apply(isEn()?'en':'bn');
 })();
 </script>
