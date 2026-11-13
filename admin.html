@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex,nofollow">
+<title>Admin — Admission Roadmap</title>
+<style>
+:root{--bg:#0b1220;--panel:#121d2e;--panel2:#18263a;--line:#26364d;--text:#eef4ff;--muted:#9aabc2;--blue:#67a8ff;--cyan:#62dfd0;--amber:#ffc66d;--red:#ff8585;--green:#75d6a3}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Noto Sans Bengali","Noto Sans",sans-serif;font-size:14px}
+input,select,textarea,button{font:inherit}
+input,select,textarea{width:100%;background:#0c1625;border:1px solid #30445e;color:var(--text);border-radius:10px;padding:10px 12px;outline:none}
+input:focus,select:focus,textarea:focus{border-color:var(--blue)}textarea{min-height:80px;resize:vertical}
+label{display:block;color:#b8c8dc;font-size:12px;margin:10px 0 5px}
+.btn{border:0;border-radius:10px;padding:10px 14px;font-weight:700;cursor:pointer;background:linear-gradient(100deg,#67a8ff,#62dfd0);color:#071322}
+.btn.sec{background:#22344b;color:#dceaff;border:1px solid #354b67}.btn.red{background:#3b2028;color:#ffb7b7;border:1px solid #653540}.btn.sm{padding:6px 10px;font-size:12px}
+.wrap{max-width:1150px;margin:auto;padding:20px 16px 60px}
+.bar{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:18px}
+.bar h1{margin:0;font-size:22px}.bar small{color:var(--cyan);letter-spacing:1.5px;text-transform:uppercase;font-size:11px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+.stat,.panel{background:var(--panel);border:1px solid var(--line);border-radius:16px}.stat{padding:14px}.stat span{color:var(--muted);font-size:12px}.stat strong{display:block;font-size:26px;margin-top:4px}
+.panel{padding:16px}.tools{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px}.tools input{max-width:320px}.tools select{max-width:200px}
+.tw{overflow-x:auto}table{width:100%;border-collapse:collapse;min-width:720px}
+th,td{text-align:left;padding:10px 8px;border-bottom:1px solid var(--line);white-space:nowrap}th{color:var(--muted);font-size:12px;font-weight:600}
+tr.row{cursor:pointer}tr.row:hover td{background:#16243a}
+.muted{color:var(--muted)}.pill{font-size:11px;padding:4px 8px;border-radius:20px;background:#233b55;color:#b9d8ff}
+.auth{min-height:100vh;display:grid;place-items:center;padding:16px}.card{width:100%;max-width:380px;background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:24px}.card h2{margin:0 0 4px}.err{color:var(--red);font-size:12px;min-height:18px;margin-top:8px}
+.modal{position:fixed;inset:0;background:#000b;display:flex;align-items:center;justify-content:center;padding:12px;z-index:50}
+.sheet{width:100%;max-width:760px;max-height:94vh;overflow-y:auto;background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:18px}
+.sheet.s{max-width:520px}.head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:10px}.head h3{margin:0}
+.tabs{display:flex;gap:6px;margin:12px 0;border-bottom:1px solid var(--line)}.tabs button{background:none;border:0;color:var(--muted);padding:9px 12px;cursor:pointer;font-weight:700;border-bottom:2px solid transparent}.tabs button.on{color:var(--cyan);border-color:var(--cyan)}
+.ex{background:#101b2b;border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:8px}.ex .t{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}.ex h4{margin:0 0 4px}.ex .m{color:var(--muted);font-size:12px;display:flex;gap:12px;flex-wrap:wrap;margin-top:6px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:0 10px}.full{grid-column:1/-1}.row2{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#173c32;color:#9af0c1;padding:10px 16px;border-radius:12px;z-index:99}.toast.bad{background:#3b2028;color:#ffb7b7}
+[hidden]{display:none!important}
+@media(max-width:700px){.stats{grid-template-columns:1fr 1fr}.g2{grid-template-columns:1fr}}
+</style>
+<script src="./config.js"></script>
+</head>
+<body>
+
+<div class="auth" id="login">
+  <form class="card" id="loginForm">
+    <h2>Admin Login</h2><div class="muted" style="margin-bottom:8px">শুধু অ্যাডমিনদের জন্য</div>
+    <label>Username</label><input id="lu" autocapitalize="none" autocomplete="username" required>
+    <label>Password</label><input id="lp" type="password" autocomplete="current-password" required>
+    <div class="err" id="lerr"></div>
+    <button class="btn" style="width:100%;margin-top:6px" id="lbtn">Login</button>
+  </form>
+</div>
+
+<div class="wrap" id="app" hidden>
+  <div class="bar">
+    <div><small>Admission Roadmap</small><h1>Admin Dashboard</h1></div>
+    <div style="display:flex;gap:8px;align-items:center"><span class="muted" id="me"></span><button class="btn sec sm" id="reload">Refresh</button><button class="btn sec sm" id="csv">CSV</button><button class="btn red sm" id="logout">Logout</button></div>
+  </div>
+  <div class="stats">
+    <div class="stat"><span>মোট ইউজার</span><strong id="sU">0</strong></div>
+    <div class="stat"><span>মোট পরীক্ষা এন্ট্রি</span><strong id="sE">0</strong></div>
+    <div class="stat"><span>গত ৭ দিনে অ্যাক্টিভ</span><strong id="sA">0</strong></div>
+    <div class="stat"><span>আজ নতুন</span><strong id="sN">0</strong></div>
+  </div>
+  <div class="panel">
+    <div class="tools">
+      <input id="q" placeholder="Username দিয়ে খোঁজো...">
+      <select id="sort"><option value="created_at">নতুন আগে</option><option value="last_sign_in_at">লাস্ট লগইন</option><option value="exam_count">বেশি পরীক্ষা</option><option value="username">নাম (A-Z)</option></select>
+    </div>
+    <div class="tw"><table><thead><tr><th>#</th><th>Username</th><th>পরীক্ষা</th><th>রিমাইন্ডার</th><th>Signup</th><th>Last login</th><th>Last sync</th></tr></thead><tbody id="rows"></tbody></table></div>
+    <div class="muted" id="cnt" style="margin-top:10px"></div>
+  </div>
+</div>
+
+<div class="modal" id="uModal" hidden><div class="sheet">
+  <div class="head"><div><h3 id="uName"></h3><div class="muted" id="uMeta"></div></div><button class="btn sec sm" id="uClose">✕</button></div>
+  <div class="tabs"><button data-t="exams" class="on">পরীক্ষা</button><button data-t="rems">রিমাইন্ডার</button><button data-t="acc">অ্যাকাউন্ট</button></div>
+  <div id="tExams"></div>
+  <div id="tRems" hidden>
+    <div class="muted">Raw JSON — সাবধানে এডিট করো।</div>
+    <textarea id="remJson" style="min-height:260px;font-family:monospace;font-size:12px"></textarea>
+    <div class="row2"><button class="btn" id="remSave">Save reminders</button></div>
+  </div>
+  <div id="tAcc" hidden>
+    <label>নতুন পাসওয়ার্ড দাও (কমপক্ষে ৬ অক্ষর)</label><input id="newPw" type="text" autocomplete="off">
+    <div class="row2"><button class="btn" id="pwSave">Password বদলাও</button></div>
+    <hr style="border:0;border-top:1px solid var(--line);margin:18px 0">
+    <div class="muted">এই ইউজারের সব ডেটা ও অ্যাকাউন্ট চিরতরে মুছে যাবে।</div>
+    <div class="row2"><button class="btn red" id="delUser">ইউজার ডিলিট করো</button></div>
+  </div>
+</div></div>
+
+<div class="modal" id="eModal" hidden style="z-index:60"><div class="sheet s">
+  <div class="head"><h3 id="eTitle">পরীক্ষা</h3><button class="btn sec sm" id="eClose">✕</button></div>
+  <div class="g2" id="eForm"></div>
+  <div class="row2"><button class="btn" id="eSave">Save</button></div>
+</div></div>
+
+<script>
+const CC=window.CLOUD_CONFIG||{};
+const $=id=>document.getElementById(id);
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const SK='ar-admin-session';
+let S=null;try{S=JSON.parse(localStorage.getItem(SK)||'null')}catch(e){}
+let users=[],cur=null,editIdx=-1;
+const STATUS=['পরিকল্পনায়','আবেদন চলছে','আবেদন সম্পন্ন','অ্যাডমিট কার্ড প্রকাশিত','পরীক্ষা সম্পন্ন'];
+const FIELDS=[['uni','বিশ্ববিদ্যালয়','text',1],['unit','Unit','text'],['group','গ্রুপ','sel',0,['','বিজ্ঞান','মানবিক','বাণিজ্য']],['examDate','পরীক্ষার তারিখ','date'],['examTime','পরীক্ষার সময়','time'],['applyStart','আবেদন শুরু','date'],['applyEnd','আবেদন শেষ','date'],['applyEndTime','আবেদন শেষ সময়','time'],['admitDate','অ্যাডমিট তারিখ','date'],['admitTime','অ্যাডমিট সময়','time'],['status','স্ট্যাটাস','sel',1,STATUS],['note','নোট','area',1]];
+
+function toast(m,bad){const t=document.createElement('div');t.className='toast'+(bad?' bad':'');t.textContent=m;document.body.appendChild(t);setTimeout(()=>t.remove(),2600)}
+async function api(path,o={}){
+  const h={apikey:CC.anonKey,'Content-Type':'application/json'};
+  if(o.auth!==false){h.Authorization='Bearer '+(S?S.at:CC.anonKey)}
+  Object.assign(h,o.headers||{});
+  const r=await fetch(CC.url.replace(/\/$/,'')+path,{method:o.method||'GET',headers:h,body:o.body===undefined?undefined:JSON.stringify(o.body)});
+  let j=null;try{j=await r.json()}catch(e){}
+  if(!r.ok){const er=new Error((j&&(j.msg||j.message||j.error_description||j.error))||('HTTP '+r.status));er.status=r.status;throw er}
+  return j;
+}
+async function ensureToken(){
+  if(!S)throw new Error('login');
+  if(S.exp-60>Date.now()/1000)return;
+  const j=await api('/auth/v1/token?grant_type=refresh_token',{method:'POST',auth:false,body:{refresh_token:S.rt}});
+  saveSession(j);
+}
+function saveSession(j){S={at:j.access_token,rt:j.refresh_token,exp:Math.floor(Date.now()/1000)+(j.expires_in||3600),u:S&&S.u||''};localStorage.setItem(SK,JSON.stringify(S))}
+async function call(path,o){await ensureToken();return api(path,o)}
+
+$('loginForm').onsubmit=async e=>{
+  e.preventDefault();$('lerr').textContent='';$('lbtn').disabled=true;
+  try{
+    if(!CC.url||!CC.anonKey)throw new Error('config.js এ Supabase url/anonKey নেই');
+    const u=$('lu').value.trim().toLowerCase();
+    const j=await api('/auth/v1/token?grant_type=password',{method:'POST',auth:false,body:{email:u+'@'+(CC.emailDomain||'admissionroadmap.app'),password:$('lp').value}});
+    S={u};saveSession(j);
+    const ok=await call('/rest/v1/rpc/is_admin',{method:'POST',body:{}});
+    if(ok!==true){localStorage.removeItem(SK);S=null;throw new Error('তুমি অ্যাডমিন না')}
+    start();
+  }catch(ex){$('lerr').textContent=ex.message.includes('Invalid login')?'Username বা password ভুল':ex.message}
+  $('lbtn').disabled=false;
+};
+$('logout').onclick=()=>{localStorage.removeItem(SK);S=null;location.reload()};
+
+async function start(){
+  $('login').hidden=true;$('app').hidden=false;$('me').textContent=S.u||'';
+  await loadUsers();
+}
+async function loadUsers(){
+  try{users=await call('/rest/v1/rpc/admin_list_users',{method:'POST',body:{}})||[];renderUsers()}
+  catch(ex){
+    if(/not admin|permission|Could not find|function/i.test(ex.message))toast('admin-setup.sql রান করা হয়নি বা তুমি অ্যাডমিন না',1);else toast(ex.message,1)
+  }
+}
+const fd=d=>d?new Date(d).toLocaleDateString('bn-BD',{day:'numeric',month:'short',year:'numeric'}):'—';
+const fdt=d=>d?new Date(d).toLocaleString('en-GB',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}):'—';
+function renderUsers(){
+  const q=$('q').value.trim().toLowerCase(),k=$('sort').value;
+  let l=users.filter(u=>!q||(u.username||'').toLowerCase().includes(q));
+  l.sort((a,b)=>k==='username'?(a.username||'').localeCompare(b.username||''):k==='exam_count'?b.exam_count-a.exam_count:(new Date(b[k]||0))-(new Date(a[k]||0)));
+  const now=Date.now(),day=864e5;
+  $('sU').textContent=users.length;
+  $('sE').textContent=users.reduce((s,u)=>s+(u.exam_count||0),0);
+  $('sA').textContent=users.filter(u=>u.last_sign_in_at&&now-new Date(u.last_sign_in_at)<7*day).length;
+  $('sN').textContent=users.filter(u=>new Date(u.created_at).toDateString()===new Date().toDateString()).length;
+  $('rows').innerHTML=l.map((u,i)=>`<tr class="row" data-id="${esc(u.user_id)}"><td class="muted">${i+1}</td><td><b>${esc(u.username)}</b></td><td><span class="pill">${u.exam_count}</span></td><td>${u.rem_count}</td><td>${fd(u.created_at)}</td><td>${fdt(u.last_sign_in_at)}</td><td>${fdt(u.updated_at)}</td></tr>`).join('')||'<tr><td colspan="7" class="muted">কোনো ইউজার নেই</td></tr>';
+  $('cnt').textContent=l.length+' জন ইউজার';
+  document.querySelectorAll('tr.row').forEach(r=>r.onclick=()=>openUser(r.dataset.id));
+}
+$('q').oninput=renderUsers;$('sort').onchange=renderUsers;$('reload').onclick=()=>{loadUsers();toast('Refreshed')};
+$('csv').onclick=()=>{
+  const rows=[['username','exams','reminders','signup','last_login','last_sync']].concat(users.map(u=>[u.username,u.exam_count,u.rem_count,u.created_at,u.last_sign_in_at||'',u.updated_at||'']));
+  const t=rows.map(r=>r.map(c=>'"'+String(c).replace(/"/g,'""')+'"').join(',')).join('\n');
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\ufeff'+t],{type:'text/csv'}));a.download='users.csv';a.click();
+};
+
+/* ---- user detail ---- */
+async function openUser(id){
+  const u=users.find(x=>x.user_id===id);if(!u)return;
+  try{
+    const r=await call('/rest/v1/user_data?select=exams,rems&user_id=eq.'+encodeURIComponent(id));
+    const row=(r&&r[0])||{};
+    cur={uid:id,username:u.username,exams:Array.isArray(row.exams)?row.exams:[],rems:Array.isArray(row.rems)?row.rems:[],exists:!!(r&&r.length)};
+  }catch(ex){toast(ex.message,1);return}
+  $('uName').textContent=u.username;
+  $('uMeta').textContent='Signup: '+fd(u.created_at)+' · Last login: '+fdt(u.last_sign_in_at);
+  setTab('exams');renderExams();$('remJson').value=JSON.stringify(cur.rems,null,2);$('newPw').value='';
+  $('uModal').hidden=false;
+}
+function setTab(t){
+  document.querySelectorAll('.tabs button').forEach(b=>b.classList.toggle('on',b.dataset.t===t));
+  $('tExams').hidden=t!=='exams';$('tRems').hidden=t!=='rems';$('tAcc').hidden=t!=='acc';
+}
+document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>setTab(b.dataset.t));
+$('uClose').onclick=()=>{$('uModal').hidden=true;cur=null};
+function renderExams(){
+  const l=cur.exams;
+  $('tExams').innerHTML='<div class="row2" style="margin:0 0 10px"><button class="btn sm" id="addEx">+ নতুন পরীক্ষা</button><span class="muted" style="align-self:center">'+l.length+'টি</span></div>'+
+  (l.map((x,i)=>`<div class="ex"><div class="t"><div><h4>${esc(x.uni)} ${x.unit?'— '+esc(x.unit):''}</h4><span class="pill">${esc(x.status||'—')}</span></div><div style="display:flex;gap:6px"><button class="btn sec sm" data-e="${i}">Edit</button><button class="btn red sm" data-d="${i}">Delete</button></div></div><div class="m"><span>পরীক্ষা: ${esc(x.examDate||'—')}</span><span>আবেদন শেষ: ${esc(x.applyEnd||'—')}</span><span>অ্যাডমিট: ${esc(x.admitDate||'—')}</span>${x.group?'<span>'+esc(x.group)+'</span>':''}</div>${x.note?'<div class="m">📝 '+esc(x.note)+'</div>':''}</div>`).join('')||'<div class="muted">কোনো পরীক্ষা যোগ করা নেই</div>');
+  $('addEx').onclick=()=>openEdit(-1);
+  document.querySelectorAll('[data-e]').forEach(b=>b.onclick=()=>openEdit(+b.dataset.e));
+  document.querySelectorAll('[data-d]').forEach(b=>b.onclick=async()=>{if(!confirm('এই পরীক্ষাটি ডিলিট করবে?'))return;cur.exams.splice(+b.dataset.d,1);await persist();renderExams()});
+}
+function openEdit(i){
+  editIdx=i;const x=i>=0?cur.exams[i]:{status:STATUS[0]};
+  $('eTitle').textContent=i>=0?'পরীক্ষা এডিট':'নতুন পরীক্ষা';
+  $('eForm').innerHTML=FIELDS.map(([k,l,t,full,opts])=>{
+    const v=esc(x[k]||'');let inp;
+    if(t==='sel')inp=`<select data-k="${k}">${opts.map(o=>`<option value="${esc(o)}"${o===(x[k]||'')?' selected':''}>${esc(o||'নির্বাচন করো')}</option>`).join('')}</select>`;
+    else if(t==='area')inp=`<textarea data-k="${k}">${v}</textarea>`;
+    else inp=`<input data-k="${k}" type="${t}" value="${v}">`;
+    return `<div class="${full?'full':''}"><label>${l}</label>${inp}</div>`}).join('');
+  $('eModal').hidden=false;
+}
+$('eClose').onclick=()=>$('eModal').hidden=true;
+$('eSave').onclick=async()=>{
+  const v={};document.querySelectorAll('#eForm [data-k]').forEach(el=>v[el.dataset.k]=el.value.trim());
+  if(!v.uni){toast('বিশ্ববিদ্যালয়ের নাম দাও',1);return}
+  if(editIdx>=0)cur.exams[editIdx]=Object.assign({},cur.exams[editIdx],v);
+  else cur.exams.push(Object.assign({id:Date.now().toString()},v));
+  if(await persist()){$('eModal').hidden=true;renderExams()}
+};
+$('remSave').onclick=async()=>{
+  let a;try{a=JSON.parse($('remJson').value);if(!Array.isArray(a))throw 0}catch(e){toast('JSON ঠিক নেই (array হতে হবে)',1);return}
+  cur.rems=a;await persist();
+};
+async function persist(){
+  try{
+    await call('/rest/v1/user_data?on_conflict=user_id',{method:'POST',headers:{Prefer:'resolution=merge-duplicates,return=minimal'},body:{user_id:cur.uid,username:cur.username,exams:cur.exams,rems:cur.rems,updated_at:new Date().toISOString()}});
+    const u=users.find(x=>x.user_id===cur.uid);if(u){u.exam_count=cur.exams.length;u.rem_count=cur.rems.length;u.updated_at=new Date().toISOString();renderUsers()}
+    toast('সেভ হয়েছে ✓');return true;
+  }catch(ex){toast(ex.message,1);return false}
+}
+$('pwSave').onclick=async()=>{
+  const p=$('newPw').value;if(p.length<6){toast('কমপক্ষে ৬ অক্ষর',1);return}
+  if(!confirm(cur.username+' এর পাসওয়ার্ড বদলাবে?'))return;
+  try{await call('/rest/v1/rpc/admin_set_password',{method:'POST',body:{uid:cur.uid,new_password:p}});$('newPw').value='';toast('পাসওয়ার্ড বদলেছে ✓')}catch(ex){toast(ex.message,1)}
+};
+$('delUser').onclick=async()=>{
+  if(prompt('ডিলিট করতে ইউজারের নাম লেখো: '+cur.username)!==cur.username)return;
+  try{await call('/rest/v1/rpc/admin_delete_user',{method:'POST',body:{uid:cur.uid}});$('uModal').hidden=true;cur=null;toast('ডিলিট হয়েছে');loadUsers()}catch(ex){toast(ex.message,1)}
+};
+
+if(S)call('/rest/v1/rpc/is_admin',{method:'POST',body:{}}).then(ok=>{if(ok===true)start();else{localStorage.removeItem(SK);S=null}}).catch(()=>{localStorage.removeItem(SK);S=null});
+</script>
+</body>
+</html>
