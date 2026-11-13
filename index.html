@@ -420,15 +420,25 @@ body.apmode .apsum{display:flex}
 .aptoggle button.no.on.late{background:#8f2a31;border-color:#e5484d}
 body.mapfull.apmode .mapscroll{padding-top:164px}
 
+/* ===== icons (replace emoji) ===== */
+.nic,.bic{fill:none;stroke:var(--text);stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;pointer-events:none}
+.bic{stroke:#fff;stroke-width:3.6}
+.node.done .nic{stroke:#eafff3}
+html[data-theme=light] .node.done .nic{stroke:#1f8a5b}
+.node.cur .nic{stroke:#ffe3b0}
+.ico{flex:none;display:block}
+.aptoggle button{display:flex;align-items:center;justify-content:center;gap:6px}
+.apchip{display:flex;align-items:center;justify-content:center;gap:4px}
 /* ===== map road ===== */
 .road{filter:drop-shadow(0 1px 3px rgba(0,0,0,.35))}
-.trail{stroke:#62dfd0;opacity:.95;filter:drop-shadow(0 0 5px rgba(98,223,208,.7))}
-.flow{stroke:#fff;stroke-dasharray:1 22;animation:flowDots 1.8s linear infinite}
+.trail{stroke:#9fe9ff;opacity:.95;filter:drop-shadow(0 0 3px rgba(143,226,255,.85)) drop-shadow(0 0 9px rgba(95,180,255,.55))}
+.glow{stroke:#5fb4ff;opacity:.38;filter:blur(5px);animation:glowBreathe 4s ease-in-out infinite}
+@keyframes glowBreathe{0%,100%{opacity:.26}50%{opacity:.5}}
 .lane{stroke:#5b7694;stroke-dasharray:1 11;opacity:.6}
-@keyframes flowDots{to{stroke-dashoffset:-23}}
-html[data-theme=light] .trail{stroke:#2fb3a8;filter:drop-shadow(0 0 4px rgba(47,179,168,.45))}
+html[data-theme=light] .trail{stroke:#4fb6e8;filter:drop-shadow(0 0 3px rgba(79,182,232,.7)) drop-shadow(0 0 8px rgba(47,123,240,.35))}
+html[data-theme=light] .glow{stroke:#7cc4ff;opacity:.45}
 html[data-theme=light] .lane{stroke:#9fb2cc}
-@media(prefers-reduced-motion:reduce){.flow{animation:none}}
+@media(prefers-reduced-motion:reduce){.glow{animation:none}}
 </style>
 </head>
 <body>
@@ -492,8 +502,8 @@ html[data-theme=light] .lane{stroke:#9fb2cc}
 <div class="panel themerow" data-v="account" hidden>
  <div class="setlabel" data-lang-label>Language / ভাষা</div>
  <div class="seg" id="languageSeg">
-  <button type="button" data-language="bn">🇧🇩 বাংলা</button>
-  <button type="button" data-language="en">🇬🇧 English</button>
+  <button type="button" data-language="bn"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/></svg>বাংলা</button>
+  <button type="button" data-language="en"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/></svg>English</button>
  </div>
 </div>
 <details class="panel acc" data-v="account" hidden>
@@ -534,7 +544,7 @@ html[data-theme=light] .lane{stroke:#9fb2cc}
     <div><label for="admitDate">অ্যাডমিট কার্ড ডাউনলোড</label><input id="admitDate" type="date"></div>
     <div><label for="admitTime">সময় (ঐচ্ছিক)</label><input id="admitTime" type="time"></div>
         <div><label for="applyStart">আবেদন শুরুর তারিখ</label><input id="applyStart" type="date"></div>
-    <div><label for="applied">আবেদন করেছ?</label><select id="applied"><option value="no">এখনো করিনি</option><option value="yes">করেছি ✓</option></select></div>
+    <div><label for="applied">আবেদন করেছ?</label><select id="applied"><option value="no">এখনো করিনি</option><option value="yes">করেছি</option></select></div>
     <div><label for="status">বর্তমান অবস্থা</label><select id="status"><option value="auto">স্বয়ংক্রিয় (তারিখ অনুযায়ী)</option><option value="পরিকল্পনায়">পরিকল্পনায়</option><option value="আবেদন চলছে">আবেদন চলছে</option><option value="আবেদন করা হয়নি">আবেদন করা হয়নি</option><option value="আবেদন সম্পন্ন">আবেদন সম্পন্ন</option><option value="অ্যাডমিট কার্ড প্রকাশিত">অ্যাডমিট কার্ড প্রকাশিত</option><option value="আজ পরীক্ষা">আজ পরীক্ষা</option><option value="পরীক্ষা সম্পন্ন">পরীক্ষা সম্পন্ন</option></select></div>
     <div class="full"><label for="noteInput">গুরুত্বপূর্ণ নোট (ঐচ্ছিক)</label><textarea id="noteInput" maxlength="1000" placeholder="যেমন: ফি ৩০০ টাকা, কেন্দ্র মিরপুর, সঙ্গে প্রবেশপত্র ও ২ কপি ছবি আনতে হবে"></textarea></div>
    </div>
@@ -612,11 +622,20 @@ const examPassed=x=>!!(x.examDate&&daysLeft(x.examDate)<0)||x.status==='পর�
 const isPending=x=>!x.applied&&!examPassed(x);
 const lateApply=x=>isPending(x)&&!!x.applyEnd&&daysLeft(x.applyEnd)<0;
 function toggleApplied(id){const z=exams.find(a=>a.id===id);if(!z)return;z.applied=!z.applied;if(z.statusAuto!==false)z.status=autoStatus(z);save();showToast(z.applied?'আবেদন করা হয়েছে বলে চিহ্নিত হলো':'আবেদন বাকি হিসেবে চিহ্নিত হলো')}
-const apInfo=x=>{if(mapMode!=='mine'||examPassed(x))return null;return x.applied?{t:'✓ আবেদন করেছি',c:'#2fa56c'}:lateApply(x)?{t:'✗ সময় পার',c:'#e5484d'}:{t:'! আবেদন বাকি',c:'#e08a00'}};
+const IC={
+ check:['M5 12.5l4.5 4.5L19 7.5'],
+ x:['M6 6l12 12M18 6L6 18'],
+ alert:['M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18z','M12 7.5v5.5M12 16.6h.01'],
+ start:['M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z','M12 15l-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z','M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0','M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5'],
+ goal:['M6 9H4.5a2.5 2.5 0 0 1 0-5H6','M18 9h1.5a2.5 2.5 0 0 0 0-5H18','M4 22h16','M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22','M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22','M18 2H6v7a6 6 0 0 0 12 0V2z']
+};
+const icoSvg=(n,sz)=>'<svg class="ico" viewBox="0 0 24 24" width="'+(sz||14)+'" height="'+(sz||14)+'" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+IC[n].map(d=>'<path d="'+d+'"/>').join('')+'</svg>';
+function icoBtn(el,n,txt){el.innerHTML=icoSvg(n,15);const sp=document.createElement('span');sp.textContent=txt;el.append(sp)}
+const apInfo=x=>{if(mapMode!=='mine'||examPassed(x))return null;return x.applied?{t:'আবেদন করেছি',i:'check',c:'#2fa56c'}:lateApply(x)?{t:'সময় পার',i:'x',c:'#e5484d'}:{t:'আবেদন বাকি',i:'alert',c:'#e08a00'}};
 function setApplied(id,v){const z=exams.find(a=>a.id===id);if(!z||!!z.applied===v)return;z.applied=v;if(z.statusAuto!==false)z.status=autoStatus(z);save();showToast(v?'আবেদন করা হয়েছে বলে চিহ্নিত হলো':'আবেদন বাকি হিসেবে চিহ্নিত হলো')}
 function apToggle(x){const w=document.createElement('div');w.className='aptoggle';const late=lateApply(x),y=document.createElement('button'),n=document.createElement('button');y.type=n.type='button';
  y.className='yes'+(x.applied?' on':'');n.className='no'+(!x.applied?' on':'')+(!x.applied&&late?' late':'');
- y.textContent='✓ আবেদন করেছি';n.textContent=(!x.applied&&late)?'✗ করিনি (সময় পার)':'✗ এখনো করিনি';
+ icoBtn(y,'check','আবেদন করেছি');icoBtn(n,'x',(!x.applied&&late)?'করিনি (সময় পার)':'এখনো করিনি');
  y.onclick=()=>setApplied(x.id,true);n.onclick=()=>setApplied(x.id,false);w.append(y,n);return w}
 function syncStatuses(){let ch=false;exams.forEach(x=>{if(x.statusAuto===false)return;const n=autoStatus(x);if(x.status!==n){x.status=n;ch=true}});return ch}
 let selectedId=null,mapMode='mine';
@@ -706,7 +725,7 @@ function renderMap(keepScroll){
  $('completed').textContent=bn(list.filter(isDone).length);
   document.body.classList.toggle('apmode',mapMode==='mine');
   {const sm=$('apSum');if(sm){sm.innerHTML='';if(mapMode==='mine'){const act=exams.filter(e=>!examPassed(e)),okN=act.filter(e=>e.applied).length,lateN=act.filter(lateApply).length,penN=act.length-okN-lateN;
-   [['ok','✓ করেছি',okN,'applied'],['no','! বাকি',penN,'pending'],['late','✗ সময় পার',lateN,'pending']].forEach(([c,t,n,f])=>{const b=document.createElement('button');b.type='button';b.className='apchip '+c+((c!=='late'&&mapFilter===f)?' on':'');b.append(document.createTextNode(t));const bb=document.createElement('b');bb.textContent=' '+bnum(n);b.append(bb);b.onclick=()=>setFilter(mapFilter===f?'all':f);sm.append(b)})}}}
+   [['ok','check','করেছি',okN,'applied'],['no','alert','বাকি আছে',penN,'pending'],['late','x','সময় পার',lateN,'pending']].forEach(([c,ic,t,n,f])=>{const b=document.createElement('button');b.type='button';b.className='apchip '+c+((c!=='late'&&mapFilter===f)?' on':'');b.innerHTML=icoSvg(ic,13);b.append(document.createTextNode(t));const bb=document.createElement('b');bb.textContent=' '+bnum(n);b.append(bb);b.onclick=()=>setFilter(mapFilter===f?'all':f);sm.append(b)})}}}
  if(!list.find(x=>x.id===selectedId))selectedId=cur?cur.id:(list[n-1]?list[n-1].id:null);
  svg.setAttribute('viewBox',`0 0 ${W} ${H}`);svg.innerHTML='';
  const el=(t,a,txt)=>{const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);if(txt!==undefined)e.textContent=txt;return e};
@@ -716,16 +735,16 @@ function renderMap(keepScroll){
   const a=pts[i],b=pts[i+1],m=(a.y+b.y)/2,d=`M${a.x} ${a.y} C${a.x} ${m},${b.x} ${m},${b.x} ${b.y}`;
   svg.append(el('path',{d,fill:'none',class:'road','stroke-width':14,'stroke-linecap':'round'}));
   const reached=i===0||isDone(list[i-1]);
-  if(reached)svg.append(el('path',{d,fill:'none',class:'trail','stroke-width':5,'stroke-linecap':'round'}),el('path',{d,fill:'none',class:'flow','stroke-width':2.4,'stroke-linecap':'round'}));
+  if(reached)svg.append(el('path',{d,fill:'none',class:'glow','stroke-width':13,'stroke-linecap':'round'}),el('path',{d,fill:'none',class:'trail','stroke-width':4.5,'stroke-linecap':'round'}));
   else svg.append(el('path',{d,fill:'none',class:'lane','stroke-width':2.2,'stroke-linecap':'round'}));
  }
  const mk=(p,cls,icon,label,stars,onclick,sub,sub2,cd,ap)=>{
   const g=el('g',{class:'node '+cls,transform:`translate(${p.x} ${p.y})`});
   g.append(el('circle',{class:'ring',r:30}),el('circle',{class:'base',r:24}));
-  if(icon==='__start_icon__'){
-   const flag=el('g',{transform:'translate(-12 -12)',fill:'none',stroke:'currentColor','stroke-width':2,'stroke-linecap':'round','stroke-linejoin':'round'});
-   flag.append(el('path',{d:'M5 21V4'}),el('path',{d:'M5 4c5-3 9 3 14 0v10c-5 3-9-3-14 0'}));
-   g.append(flag);
+  if(typeof icon==='string'&&icon.startsWith('__')){
+   const gi=el('g',{class:'nic',transform:'translate(-12 -12)'});
+   IC[icon.slice(2,-2)].forEach(d=>gi.append(el('path',{d})));
+   g.append(gi);
   }else{
    g.append(el('text',{class:(!isNaN(icon)||/^[০-৯]+$/.test(icon))?'nnum':'nicon'},icon));
   }
@@ -735,7 +754,7 @@ function renderMap(keepScroll){
    g.append(el('rect',{class:'ncard',x:px,y:-ph/2,width:pw,height:ph,rx:13}),el('text',{class:'nname',x:px+12,y:4.5},label));
   }else{
    const CW=186,cx=right?31:-31-CW,ls=wrapLabel(label,19),nl=ls[1]?2:1,hasTag=!!(sub2||cd),stack=!!(sub2&&cd&&(()=>{try{return localStorage.getItem('admission-roadmap-language')==='en'}catch(e){return false}})()),h=22+(nl-1)*16+18+(hasTag?16:0)+(stack?16:0)+10,top=-h/2,by=top+22+(nl-1)*16;
-   g.append(el('rect',{class:'ncard',x:cx,y:top,width:CW,height:h,rx:14}));if(ap){const pw=92;g.append(el('rect',{x:cx+CW-pw-8,y:top-8,width:pw,height:17,rx:8.5,fill:ap.c}),el('text',{x:cx+CW-pw/2-8,y:top+4,'text-anchor':'middle','font-size':9.5,'font-weight':800,fill:'#fff',style:'pointer-events:none'},ap.t))}
+   g.append(el('rect',{class:'ncard',x:cx,y:top,width:CW,height:h,rx:14}));if(ap){const pw=92;g.append(el('rect',{x:cx+CW-pw-8,y:top-8,width:pw,height:17,rx:8.5,fill:ap.c}),el('text',{x:cx+CW-pw/2-2,y:top+4,'text-anchor':'middle','font-size':9.5,'font-weight':800,fill:'#fff',style:'pointer-events:none'},ap.t));{const ig=el('g',{class:'bic',transform:`translate(${cx+CW-pw-8+7} ${top-8+3.5}) scale(.42)`});IC[ap.i].forEach(d=>ig.append(el('path',{d})));g.append(ig)}}
    ls.filter(Boolean).forEach((t,k)=>g.append(el('text',{class:'nname',x:cx+11,y:top+22+k*16},t)));
    g.append(el('text',{class:'ndate2',x:cx+11,y:by+18},sub));
    if(sub2)g.append(el('text',{class:'ntag2',x:cx+11,y:by+34},clip(sub2,14)));
@@ -743,12 +762,12 @@ function renderMap(keepScroll){
   }
   if(onclick)g.addEventListener('click',onclick);svg.append(g);return g;
  };
- mk(pts[0],'done','🚀','শুরু',null);
+ mk(pts[0],'done','__start__','শুরু',null);
  list.forEach((x,i)=>{
   const st=isDone(x)?'done':(cur&&cur.id===x.id?'cur':'up');
-  const ng=mk(pts[i+1],st+(hot(x)?' hot':'')+(x.id===selectedId?' sel':''),st==='done'?'✓':bnum(i+1),x.uni,mapMode==='all'?null:(STARS[x.status]||0),()=>{selectedId=x.id;renderMap(true);openDetail(x.id)},x[ff]?dateText(x[ff]):'তারিখ অপেক্ষমাণ',tagText(x),cdt(x),apInfo(x));
+  const ng=mk(pts[i+1],st+(hot(x)?' hot':'')+(x.id===selectedId?' sel':''),st==='done'?'__check__':bnum(i+1),x.uni,mapMode==='all'?null:(STARS[x.status]||0),()=>{selectedId=x.id;renderMap(true);openDetail(x.id)},x[ff]?dateText(x[ff]):'তারিখ অপেক্ষমাণ',tagText(x),cdt(x),apInfo(x));
  });
- mk(pts[n+1],list.length&&!cur?'done':'up','★','লক্ষ্য',null);
+ mk(pts[n+1],list.length&&!cur?'done':'up','__goal__','লক্ষ্য',null);
  const info=$('mapInfo');info.innerHTML='';
  const x=list.find(a=>a.id===selectedId);
  if(!x){info.textContent=mapFilter!=='all'?'এই ফিল্টারে দেখানোর মতো কোনো তারিখ যোগ করা নেই।':mapMode==='all'?'এখনো কেউ কোনো পরীক্ষা যোগ করেনি।':'এখনো কোনো পরীক্ষা নেই। নিচের ডানের + বাটন চেপে প্রথম পরীক্ষা যোগ করো।'}
@@ -1169,7 +1188,7 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden&&currentUs
    are preserved. Existing stored values and app logic are not modified. */
 (function(){
  const LANG_KEY='admission-roadmap-language';
- const exact={'✓ আবেদন করেছি':'✓ Applied','✗ এখনো করিনি':'✗ Not applied yet','✗ করিনি (সময় পার)':'✗ Not applied (deadline passed)','! আবেদন বাকি':'! Not applied yet','✗ সময় পার':'✗ Deadline passed','✓ করেছি':'✓ Applied','! বাকি':'! Pending','আবেদন করেছি':'Applied','আবেদন বাকি':'Not applied yet','আবেদন করা':'Applied',
+ const exact={'করেছি':'Applied','বাকি আছে':'Pending','সময় পার':'Deadline passed','করিনি (সময় পার)':'Not applied (deadline passed)','এখনো করিনি':'Not applied yet','✓ আবেদন করেছি':'✓ Applied','✗ এখনো করিনি':'✗ Not applied yet','✗ করিনি (সময় পার)':'✗ Not applied (deadline passed)','! আবেদন বাকি':'! Not applied yet','✗ সময় পার':'✗ Deadline passed','✓ করেছি':'✓ Applied','! বাকি':'! Pending','আবেদন করেছি':'Applied','আবেদন বাকি':'Not applied yet','আবেদন করা':'Applied',
   'এটি আগে থেকেই My Map-এ আছে':'This is already in My Map','My Map-এ আছে':'In My Map','আবার চালু করো':'Reopen',
   'এই অ্যাকাউন্টটি অন্য ধরনের লিংকে খোলা হয়েছিল। আগের লিংকেই লগইন করো।':'This account was opened with a different kind of link. Sign in using the original link.',
   'অ্যাকাউন্টে ঢুকতে নিচের তথ্য দাও।':'Enter your account details below.',
