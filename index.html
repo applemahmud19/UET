@@ -419,6 +419,16 @@ body.apmode .apsum{display:flex}
 .aptoggle button.no.on{background:#8a5a12;border-color:#f0a020;color:#fff}
 .aptoggle button.no.on.late{background:#8f2a31;border-color:#e5484d}
 body.mapfull.apmode .mapscroll{padding-top:164px}
+
+/* ===== map road ===== */
+.road{filter:drop-shadow(0 1px 3px rgba(0,0,0,.35))}
+.trail{stroke:#62dfd0;opacity:.95;filter:drop-shadow(0 0 5px rgba(98,223,208,.7))}
+.flow{stroke:#fff;stroke-dasharray:1 22;animation:flowDots 1.8s linear infinite}
+.lane{stroke:#5b7694;stroke-dasharray:1 11;opacity:.6}
+@keyframes flowDots{to{stroke-dashoffset:-23}}
+html[data-theme=light] .trail{stroke:#2fb3a8;filter:drop-shadow(0 0 4px rgba(47,179,168,.45))}
+html[data-theme=light] .lane{stroke:#9fb2cc}
+@media(prefers-reduced-motion:reduce){.flow{animation:none}}
 </style>
 </head>
 <body>
@@ -706,7 +716,8 @@ function renderMap(keepScroll){
   const a=pts[i],b=pts[i+1],m=(a.y+b.y)/2,d=`M${a.x} ${a.y} C${a.x} ${m},${b.x} ${m},${b.x} ${b.y}`;
   svg.append(el('path',{d,fill:'none',class:'road','stroke-width':14,'stroke-linecap':'round'}));
   const reached=i===0||isDone(list[i-1]);
-  if(reached)svg.append(el('path',{d,fill:'none',stroke:'#62dfd0','stroke-width':5,'stroke-linecap':'round','stroke-dasharray':'2 12'}));
+  if(reached)svg.append(el('path',{d,fill:'none',class:'trail','stroke-width':5,'stroke-linecap':'round'}),el('path',{d,fill:'none',class:'flow','stroke-width':2.4,'stroke-linecap':'round'}));
+  else svg.append(el('path',{d,fill:'none',class:'lane','stroke-width':2.2,'stroke-linecap':'round'}));
  }
  const mk=(p,cls,icon,label,stars,onclick,sub,sub2,cd,ap)=>{
   const g=el('g',{class:'node '+cls,transform:`translate(${p.x} ${p.y})`});
@@ -732,12 +743,10 @@ function renderMap(keepScroll){
   }
   if(onclick)g.addEventListener('click',onclick);svg.append(g);return g;
  };
- mk(pts[0],'done','__start_icon__','শুরু',null);
+ mk(pts[0],'done','🚀','শুরু',null);
  list.forEach((x,i)=>{
   const st=isDone(x)?'done':(cur&&cur.id===x.id?'cur':'up');
   const ng=mk(pts[i+1],st+(hot(x)?' hot':'')+(x.id===selectedId?' sel':''),st==='done'?'✓':bnum(i+1),x.uni,mapMode==='all'?null:(STARS[x.status]||0),()=>{selectedId=x.id;renderMap(true);openDetail(x.id)},x[ff]?dateText(x[ff]):'তারিখ অপেক্ষমাণ',tagText(x),cdt(x),apInfo(x));
-  if(mapMode==='mine'&&!examPassed(x)){const ok=!!x.applied,col=ok?'#35b87a':lateApply(x)?'#e5484d':'#f0a020';
-   ng.append(el('circle',{cx:19,cy:-19,r:9.5,fill:col,stroke:'#0f1a2a','stroke-width':2}),el('text',{x:19,y:-15.2,'text-anchor':'middle','font-size':ok?11:12,'font-weight':800,fill:'#fff',style:'pointer-events:none'},ok?'✓':'!'))}
  });
  mk(pts[n+1],list.length&&!cur?'done':'up','★','লক্ষ্য',null);
  const info=$('mapInfo');info.innerHTML='';
