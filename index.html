@@ -389,6 +389,36 @@ textarea:focus{border-color:var(--blue)}textarea::placeholder{color:#6f6f78}
 
 /* Language selector */
 #languageSeg button.on{background:var(--blue);color:#fff}
+
+/* ===== Reminder tab layout fix ===== */
+.panel[data-v=remind]{padding:16px 12px 8px;background:transparent}
+.panel[data-v=remind] #remindList{padding-bottom:70px}
+.rgroup{margin-bottom:20px}
+.rgroup h4{margin:0 4px 10px;font-size:14px}
+.rgroup .ritem{display:flex;flex-direction:column-reverse;align-items:stretch;justify-content:flex-end;gap:8px;padding:14px 16px;margin-bottom:10px;min-width:0}
+.rgroup .ritem>div:first-child{min-width:0;flex:1 1 auto}
+.rgroup .ritem b{display:block;font-size:15px;line-height:1.5;font-weight:800;overflow-wrap:anywhere}
+.rgroup .ritem .muted{margin-top:4px;line-height:1.6;font-size:12.5px;overflow-wrap:anywhere}
+.rgroup .ritem .rdays{align-self:flex-start;display:inline-block;padding:3px 11px;border-radius:999px;font-size:12px;line-height:1.5;background:#2f7bf01f}
+.rgroup .ritem .rdays.hot{background:#ffb0201f}
+.rgroup .ritem .rdays.late{background:#e5484d1f}
+.rgroup .ritem .ractions{margin-top:10px;padding-top:10px;border-top:1px solid var(--line)}
+
+/* ===== আবেদন ট্র্যাকার ===== */
+.apsum{display:none;gap:6px;margin:8px 0 0}
+body.apmode .apsum{display:flex}
+.apchip{flex:1;border:0;border-radius:12px;padding:8px 6px;font:inherit;font-size:11.5px;font-weight:800;cursor:pointer;white-space:nowrap}
+.apchip b{font-weight:900}
+.apchip.ok{background:color-mix(in srgb,#35b87a 22%,transparent);color:#2fa56c}
+.apchip.no{background:color-mix(in srgb,#f0a020 24%,transparent);color:#d98a0b}
+.apchip.late{background:color-mix(in srgb,#e5484d 22%,transparent);color:#e5484d}
+.apchip.on{outline:2px solid var(--blue);outline-offset:-1px}
+.aptoggle{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0 4px}
+.aptoggle button{border:1.5px solid var(--line);background:var(--panel2);color:var(--muted);border-radius:14px;padding:11px 8px;font:inherit;font-weight:800;font-size:13px;cursor:pointer}
+.aptoggle button.yes.on{background:#1f6b4d;border-color:#35b87a;color:#fff}
+.aptoggle button.no.on{background:#8a5a12;border-color:#f0a020;color:#fff}
+.aptoggle button.no.on.late{background:#8f2a31;border-color:#e5484d}
+body.mapfull.apmode .mapscroll{padding-top:164px}
 </style>
 </head>
 <body>
@@ -415,19 +445,20 @@ textarea:focus{border-color:var(--blue)}textarea::placeholder{color:#6f6f78}
 </header>
 <div class="panel mappanel" data-v="main mine">
  <div class="maptop">
- <div class="mapfilter"><select id="mapFilter" aria-label="ফিল্টার"><option value="all">সব পরীক্ষা</option><option value="exam">পরীক্ষার তারিখ</option><option value="apply">আবেদনের শেষ তারিখ</option><option value="admit">অ্যাডমিট কার্ড ডাউনলোড</option></select></div>
+ <div class="mapfilter"><select id="mapFilter" aria-label="ফিল্টার"><option value="all">সব পরীক্ষা</option><option value="exam">পরীক্ষার তারিখ</option><option value="pending">আবেদন বাকি</option><option value="applied">আবেদন করেছি</option><option value="apply">আবেদনের শেষ তারিখ</option><option value="admit">অ্যাডমিট কার্ড ডাউনলোড</option></select></div>
  <div class="stats">
  <div class="stat"><span>মোট</span><strong id="total">০</strong></div>
  <div class="stat"><span>তারিখ ঠিক</span><strong id="dated">০</strong></div>
  <div class="stat"><span>বাকি</span><strong id="upcoming">০</strong></div>
  <div class="stat"><span>সম্পন্ন</span><strong id="completed">০</strong></div>
 </div>
+ <div class="apsum" id="apSum"></div>
  </div>
  <div class="mapscroll" id="mapScroll"><svg id="mapSvg" role="img" aria-label="Admission roadmap"></svg></div>
  <div class="mapinfo" id="mapInfo"></div>
 </div>
 <div class="panel calpanel" data-v="calendar" hidden>
- <div class="mapfilter"><select id="calFilter" aria-label="ফিল্টার"><option value="all">সব পরীক্ষা</option><option value="exam">পরীক্ষার তারিখ</option><option value="apply">আবেদনের শেষ তারিখ</option><option value="admit">অ্যাডমিট কার্ড ডাউনলোড</option></select></div>
+ <div class="mapfilter"><select id="calFilter" aria-label="ফিল্টার"><option value="all">সব পরীক্ষা</option><option value="exam">পরীক্ষার তারিখ</option><option value="pending">আবেদন বাকি</option><option value="applied">আবেদন করেছি</option><option value="apply">আবেদনের শেষ তারিখ</option><option value="admit">অ্যাডমিট কার্ড ডাউনলোড</option></select></div>
  <div class="calhead"><button type="button" class="calnav" id="calPrev" aria-label="আগের মাস">‹</button><h3 id="calTitle"></h3><button type="button" class="calnav" id="calNext" aria-label="পরের মাস">›</button></div>
  <div class="callegend"><span><i class="sw sw-exam"></i>পরীক্ষা</span><span><i class="sw sw-hot"></i>৭ দিনের মধ্যে</span><span><i class="sw sw-past"></i>হয়ে গেছে</span><span><i class="sw sw-apply"></i>আবেদনের শেষ</span><span><i class="sw sw-admit"></i>অ্যাডমিট কার্ড</span></div>
  <div class="calgrid" id="calGrid"></div>
@@ -493,7 +524,8 @@ textarea:focus{border-color:var(--blue)}textarea::placeholder{color:#6f6f78}
     <div><label for="admitDate">অ্যাডমিট কার্ড ডাউনলোড</label><input id="admitDate" type="date"></div>
     <div><label for="admitTime">সময় (ঐচ্ছিক)</label><input id="admitTime" type="time"></div>
         <div><label for="applyStart">আবেদন শুরুর তারিখ</label><input id="applyStart" type="date"></div>
-    <div><label for="status">বর্তমান অবস্থা</label><select id="status"><option value="পরিকল্পনায়">পরিকল্পনায়</option><option value="আবেদন চলছে">আবেদন চলছে</option><option value="আবেদন সম্পন্ন">আবেদন সম্পন্ন</option><option value="অ্যাডমিট কার্ড প্রকাশিত">অ্যাডমিট কার্ড প্রকাশিত</option><option value="পরীক্ষা সম্পন্ন">পরীক্ষা সম্পন্ন</option></select></div>
+    <div><label for="applied">আবেদন করেছ?</label><select id="applied"><option value="no">এখনো করিনি</option><option value="yes">করেছি ✓</option></select></div>
+    <div><label for="status">বর্তমান অবস্থা</label><select id="status"><option value="auto">স্বয়ংক্রিয় (তারিখ অনুযায়ী)</option><option value="পরিকল্পনায়">পরিকল্পনায়</option><option value="আবেদন চলছে">আবেদন চলছে</option><option value="আবেদন করা হয়নি">আবেদন করা হয়নি</option><option value="আবেদন সম্পন্ন">আবেদন সম্পন্ন</option><option value="অ্যাডমিট কার্ড প্রকাশিত">অ্যাডমিট কার্ড প্রকাশিত</option><option value="আজ পরীক্ষা">আজ পরীক্ষা</option><option value="পরীক্ষা সম্পন্ন">পরীক্ষা সম্পন্ন</option></select></div>
     <div class="full"><label for="noteInput">গুরুত্বপূর্ণ নোট (ঐচ্ছিক)</label><textarea id="noteInput" maxlength="1000" placeholder="যেমন: ফি ৩০০ টাকা, কেন্দ্র মিরপুর, সঙ্গে প্রবেশপত্র ও ২ কপি ছবি আনতে হবে"></textarea></div>
    </div>
    <div class="notehint" id="formHint">পরিবর্তন নিজে থেকেই সেভ হয়ে যাবে</div>
@@ -532,7 +564,7 @@ const USERS_KEY='admission-roadmap-users',SESSION_KEY='admission-roadmap-session
 let exams=[],rems=[],currentUser=null;
 const remKey=u=>KEY+':rem:'+u;
 const userKey=u=>KEY+':'+u;
-function loadExams(){try{exams=JSON.parse(localStorage.getItem(userKey(currentUser))||'[]');exams.forEach(x=>{if(x.status)x.status=fixSt(x.status)})}catch(e){exams=[]}try{rems=JSON.parse(localStorage.getItem(remKey(currentUser))||'[]').filter(r=>r&&r.kind!=='alarm')}catch(e){rems=[]}}
+function loadExams(){try{exams=JSON.parse(localStorage.getItem(userKey(currentUser))||'[]');exams.forEach(x=>{if(x.status)x.status=fixSt(x.status)});syncStatuses()}catch(e){exams=[]}try{rems=JSON.parse(localStorage.getItem(remKey(currentUser))||'[]').filter(r=>r&&r.kind!=='alarm')}catch(e){rems=[]}}
 const $=id=>document.getElementById(id);
 const bnum=n=>String(n).replace(/\d/g,d=>localStorage.getItem('admission-roadmap-language')==='en'?d:'০১২৩৪৫৬৭৮৯'[d]);
 const gr=s=>{try{return Array.from(new Intl.Segmenter('bn',{granularity:'grapheme'}).segment(s),x=>x.segment)}catch(e){return Array.from(s)}};
@@ -554,7 +586,29 @@ const dtText=(x,f)=>dateText(x[f])+(x[f]&&x[TF[f]]?'  •  '+timeText(x[TF[f]]):
 function daysLeft(s){if(!s)return null;return Math.ceil((new Date(s+'T00:00:00')-today)/86400000)}
 /* ---------- Game-style Level Map ---------- */
 const OLD_ST={'Admit Card প্রকাশিত':'অ্যাডমিট কার্ড প্রকাশিত'};const fixSt=v=>{v=(v||'').normalize('NFC');return OLD_ST[v]||v};
-const STARS={'পরিকল্পনায়':0,'আবেদন চলছে':0,'আবেদন সম্পন্ন':1,'অ্যাডমিট কার্ড প্রকাশিত':2,'পরীক্ষা সম্পন্ন':3};
+const STARS={'পরিকল্পনায়':0,'আবেদন চলছে':0,'আবেদন করা হয়নি':0,'আবেদন সম্পন্ন':1,'অ্যাডমিট কার্ড প্রকাশিত':2,'আজ পরীক্ষা':2,'পরীক্ষা সম্পন্ন':3};
+function autoStatus(x){
+ const k=f=>x[f]?daysLeft(x[f]):null;
+ const ke=k('examDate'),ka=k('admitDate'),kE=k('applyEnd'),kS=k('applyStart');
+ if(ke!==null&&ke<0)return 'পরীক্ষা সম্পন্ন';
+ if(ke===0)return 'আজ পরীক্ষা';
+ if(ka!==null&&ka<=0)return 'অ্যাডমিট কার্ড প্রকাশিত';
+ if(x.applied)return 'আবেদন সম্পন্ন';
+ if(kE!==null&&kE<0)return 'আবেদন করা হয়নি';
+ if(kS!==null&&kS<=0)return 'আবেদন চলছে';
+ return 'পরিকল্পনায়';
+}
+const examPassed=x=>!!(x.examDate&&daysLeft(x.examDate)<0)||x.status==='পরীক্ষা সম্পন্ন';
+const isPending=x=>!x.applied&&!examPassed(x);
+const lateApply=x=>isPending(x)&&!!x.applyEnd&&daysLeft(x.applyEnd)<0;
+function toggleApplied(id){const z=exams.find(a=>a.id===id);if(!z)return;z.applied=!z.applied;if(z.statusAuto!==false)z.status=autoStatus(z);save();showToast(z.applied?'আবেদন করা হয়েছে বলে চিহ্নিত হলো':'আবেদন বাকি হিসেবে চিহ্নিত হলো')}
+const apInfo=x=>{if(mapMode!=='mine'||examPassed(x))return null;return x.applied?{t:'✓ আবেদন করেছি',c:'#2fa56c'}:lateApply(x)?{t:'✗ সময় পার',c:'#e5484d'}:{t:'! আবেদন বাকি',c:'#e08a00'}};
+function setApplied(id,v){const z=exams.find(a=>a.id===id);if(!z||!!z.applied===v)return;z.applied=v;if(z.statusAuto!==false)z.status=autoStatus(z);save();showToast(v?'আবেদন করা হয়েছে বলে চিহ্নিত হলো':'আবেদন বাকি হিসেবে চিহ্নিত হলো')}
+function apToggle(x){const w=document.createElement('div');w.className='aptoggle';const late=lateApply(x),y=document.createElement('button'),n=document.createElement('button');y.type=n.type='button';
+ y.className='yes'+(x.applied?' on':'');n.className='no'+(!x.applied?' on':'')+(!x.applied&&late?' late':'');
+ y.textContent='✓ আবেদন করেছি';n.textContent=(!x.applied&&late)?'✗ করিনি (সময় পার)':'✗ এখনো করিনি';
+ y.onclick=()=>setApplied(x.id,true);n.onclick=()=>setApplied(x.id,false);w.append(y,n);return w}
+function syncStatuses(){let ch=false;exams.forEach(x=>{if(x.statusAuto===false)return;const n=autoStatus(x);if(x.status!==n){x.status=n;ch=true}});return ch}
 let selectedId=null,mapMode='mine';
 const byDate=(a,b)=>(a.examDate||'9999').localeCompare(b.examDate||'9999');
 function allExams(){
@@ -565,9 +619,9 @@ function allExams(){
    m.count++;if(!m.applyEnd&&x.applyEnd){m.applyEnd=x.applyEnd;m.applyEndTime=x.applyEndTime||''}if(!m.admitDate&&x.admitDate){m.admitDate=x.admitDate;m.admitTime=x.admitTime||''}})});
  return Object.values(g).sort(byDate);
 }
-let mapFilter='all';const FILT={exam:'examDate',apply:'applyEnd',admit:'admitDate'},FNAME={examDate:'পরীক্ষা',applyEnd:'আবেদনের শেষ তারিখ',admitDate:'অ্যাডমিট কার্ড ডাউনলোড'};const FF=()=>FILT[mapFilter]||'examDate';
-function sortedExams(){const base=mapMode==='all'?allExams():[...exams].sort(byDate);if(mapFilter==='all')return base;const f=FF();return base.filter(x=>x[f]).sort((a,b)=>String(a[f]).localeCompare(String(b[f])))}
-const isDone=x=>mapFilter!=='all'?!!(x[FF()]&&daysLeft(x[FF()])<0):(mapMode==='all'?!!(x.examDate&&daysLeft(x.examDate)<0):x.status==='পরীক্ষা সম্পন্ন');
+let mapFilter='all';const FILT={exam:'examDate',apply:'applyEnd',pending:'applyEnd',applied:'examDate',admit:'admitDate'},FNAME={examDate:'পরীক্ষা',applyEnd:'আবেদনের শেষ তারিখ',admitDate:'অ্যাডমিট কার্ড ডাউনলোড'};const FF=()=>FILT[mapFilter]||'examDate';
+function sortedExams(){const base=mapMode==='all'?allExams():[...exams].sort(byDate);if(mapFilter==='all')return base;const f=FF();if(mapFilter==='applied'&&mapMode==='mine')return base.filter(x=>x.applied);if(mapFilter==='pending'&&mapMode==='mine')return base.filter(isPending).sort((a,b)=>(a.applyEnd||'9999').localeCompare(b.applyEnd||'9999'));return base.filter(x=>x[f]).sort((a,b)=>String(a[f]).localeCompare(String(b[f])))}
+const isDone=x=>((mapFilter==='pending'||mapFilter==='applied')&&mapMode==='mine')?false:mapFilter!=='all'?!!(x[FF()]&&daysLeft(x[FF()])<0):(mapMode==='all'?!!(x.examDate&&daysLeft(x.examDate)<0):x.status==='পরীক্ষা সম্পন্ন');
 function setFilter(v){mapFilter=v;$('mapFilter').value=v;$('calFilter').value=v;selectedId=null;calSel=null;renderMap()}
 $('mapFilter').onchange=e=>setFilter(e.target.value);$('calFilter').onchange=e=>setFilter(e.target.value);
 function setMapMode(m){
@@ -589,7 +643,7 @@ function renderReminders(){
  const ev=[];
  exams.forEach(x=>{const si=STARS[x.status]||0;
   if(x.applyStart&&x.status==='পরিকল্পনায়')ev.push({d:x.applyStart,t:'আবেদন শুরু',x});
-  if(x.applyEnd&&si<1)ev.push({d:x.applyEnd,tm:x.applyEndTime,t:'আবেদনের শেষ তারিখ',x});
+  if(x.applyEnd&&si<1&&!x.applied&&x.status!=='আবেদন করা হয়নি')ev.push({d:x.applyEnd,tm:x.applyEndTime,t:'আবেদনের শেষ তারিখ',x});
   if(x.admitDate&&si<2)ev.push({d:x.admitDate,tm:x.admitTime,t:'অ্যাডমিট কার্ড ডাউনলোড',x});
   if(x.examDate&&si<3)ev.push({d:x.examDate,tm:x.examTime,t:'ভর্তি পরীক্ষা',x});
  });
@@ -640,6 +694,9 @@ function renderMap(keepScroll){
  $('total').textContent=bn(n);$('dated').textContent=bn(list.filter(x=>x[ff]).length);
  $('upcoming').textContent=bn(list.filter(x=>x[ff]&&daysLeft(x[ff])>=0&&!isDone(x)).length);
  $('completed').textContent=bn(list.filter(isDone).length);
+  document.body.classList.toggle('apmode',mapMode==='mine');
+  {const sm=$('apSum');if(sm){sm.innerHTML='';if(mapMode==='mine'){const act=exams.filter(e=>!examPassed(e)),okN=act.filter(e=>e.applied).length,lateN=act.filter(lateApply).length,penN=act.length-okN-lateN;
+   [['ok','✓ করেছি',okN,'applied'],['no','! বাকি',penN,'pending'],['late','✗ সময় পার',lateN,'pending']].forEach(([c,t,n,f])=>{const b=document.createElement('button');b.type='button';b.className='apchip '+c+((c!=='late'&&mapFilter===f)?' on':'');b.append(document.createTextNode(t));const bb=document.createElement('b');bb.textContent=' '+bnum(n);b.append(bb);b.onclick=()=>setFilter(mapFilter===f?'all':f);sm.append(b)})}}}
  if(!list.find(x=>x.id===selectedId))selectedId=cur?cur.id:(list[n-1]?list[n-1].id:null);
  svg.setAttribute('viewBox',`0 0 ${W} ${H}`);svg.innerHTML='';
  const el=(t,a,txt)=>{const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);if(txt!==undefined)e.textContent=txt;return e};
@@ -651,7 +708,7 @@ function renderMap(keepScroll){
   const reached=i===0||isDone(list[i-1]);
   if(reached)svg.append(el('path',{d,fill:'none',stroke:'#62dfd0','stroke-width':5,'stroke-linecap':'round','stroke-dasharray':'2 12'}));
  }
- const mk=(p,cls,icon,label,stars,onclick,sub,sub2,cd)=>{
+ const mk=(p,cls,icon,label,stars,onclick,sub,sub2,cd,ap)=>{
   const g=el('g',{class:'node '+cls,transform:`translate(${p.x} ${p.y})`});
   g.append(el('circle',{class:'ring',r:30}),el('circle',{class:'base',r:24}));
   if(icon==='__start_icon__'){
@@ -667,7 +724,7 @@ function renderMap(keepScroll){
    g.append(el('rect',{class:'ncard',x:px,y:-ph/2,width:pw,height:ph,rx:13}),el('text',{class:'nname',x:px+12,y:4.5},label));
   }else{
    const CW=186,cx=right?31:-31-CW,ls=wrapLabel(label,19),nl=ls[1]?2:1,hasTag=!!(sub2||cd),stack=!!(sub2&&cd&&(()=>{try{return localStorage.getItem('admission-roadmap-language')==='en'}catch(e){return false}})()),h=22+(nl-1)*16+18+(hasTag?16:0)+(stack?16:0)+10,top=-h/2,by=top+22+(nl-1)*16;
-   g.append(el('rect',{class:'ncard',x:cx,y:top,width:CW,height:h,rx:14}));
+   g.append(el('rect',{class:'ncard',x:cx,y:top,width:CW,height:h,rx:14}));if(ap){const pw=92;g.append(el('rect',{x:cx+CW-pw-8,y:top-8,width:pw,height:17,rx:8.5,fill:ap.c}),el('text',{x:cx+CW-pw/2-8,y:top+4,'text-anchor':'middle','font-size':9.5,'font-weight':800,fill:'#fff',style:'pointer-events:none'},ap.t))}
    ls.filter(Boolean).forEach((t,k)=>g.append(el('text',{class:'nname',x:cx+11,y:top+22+k*16},t)));
    g.append(el('text',{class:'ndate2',x:cx+11,y:by+18},sub));
    if(sub2)g.append(el('text',{class:'ntag2',x:cx+11,y:by+34},clip(sub2,14)));
@@ -678,7 +735,9 @@ function renderMap(keepScroll){
  mk(pts[0],'done','__start_icon__','শুরু',null);
  list.forEach((x,i)=>{
   const st=isDone(x)?'done':(cur&&cur.id===x.id?'cur':'up');
-  mk(pts[i+1],st+(hot(x)?' hot':'')+(x.id===selectedId?' sel':''),st==='done'?'✓':bnum(i+1),x.uni,mapMode==='all'?null:(STARS[x.status]||0),()=>{selectedId=x.id;renderMap(true);openDetail(x.id)},x[ff]?dateText(x[ff]):'তারিখ অপেক্ষমাণ',tagText(x),cdt(x));
+  const ng=mk(pts[i+1],st+(hot(x)?' hot':'')+(x.id===selectedId?' sel':''),st==='done'?'✓':bnum(i+1),x.uni,mapMode==='all'?null:(STARS[x.status]||0),()=>{selectedId=x.id;renderMap(true);openDetail(x.id)},x[ff]?dateText(x[ff]):'তারিখ অপেক্ষমাণ',tagText(x),cdt(x),apInfo(x));
+  if(mapMode==='mine'&&!examPassed(x)){const ok=!!x.applied,col=ok?'#35b87a':lateApply(x)?'#e5484d':'#f0a020';
+   ng.append(el('circle',{cx:19,cy:-19,r:9.5,fill:col,stroke:'#0f1a2a','stroke-width':2}),el('text',{x:19,y:-15.2,'text-anchor':'middle','font-size':ok?11:12,'font-weight':800,fill:'#fff',style:'pointer-events:none'},ok?'✓':'!'))}
  });
  mk(pts[n+1],list.length&&!cur?'done':'up','★','লক্ষ্য',null);
  const info=$('mapInfo');info.innerHTML='';
@@ -696,10 +755,10 @@ function renderMap(keepScroll){
   if(mapMode==='all'){const r0=document.createElement('div');r0.className='btnrow';r0.style.marginTop='10px';r0.append(mineBtn(x));info.append(r0)}
   if(mapMode==='mine'){
    const row=document.createElement('div');row.className='btnrow';row.style.marginTop='10px';
-   const mk2=(t,cls,fn)=>{const b=document.createElement('button');b.type='button';b.className='btn '+cls;b.style.cssText='padding:8px 12px;font-size:12px';b.textContent=t;b.onclick=fn;return b};
+   info.append(apToggle(x));const mk2=(t,cls,fn)=>{const b=document.createElement('button');b.type='button';b.className='btn '+cls;b.style.cssText='padding:8px 12px;font-size:12px';b.textContent=t;b.onclick=fn;return b};
    row.append(
     mk2('Edit','secondary',()=>openForm(x.id)),
-    mk2(x.status==='পরীক্ষা সম্পন্ন'?'আবার চালু করো':'পরীক্ষা সম্পন্ন','secondary',()=>{const z=exams.find(a=>a.id===x.id);z.status=z.status==='পরীক্ষা সম্পন্ন'?'আবেদন সম্পন্ন':'পরীক্ষা সম্পন্ন';save()}),
+    mk2(x.status==='পরীক্ষা সম্পন্ন'?'আবার চালু করো':'পরীক্ষা সম্পন্ন','secondary',()=>{const z=exams.find(a=>a.id===x.id);if(z.status==='পরীক্ষা সম্পন্ন'){z.statusAuto=true;z.status=autoStatus(z);if(z.status==='পরীক্ষা সম্পন্ন')z.status='আবেদন সম্পন্ন'}else{z.statusAuto=false;z.status='পরীক্ষা সম্পন্ন'}save()}),
     mk2('Delete','danger',()=>{if(confirm('এই পরীক্ষাটি মুছে ফেলবে?')){exams=exams.filter(a=>a.id!==x.id);save()}}));
    info.append(row);
   }
@@ -710,8 +769,8 @@ function renderMap(keepScroll){
 }
 let calY=today.getFullYear(),calM=today.getMonth(),calSel=null;
 const p2=n=>String(n).padStart(2,'0');
-const CAL_T={exam:'পরীক্ষা',apply:'আবেদনের শেষ দিন',admit:'অ্যাডমিট কার্ড ডাউনলোড'};
-function calEvents(){const ev={};exams.forEach(x=>{[['examDate','exam'],['applyEnd','apply'],['admitDate','admit']].forEach(([f,t])=>{if(x[f]&&(mapFilter==='all'||mapFilter===t))(ev[x[f]]=ev[x[f]]||[]).push({t,x})})});return ev}
+const CAL_T={exam:'পরীক্ষা',pending:'আবেদন বাকি',applied:'আবেদন করা',apply:'আবেদনের শেষ দিন',admit:'অ্যাডমিট কার্ড ডাউনলোড'};
+function calEvents(){const ev={};exams.forEach(x=>{[['examDate','exam'],['applyEnd','apply'],['admitDate','admit']].forEach(([f,t])=>{if(x[f]&&(mapFilter==='all'||mapFilter===t||(mapFilter==='pending'&&t==='apply'&&isPending(x))||(mapFilter==='applied'&&t==='exam'&&x.applied)))(ev[x[f]]=ev[x[f]]||[]).push({t,x})})});return ev}
 function renderCalendar(){
  const grid=$('calGrid');if(!grid)return;
  const ev=calEvents(),first=new Date(calY,calM,1),dim=new Date(calY,calM+1,0).getDate(),lead=first.getDay();
@@ -764,6 +823,7 @@ function setTheme(t){
 document.querySelectorAll('#themeSeg button').forEach(b=>b.onclick=()=>setTheme(b.dataset.theme));
 setTheme(document.documentElement.getAttribute('data-theme')==='light'?'light':'dark');
 function render(){
+ if(typeof currentUser!=='undefined'&&currentUser&&syncStatuses()){try{localStorage.setItem(userKey(currentUser),JSON.stringify(exams))}catch(e){}markDirty()}
  renderMap();renderReminders();renderAccount();
  if(!$('detailModal').hidden)fillDetail();
 }
@@ -807,11 +867,11 @@ function fillDetail(){
  add('অ্যাডমিট কার্ড',dtText(x,'admitDate'));
  box.append(rows);
  if(mine){
-  const l=document.createElement('label');l.textContent='অবস্থা আপডেট করো';l.htmlFor='detailStatus';
+  box.append(apToggle(x));const l=document.createElement('label');l.textContent='অবস্থা আপডেট করো';l.htmlFor='detailStatus';
   const sel=document.createElement('select');sel.id='detailStatus';
-  Array.from($('status').options).forEach(o=>{const op=document.createElement('option');op.value=o.value;op.textContent=o.value;sel.append(op)});
-  const cur=Array.from(sel.options).find(o=>o.value.normalize('NFC')===(x.status||'').normalize('NFC'));if(cur)sel.value=cur.value;
-  sel.onchange=()=>{const z=exams.find(a=>a.id===x.id);if(z){z.status=sel.value;save();showToast('অবস্থা আপডেট হয়েছে')}};
+  Array.from($('status').options).forEach(o=>{const op=document.createElement('option');op.value=o.value;op.textContent=o.textContent;sel.append(op)});
+  if(x.statusAuto!==false)sel.value='auto';else{const cur=Array.from(sel.options).find(o=>o.value.normalize('NFC')===(x.status||'').normalize('NFC'));if(cur)sel.value=cur.value}
+  sel.onchange=()=>{const z=exams.find(a=>a.id===x.id);if(z){if(sel.value==='auto'){z.statusAuto=true;z.status=autoStatus(z)}else{z.statusAuto=false;z.status=sel.value}save();showToast('অবস্থা আপডেট হয়েছে')}};
   box.append(l,sel);
   const nl=document.createElement('label');nl.textContent='গুরুত্বপূর্ণ নোট';nl.htmlFor='detailNote';
   const ta=document.createElement('textarea');ta.id='detailNote';ta.maxLength=1000;ta.value=x.note||'';ta.placeholder='এখানে ফি, কেন্দ্র, কী কী আনতে হবে — যা মনে রাখা দরকার লিখে রাখো';
@@ -831,15 +891,16 @@ $('detailModal').addEventListener('click',e=>{if(e.target.id==='detailModal')clo
 let editingId=null;
 function openForm(id){
  editingId=id||null;const x=id?exams.find(a=>a.id===id):null;$('addForm').reset();
- if(x){$('examDate').value=x.examDate||'';$('applyStart').value=x.applyStart||'';$('applyEnd').value=x.applyEnd||'';$('admitDate').value=x.admitDate||'';$('examTime').value=x.examTime||'';$('applyEndTime').value=x.applyEndTime||'';$('admitTime').value=x.admitTime||'';$('status').value=x.status;$('noteInput').value=x.note||''}
+ if(x){$('examDate').value=x.examDate||'';$('applyStart').value=x.applyStart||'';$('applyEnd').value=x.applyEnd||'';$('admitDate').value=x.admitDate||'';$('examTime').value=x.examTime||'';$('applyEndTime').value=x.applyEndTime||'';$('admitTime').value=x.admitTime||'';$('status').value=x.statusAuto===false?x.status:'auto';$('applied').value=x.applied?'yes':'no';$('noteInput').value=x.note||''}
  setUnitFields(x?x.unit:'',x?x.group:'');setUniFields(x?x.uni:'');
  $('modalTitle').textContent=x?'পরীক্ষা এডিট করো':'নতুন পরীক্ষা যোগ করো';$('saveBtn').textContent=x?'সেভ করো':'যোগ করো';
  $('addModal').hidden=false;
 }
-function formVals(){return{uni:getUni(),unit:getUnit(),group:$('groupSel').value,examDate:$('examDate').value,applyStart:$('applyStart').value,applyEnd:$('applyEnd').value,admitDate:$('admitDate').value,examTime:$('examTime').value,applyEndTime:$('applyEndTime').value,admitTime:$('admitTime').value,status:$('status').value,note:$('noteInput').value.trim()}}
+function formVals(){return{uni:getUni(),unit:getUnit(),group:$('groupSel').value,examDate:$('examDate').value,applyStart:$('applyStart').value,applyEnd:$('applyEnd').value,admitDate:$('admitDate').value,examTime:$('examTime').value,applyEndTime:$('applyEndTime').value,admitTime:$('admitTime').value,status:$('status').value,applied:$('applied').value==='yes',note:$('noteInput').value.trim()}}
+function fixAutoStatus(v){if(v.status==='auto'){v.statusAuto=true;v.status=autoStatus(v)}else v.statusAuto=false;return v}
 let formT=null;
 function applyForm(){
- formT=null;const v=formVals();if(!v.uni)return false;
+ formT=null;const v=fixAutoStatus(formVals());if(!v.uni)return false;
  if(editingId){const z=exams.find(a=>a.id===editingId);if(z)Object.assign(z,v);else{exams.push({id:editingId,...v})}}
  else{const id=Date.now().toString();exams.push({id,...v});editingId=id;$('modalTitle').textContent='পরীক্ষা এডিট করো'}
  save();$('formHint').textContent='নিজে থেকেই সেভ হয়েছে';return true;
@@ -1099,7 +1160,7 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden&&currentUs
    are preserved. Existing stored values and app logic are not modified. */
 (function(){
  const LANG_KEY='admission-roadmap-language';
- const exact={
+ const exact={'✓ আবেদন করেছি':'✓ Applied','✗ এখনো করিনি':'✗ Not applied yet','✗ করিনি (সময় পার)':'✗ Not applied (deadline passed)','! আবেদন বাকি':'! Not applied yet','✗ সময় পার':'✗ Deadline passed','✓ করেছি':'✓ Applied','! বাকি':'! Pending','আবেদন করেছি':'Applied','আবেদন বাকি':'Not applied yet','আবেদন করা':'Applied',
   'এটি আগে থেকেই My Map-এ আছে':'This is already in My Map','My Map-এ আছে':'In My Map','আবার চালু করো':'Reopen',
   'এই অ্যাকাউন্টটি অন্য ধরনের লিংকে খোলা হয়েছিল। আগের লিংকেই লগইন করো।':'This account was opened with a different kind of link. Sign in using the original link.',
   'অ্যাকাউন্টে ঢুকতে নিচের তথ্য দাও।':'Enter your account details below.',
@@ -1119,12 +1180,12 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden&&currentUs
   'যেমন: ঢাকা বিশ্ববিদ্যালয়':'e.g. University of Dhaka','যেমন: ফি ৩০০ টাকা, কেন্দ্র মিরপুর, সঙ্গে প্রবেশপত্র ও ২ কপি ছবি আনতে হবে':'e.g. Fee: ৳300, centre: Mirpur, bring your admit card and 2 passport-size photos','যেমন: ফি জমা দেওয়া':'e.g. Submit the fee','যেমন: ব্যাংকে গিয়ে জমা দিতে হবে':'e.g. Submit it at the bank','এখানে ফি, কেন্দ্র, কী কী আনতে হবে — যা মনে রাখা দরকার লিখে রাখো':'For example: fees, exam centre, required documents, and anything else you need to remember',
   'বিভাগ':'Group','বিজ্ঞান':'Science','মানবিক':'Humanities','বাণিজ্য':'Business Studies','সময় (ঐচ্ছিক)':'Time (optional)',
   'আবেদনের শেষ তারিখ':'Application deadline','আবেদন শুরুর তারিখ':'Application start date','বর্তমান অবস্থা':'Current status',
-  'পরিকল্পনায়':'Planned','আবেদন চলছে':'Applications open','আবেদন সম্পন্ন':'Application submitted','অ্যাডমিট কার্ড প্রকাশিত':'Admit card published','পরীক্ষা সম্পন্ন':'Exam completed',
+  'পরিকল্পনায়':'Planned','আবেদন চলছে':'Applications open','আবেদন সম্পন্ন':'Application submitted','অ্যাডমিট কার্ড প্রকাশিত':'Admit card published','পরীক্ষা সম্পন্ন':'Exam completed','আজ পরীক্ষা':'Exam today','স্বয়ংক্রিয় (তারিখ অনুযায়ী)':'Auto (by dates)',
   'গুরুত্বপূর্ণ নোট (ঐচ্ছিক)':'Important note (optional)','পরিবর্তন নিজে থেকেই সেভ হয়ে যাবে':'Changes are saved automatically',
   'যোগ করো':'Add','সেভ করো':'Save','নিজে থেকেই সেভ হয়েছে':'Saved automatically','লিখছ…':'Typing…','নোট সেভ হয়েছে':'Note saved',
   'নতুন রিমাইন্ডার':'New reminder','কী মনে করিয়ে দেব?':'What should I remind you about?','তারিখ':'Date','নোট (ঐচ্ছিক)':'Note (optional)',
   'পরীক্ষার বিস্তারিত':'Exam details','অবস্থা আপডেট করো':'Update status','গুরুত্বপূর্ণ নোট':'Important note','সব তথ্য আপডেট করো':'Update all details',
-  'পরীক্ষা এডিট করো':'Edit exam','রিমাইন্ডার এডিট করো':'Edit reminder','রিমাইন্ডার':'Reminder','পরীক্ষা সম্পন্ন':'Exam completed',
+  'পরীক্ষা এডিট করো':'Edit exam','রিমাইন্ডার এডিট করো':'Edit reminder','রিমাইন্ডার':'Reminder','পরীক্ষা সম্পন্ন':'Exam completed','আজ পরীক্ষা':'Exam today','স্বয়ংক্রিয় (তারিখ অনুযায়ী)':'Auto (by dates)',
   'থিম':'Theme','Theme':'Theme','Night':'Dark','White':'Light','Change password':'Change password','Current password':'Current password','New password':'New password','Update password':'Update password',
   'Install app':'Install app','Data':'Data','Move to another device':'Move to another device','Export data':'Export data','Import data':'Import data','Clear all exams':'Clear all exams','Admin Panel':'Admin Panel','Logout':'Log out','Delete account':'Delete account',
   'My Map':'My Map','Main Map':'Main Map','Calendar':'Calendar','Reminder':'Reminders','Account':'Account','Login':'Log in','Sign up':'Sign up','Username':'Username','Password':'Password',
@@ -1166,7 +1227,7 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden&&currentUs
   ['অ্যাকাউন্ট তৈরি হয়নি:','Account creation failed:'],['লগইন হয়নি:','Sign-in failed:'],['অ্যাকাউন্ট তৈরি হয়নি (','Account creation failed (' ],['এই মাসে কোনো ','No '],['এই মাসে ','This month: '],['টি ',' '],[' আছে',' scheduled'],[' নেই',' not scheduled'],
   ['আর ','In '],[' দিন বাকি',' days left'],[' দিন আগে হয়ে গেছে',' days ago'],[' দিন আগে পার হয়েছে',' days ago'],[' দিন আগে',' days ago'],
   ['টি পরীক্ষা যোগ করা আছে',' exams added'],['টি পরীক্ষা আছে',' exams'],[' জন',' people'],['পরীক্ষা ','Exam '],['আবেদন শেষ ','Application deadline '],
-  ['বিজ্ঞান','Science'],['মানবিক','Humanities'],['বাণিজ্য','Business Studies'],['পরিকল্পনায়','Planned'],['আবেদন চলছে','Applications open'],['আবেদন সম্পন্ন','Application submitted'],['অ্যাডমিট কার্ড প্রকাশিত','Admit card published'],['পরীক্ষা সম্পন্ন','Exam completed'],
+  ['বিজ্ঞান','Science'],['মানবিক','Humanities'],['বাণিজ্য','Business Studies'],['পরিকল্পনায়','Planned'],['আবেদন চলছে','Applications open'],['আবেদন সম্পন্ন','Application submitted'],['অ্যাডমিট কার্ড প্রকাশিত','Admit card published'],['পরীক্ষা সম্পন্ন','Exam completed'],['আজ পরীক্ষা','Exam today'],['স্বয়ংক্রিয় (তারিখ অনুযায়ী)','Auto (by dates)'],
   ['অবস্থা আপডেট হয়েছে','Status updated'],['My Map-এ আছে','In My Map'],['My Map-এ যোগ করো','Add to My Map'],['My Map-এ যোগ হয়েছে','Added to My Map'],
   ['এটি আগে থেকেই My Map-এ আছে','This is already in My Map'],['পরীক্ষা ','Exam '],['দিন বাকি','days left'],['দিন আগে','days ago']
  ];
