@@ -575,15 +575,15 @@ html[data-theme=light] .glow.seg0.c-hot{stroke:#e5484d}
     <div><label for="unitSel">Unit</label><select id="unitSel"><option value="">Select</option><option value="A Unit">A Unit</option><option value="B Unit">B Unit</option><option value="C Unit">C Unit</option><option value="D Unit">D Unit</option><option value="E Unit">E Unit</option><option value="__other">Other</option></select></div>
     <div><label for="groupSel">বিভাগ</label><select id="groupSel"><option value="">নির্বাচন করো</option><option value="বিজ্ঞান">বিজ্ঞান</option><option value="মানবিক">মানবিক</option><option value="বাণিজ্য">বাণিজ্য</option></select></div>
     <div class="full" id="unitOtherWrap" hidden><label for="unit">Unit name</label><input id="unit" placeholder="e.g. Arts Unit"></div>
-    <div><label for="examDate">পরীক্ষার তারিখ</label><input id="examDate" type="date"></div>
-    <div><label for="examTime">সময় (ঐচ্ছিক)</label><input id="examTime" type="time"></div>
+    <div><label for="applyStart">আবেদন শুরুর তারিখ</label><input id="applyStart" type="date"></div>
     <div><label for="applyEnd">আবেদনের শেষ তারিখ</label><input id="applyEnd" type="date"></div>
-    <div><label for="applyEndTime">সময় (ঐচ্ছিক)</label><input id="applyEndTime" type="time"></div>
+    <div><label for="applyEndTime">আবেদন শেষের সময় (ঐচ্ছিক)</label><input id="applyEndTime" type="time"></div>
+    <div><label for="applied">আবেদন করেছ?</label><select id="applied"><option value="no">এখনো করিনি</option><option value="yes">করেছি</option></select></div>
     <div><label for="admitDate">অ্যাডমিট কার্ড ডাউনলোড</label><input id="admitDate" type="date"></div>
     <div><label for="admitTime">সময় (ঐচ্ছিক)</label><input id="admitTime" type="time"></div>
-        <div><label for="applyStart">আবেদন শুরুর তারিখ</label><input id="applyStart" type="date"></div>
-    <div><label for="applied">আবেদন করেছ?</label><select id="applied"><option value="no">এখনো করিনি</option><option value="yes">করেছি</option></select></div>
-    <div><label for="status">বর্তমান অবস্থা</label><select id="status"><option value="auto">স্বয়ংক্রিয় (তারিখ অনুযায়ী)</option><option value="পরিকল্পনায়">পরিকল্পনায়</option><option value="আবেদন চলছে">আবেদন চলছে</option><option value="আবেদন করা হয়নি">আবেদন করা হয়নি</option><option value="আবেদন সম্পন্ন">আবেদন সম্পন্ন</option><option value="অ্যাডমিট কার্ড প্রকাশিত">অ্যাডমিট কার্ড প্রকাশিত</option><option value="আজ পরীক্ষা">আজ পরীক্ষা</option><option value="পরীক্ষা সম্পন্ন">পরীক্ষা সম্পন্ন</option></select></div>
+    <div><label for="examDate">পরীক্ষার তারিখ</label><input id="examDate" type="date"></div>
+    <div><label for="examTime">সময় (ঐচ্ছিক)</label><input id="examTime" type="time"></div>
+    <div class="full"><label for="status">বর্তমান অবস্থা</label><select id="status"><option value="auto">স্বয়ংক্রিয় (তারিখ অনুযায়ী)</option><option value="পরিকল্পনায়">পরিকল্পনায়</option><option value="আবেদন চলছে">আবেদন চলছে</option><option value="আবেদন করা হয়নি">আবেদন করা হয়নি</option><option value="আবেদন সম্পন্ন">আবেদন সম্পন্ন</option><option value="অ্যাডমিট কার্ড প্রকাশিত">অ্যাডমিট কার্ড প্রকাশিত</option><option value="আজ পরীক্ষা">আজ পরীক্ষা</option><option value="পরীক্ষা সম্পন্ন">পরীক্ষা সম্পন্ন</option></select></div>
     <div class="full"><label for="noteInput">গুরুত্বপূর্ণ নোট (ঐচ্ছিক)</label><textarea id="noteInput" maxlength="1000" placeholder="যেমন: ফি ৩০০ টাকা, কেন্দ্র মিরপুর, সঙ্গে প্রবেশপত্র ও ২ কপি ছবি আনতে হবে"></textarea></div>
    </div>
    <div class="notehint" id="formHint">পরিবর্তন নিজে থেকেই সেভ হয়ে যাবে</div>
@@ -1245,7 +1245,7 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden&&currentUs
   'বিশ্ববিদ্যালয়ের নাম':'University name','নির্বাচন করো':'Select','অন্যান্য (নিজে লিখো)':'Other (enter manually)','বিশ্ববিদ্যালয়ের নাম লেখো':'Enter university name',
   'ঢাকা বিশ্ববিদ্যালয়':'University of Dhaka','রাজশাহী বিশ্ববিদ্যালয়':'University of Rajshahi','চট্টগ্রাম বিশ্ববিদ্যালয়':'University of Chittagong','জাহাঙ্গীরনগর বিশ্ববিদ্যালয়':'Jahangirnagar University','জগন্নাথ বিশ্ববিদ্যালয়':'Jagannath University','ইসলামী বিশ্ববিদ্যালয়':'Islamic University','খুলনা বিশ্ববিদ্যালয়':'Khulna University','বরিশাল বিশ্ববিদ্যালয়':'University of Barishal','কুমিল্লা বিশ্ববিদ্যালয়':'Comilla University','বেগম রোকেয়া বিশ্ববিদ্যালয়':'Begum Rokeya University','শাহজালাল বিজ্ঞান ও প্রযুক্তি বিশ্ববিদ্যালয়':'Shahjalal University of Science and Technology','বাংলাদেশ কৃষি বিশ্ববিদ্যালয়':'Bangladesh Agricultural University','বুয়েট':'BUET','জাতীয় বিশ্ববিদ্যালয়':'National University','গুচ্ছ ভর্তি পরীক্ষা (GST)':'GST Admission Test',
   'যেমন: ঢাকা বিশ্ববিদ্যালয়':'e.g. University of Dhaka','যেমন: ফি ৩০০ টাকা, কেন্দ্র মিরপুর, সঙ্গে প্রবেশপত্র ও ২ কপি ছবি আনতে হবে':'e.g. Fee: ৳300, centre: Mirpur, bring your admit card and 2 passport-size photos','যেমন: ফি জমা দেওয়া':'e.g. Submit the fee','যেমন: ব্যাংকে গিয়ে জমা দিতে হবে':'e.g. Submit it at the bank','এখানে ফি, কেন্দ্র, কী কী আনতে হবে — যা মনে রাখা দরকার লিখে রাখো':'For example: fees, exam centre, required documents, and anything else you need to remember',
-  'বিভাগ':'Group','বিজ্ঞান':'Science','মানবিক':'Humanities','বাণিজ্য':'Business Studies','সময় (ঐচ্ছিক)':'Time (optional)',
+  'বিভাগ':'Group','বিজ্ঞান':'Science','মানবিক':'Humanities','বাণিজ্য':'Business Studies','সময় (ঐচ্ছিক)':'Time (optional)','আবেদন শেষের সময় (ঐচ্ছিক)':'Deadline time (optional)',
   'আবেদনের শেষ তারিখ':'Application deadline','আবেদন শুরুর তারিখ':'Application start date','বর্তমান অবস্থা':'Current status',
   'পরিকল্পনায়':'Planned','আবেদন চলছে':'Applications open','আবেদন সম্পন্ন':'Application submitted','অ্যাডমিট কার্ড প্রকাশিত':'Admit card published','পরীক্ষা সম্পন্ন':'Exam completed','আজ পরীক্ষা':'Exam today','স্বয়ংক্রিয় (তারিখ অনুযায়ী)':'Auto (by dates)',
   'গুরুত্বপূর্ণ নোট (ঐচ্ছিক)':'Important note (optional)','পরিবর্তন নিজে থেকেই সেভ হয়ে যাবে':'Changes are saved automatically',
