@@ -393,6 +393,8 @@ textarea:focus{border-color:var(--blue)}textarea::placeholder{color:#6f6f78}
 /* ===== Reminder tab layout fix ===== */
 .panel[data-v=remind]{padding:16px 12px 8px;background:transparent}
 .panel[data-v=remind] #remindList{padding-bottom:70px}
+.panel[data-v=remind] .mapfilter{margin:0 4px 14px}
+.panel[data-v=remind] .mapfilter select{width:100%;height:46px;font-size:14px}
 .rgroup{margin-bottom:20px}
 .rgroup h4{margin:0 4px 10px;font-size:14px}
 .rgroup .ritem{display:flex;flex-direction:column-reverse;align-items:stretch;justify-content:flex-end;gap:8px;padding:14px 16px;margin-bottom:10px;min-width:0}
@@ -541,6 +543,7 @@ html[data-theme=light] .glow.seg0.c-hot{stroke:#e5484d}
  <div class="callist" id="calList"></div>
 </div>
 <div class="panel" data-v="remind" hidden>
+ <div class="mapfilter"><select id="remFilter" aria-label="ফিল্টার"><option value="all">সব রিমাইন্ডার</option><option value="start">আবেদন শুরু</option><option value="apply">আবেদনের শেষ তারিখ</option><option value="admit">অ্যাডমিট কার্ড ডাউনলোড</option><option value="exam">ভর্তি পরীক্ষা</option><option value="custom">আমার রিমাইন্ডার</option></select></div>
  <div id="remindList"></div>
 </div>
 <div class="panel prof" data-v="account" hidden>
@@ -729,6 +732,9 @@ function showView(v){
  const TT={main:'Main Map',mine:'My Map',calendar:'Calendar',remind:'Reminder',account:'Account',cost:'Cost Calculator'};$('viewTitle').textContent=TT[v]||'';
 }
 document.querySelectorAll('#nav button').forEach(b=>b.onclick=()=>showView(b.dataset.go));
+let remFilter='all';
+$('remFilter').onchange=e=>{remFilter=e.target.value;renderReminders()};
+const remKind=e=>e.custom?'custom':({'আবেদন শুরু':'start','আবেদনের শেষ তারিখ':'apply','অ্যাডমিট কার্ড ডাউনলোড':'admit','ভর্তি পরীক্ষা':'exam'})[e.t];
 function renderReminders(){
  const ev=[];
  exams.forEach(x=>{const si=STARS[x.status]||0;
@@ -739,10 +745,11 @@ function renderReminders(){
  });
  rems.forEach(r=>{if(r.kind!=='alarm'&&r.date)ev.push({d:r.date,tm:r.time,custom:true,r})});
  ev.sort((a,b)=>a.d.localeCompare(b.d)||(a.tm||'').localeCompare(b.tm||''));
+ const evF=remFilter==='all'?ev:ev.filter(e=>remKind(e)===remFilter);
  const groups=[['আজ',e=>daysLeft(e.d)===0],['আগামী ৭ দিন',e=>{const k=daysLeft(e.d);return k>=1&&k<=7}],['এর পরে',e=>daysLeft(e.d)>7],['সময় পার হয়ে গেছে (অবস্থা আপডেট করো)',e=>daysLeft(e.d)<0]];
  const box=$('remindList');box.innerHTML='';
  groups.forEach(([title,f])=>{
-  const items=ev.filter(f);if(!items.length)return;
+  const items=evF.filter(f);if(!items.length)return;
   const g=document.createElement('div');g.className='rgroup';const h=document.createElement('h4');h.textContent=title;g.append(h);
   items.forEach(e=>{
    const k=daysLeft(e.d),r=document.createElement('div');r.className='ritem';
@@ -756,7 +763,8 @@ function renderReminders(){
    r.append(l,dd);g.append(r);
   });box.append(g);
  });
- if(!box.children.length)box.innerHTML='<div class="empty">কোনো রিমাইন্ডার নেই।<br>নিচের ডানের + বাটন চেপে নিজের রিমাইন্ডার যোগ করো, অথবা পরীক্ষার তারিখ দিলে এখানে নিজে থেকেই আসবে।</div>';
+ if(!box.children.length&&remFilter!=='all')box.innerHTML='<div class="empty">এই ফিল্টারে কোনো রিমাইন্ডার নেই।</div>';
+ else if(!box.children.length)box.innerHTML='<div class="empty">কোনো রিমাইন্ডার নেই।<br>নিচের ডানের + বাটন চেপে নিজের রিমাইন্ডার যোগ করো, অথবা পরীক্ষার তারিখ দিলে এখানে নিজে থেকেই আসবে।</div>';
  const hot=ev.filter(e=>{const k=daysLeft(e.d);return k>=0&&k<=3}).length,bd=$('remindBadge');bd.hidden=!hot;bd.textContent=hot;
 }
 function renderAccount(){checkAdmin();$('accUser').textContent=currentUser||'';$('accAvatar').textContent=(currentUser||'?').charAt(0).toUpperCase();$('accCount').textContent=`মোট ${bnum(exams.length)}টি পরীক্ষা যোগ করা আছে`;renderCost()}
@@ -1335,6 +1343,7 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden&&currentUs
   'পরীক্ষার তারিখ যোগ করা হয়নি':'No exam date added','তারিখ যোগ করা হয়নি':'No date added','পরীক্ষার তারিখ অপেক্ষমাণ':'Exam date pending',
   'পাসওয়ার্ড দেখাও':'Show password','পাসওয়ার্ড লুকাও':'Hide password','ফিল্টার':'Filter','আগের মাস':'Previous month','পরের মাস':'Next month',
   'Language / ভাষা':'Language',
+  'সব রিমাইন্ডার':'All reminders','আমার রিমাইন্ডার':'My reminders','এই ফিল্টারে কোনো রিমাইন্ডার নেই।':'No reminders for this filter.',
   'Cost Calculator':'Cost Calculator','আবেদন ও পরীক্ষার খরচের হিসাব':'Application & exam expenses','সব বিশ্ববিদ্যালয়ে মোট খরচ':'Total across all universities','আবেদন ফি (৳)':'Application fee (৳)','অতিরিক্ত খরচ (৳)':'Extra cost (৳)','আবেদন করা কোনো পরীক্ষা নেই। কোনো পরীক্ষায় "আবেদন করেছি" চিহ্নিত করলে এখানে খরচের হিসাব আসবে।':'No applied exams yet. Mark an exam as "Applied" and its costs will appear here.','← পেছনে':'← Back','শুধু যেসব পরীক্ষায় আবেদন করেছ সেগুলোর খরচ দেখাচ্ছে':'Showing costs only for exams you have applied to','🇧🇩 বাংলা':'🇧🇩 Bengali','নতুন যোগ করো':'Add new','তারিখ অপেক্ষমাণ':'Date pending','লক্ষ্য':'Goal','শুরু':'Start','শু':'Sun',
   'এই ফিল্টারে দেখানোর মতো কোনো তারিখ যোগ করা নেই।':'No dates available for this filter.',
   'এখনো কেউ কোনো পরীক্ষা যোগ করেনি।':'No one has added an exam yet.','এখনো কোনো পরীক্ষা নেই। নিচের ডানের + বাটন চেপে প্রথম পরীক্ষা যোগ করো।':'No exams yet. Tap the + button at the bottom right to add your first exam.',
