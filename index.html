@@ -444,6 +444,38 @@ html[data-theme=light] .node.start .nic{stroke:#2f7bf0}
 html[data-theme=light] .trail{stroke:#4fb6e8;filter:drop-shadow(0 0 2px rgba(79,182,232,.5)) drop-shadow(0 0 5px rgba(47,123,240,.2))}
 html[data-theme=light] .glow{stroke:#7cc4ff;opacity:.22}
 html[data-theme=light] .lane{stroke:#9fb2cc}
+
+/* ===== start node + first road follow node 1 colour ===== */
+.node.start.s-done circle.base{fill:#1f6b4d;stroke:#75d6a3}
+.node.start.s-done .ncard{stroke:#75d6a3}
+.node.start.s-done .nic{stroke:#eafff3}
+.node.start.s-cur circle.base{fill:#8a5a12;stroke:#ffc66d}
+.node.start.s-cur .ncard{stroke:#ffc66d}
+.node.start.s-cur .nic{stroke:#ffe3b0}
+.node.start.s-hot circle.base{fill:#7a1f24;stroke:#ff6b6b}
+.node.start.s-hot .ncard{stroke:#ff6b6b}
+.node.start.s-hot .nic{stroke:#ffd6d6}
+.trail.seg0.c-done{stroke:#9ff0c4;filter:drop-shadow(0 0 2px rgba(117,214,163,.6)) drop-shadow(0 0 5px rgba(117,214,163,.25))}
+.glow.seg0.c-done{stroke:#75d6a3}
+.trail.seg0.c-cur{stroke:#ffd98f;filter:drop-shadow(0 0 2px rgba(255,198,109,.6)) drop-shadow(0 0 5px rgba(255,198,109,.25))}
+.glow.seg0.c-cur{stroke:#ffc66d}
+.trail.seg0.c-hot{stroke:#ff9a9a;filter:drop-shadow(0 0 2px rgba(255,107,107,.6)) drop-shadow(0 0 5px rgba(255,107,107,.25))}
+.glow.seg0.c-hot{stroke:#ff6b6b}
+html[data-theme=light] .node.start.s-done circle.base{fill:#d9f5e6;stroke:#35b87a}
+html[data-theme=light] .node.start.s-done .ncard{stroke:#35b87a}
+html[data-theme=light] .node.start.s-done .nic{stroke:#1f8a5b}
+html[data-theme=light] .node.start.s-cur circle.base{fill:#ffe9bf;stroke:#f0a020}
+html[data-theme=light] .node.start.s-cur .ncard{stroke:#f0a020}
+html[data-theme=light] .node.start.s-cur .nic{stroke:#b8750a}
+html[data-theme=light] .node.start.s-hot circle.base{fill:#ffd9d9;stroke:#e5484d}
+html[data-theme=light] .node.start.s-hot .ncard{stroke:#e5484d}
+html[data-theme=light] .node.start.s-hot .nic{stroke:#d93a3a}
+html[data-theme=light] .trail.seg0.c-done{stroke:#35b87a;filter:drop-shadow(0 0 2px rgba(53,184,122,.5))}
+html[data-theme=light] .glow.seg0.c-done{stroke:#35b87a}
+html[data-theme=light] .trail.seg0.c-cur{stroke:#f0a020;filter:drop-shadow(0 0 2px rgba(240,160,32,.5))}
+html[data-theme=light] .glow.seg0.c-cur{stroke:#f0a020}
+html[data-theme=light] .trail.seg0.c-hot{stroke:#e5484d;filter:drop-shadow(0 0 2px rgba(229,72,77,.5))}
+html[data-theme=light] .glow.seg0.c-hot{stroke:#e5484d}
 @media(prefers-reduced-motion:reduce){.glow{animation:none}}
 </style>
 </head>
@@ -737,11 +769,12 @@ function renderMap(keepScroll){
  const el=(t,a,txt)=>{const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);if(txt!==undefined)e.textContent=txt;return e};
  const XS=[30,310];
  const pts=[];for(let i=0;i<n+2;i++)pts.push({x:XS[i%2],y:H-GAP/2-i*GAP});
+ const c1=list.length?(isDone(list[0])?'done':(hot(list[0])?'hot':'cur')):'';
  for(let i=0;i<n+1;i++){
   const a=pts[i],b=pts[i+1],m=(a.y+b.y)/2,d=`M${a.x} ${a.y} C${a.x} ${m},${b.x} ${m},${b.x} ${b.y}`;
   svg.append(el('path',{d,fill:'none',class:'road','stroke-width':14,'stroke-linecap':'round'}));
   const reached=i===0||isDone(list[i-1]);
-  if(reached)svg.append(el('path',{d,fill:'none',class:'glow','stroke-width':13,'stroke-linecap':'round'}),el('path',{d,fill:'none',class:'trail','stroke-width':4.5,'stroke-linecap':'round'}));
+  if(reached){const sx=(i===0&&c1)?' seg0 c-'+c1:'';svg.append(el('path',{d,fill:'none',class:'glow'+sx,'stroke-width':13,'stroke-linecap':'round'}),el('path',{d,fill:'none',class:'trail'+sx,'stroke-width':4.5,'stroke-linecap':'round'}))}
   else svg.append(el('path',{d,fill:'none',class:'lane','stroke-width':2.2,'stroke-linecap':'round'}));
  }
  const mk=(p,cls,icon,label,stars,onclick,sub,sub2,cd,ap)=>{
@@ -768,7 +801,7 @@ function renderMap(keepScroll){
   }
   if(onclick)g.addEventListener('click',onclick);svg.append(g);return g;
  };
- mk(pts[0],'done start','__start__','শুরু',null);
+ mk(pts[0],'done start'+(c1?' s-'+c1:''),'__start__','শুরু',null);
  list.forEach((x,i)=>{
   const st=isDone(x)?'done':(cur&&cur.id===x.id?'cur':'up');
   const ng=mk(pts[i+1],st+(hot(x)?' hot':'')+(x.id===selectedId?' sel':''),st==='done'?'__check__':bnum(i+1),x.uni,mapMode==='all'?null:(STARS[x.status]||0),()=>{selectedId=x.id;renderMap(true);openDetail(x.id)},x[ff]?dateText(x[ff]):'তারিখ অপেক্ষমাণ',tagText(x),cdt(x),apInfo(x));
