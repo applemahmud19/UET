@@ -117,11 +117,7 @@ tr.row{cursor:pointer}tr.row:hover td{filter:brightness(.97)}
   <div class="head"><div><h3 id="uName"></h3><div class="muted" id="uMeta"></div></div><button class="btn sec sm" id="uClose">Close</button></div>
   <div class="tabs"><button data-t="exams" class="on">Exams</button><button data-t="rems">Reminders</button><button data-t="acc">Account</button></div>
   <div id="tExams"></div>
-  <div id="tRems" hidden>
-    <div class="muted">Raw JSON — edit with care.</div>
-    <textarea id="remJson" style="min-height:260px;font-family:monospace;font-size:12px"></textarea>
-    <div class="row2"><button class="btn" id="remSave">Save reminders</button></div>
-  </div>
+  <div id="tRems" hidden></div>
   <div id="tAcc" hidden>
     <label>Set new password (at least 6 characters)</label><input id="newPw" type="text" autocomplete="off">
     <div class="row2"><button class="btn" id="pwSave">Change password</button></div>
@@ -231,7 +227,7 @@ async function openUser(id){
   }catch(ex){toast(ex.message,1);return}
   $('uName').textContent=u.username;
   $('uMeta').textContent='Signup: '+fd(u.created_at)+' · Last login: '+fdt(u.last_sign_in_at);
-  setTab('exams');renderExams();$('remJson').value=JSON.stringify(cur.rems,null,2);$('newPw').value='';
+  setTab('exams');renderExams();renderRems();$('newPw').value='';
   $('uModal').hidden=false;
 }
 function setTab(t){
@@ -249,7 +245,7 @@ function renderExams(){
   document.querySelectorAll('[data-d]').forEach(b=>b.onclick=async()=>{if(!confirm('Delete this exam?'))return;cur.exams.splice(+b.dataset.d,1);await persist();renderExams()});
 }
 function openEdit(i){
-  editIdx=i;const x=i>=0?cur.exams[i]:{status:STATUS[0]};
+  editKind='exam';editIdx=i;const x=i>=0?cur.exams[i]:{status:STATUS[0]};
   $('eTitle').textContent=i>=0?'Edit exam':'New exam';
   $('eForm').innerHTML=FIELDS.map(([k,l,t,full,opts])=>{
     if(k==='uni'||k==='unit'){
@@ -268,16 +264,41 @@ function openEdit(i){
 $('eClose').onclick=()=>$('eModal').hidden=true;
 $('eSave').onclick=async()=>{
   const v={};document.querySelectorAll('#eForm [data-k]').forEach(el=>v[el.dataset.k]=el.value.trim());
+  if(editKind==='rem'){
+    if(!v.title){toast('Enter the reminder',1);return}
+    if(!v.date){toast('Pick a date',1);return}
+    if(editIdx>=0)cur.rems[editIdx]=Object.assign({},cur.rems[editIdx],v);
+    else cur.rems.push(Object.assign({id:Date.now().toString()},v));
+    if(await persist()){$('eModal').hidden=true;renderRems()}
+    return;
+  }
   ['uni','unit'].forEach(k=>{const s=document.querySelector('#eForm [data-sel="'+k+'"]').value;v[k]=s==='__other'?document.querySelector('#eForm [data-other="'+k+'"]').value.trim():s});
   if(!v.uni){toast('Enter the university name',1);return}
   if(editIdx>=0)cur.exams[editIdx]=Object.assign({},cur.exams[editIdx],v);
   else cur.exams.push(Object.assign({id:Date.now().toString()},v));
   if(await persist()){$('eModal').hidden=true;renderExams()}
 };
-$('remSave').onclick=async()=>{
-  let a;try{a=JSON.parse($('remJson').value);if(!Array.isArray(a))throw 0}catch(e){toast('Invalid JSON (must be an array)',1);return}
-  cur.rems=a;await persist();
-};
+let editKind='exam';
+const REM_FIELDS=[['title','Reminder','text',1],['date','Date','date'],['time','Time (optional)','time'],['note','Note (optional)','area',1]];
+function fmtD(d){if(!d)return '—';const x=new Date(d+'T00:00:00');return isNaN(x)?esc(d):x.toLocaleDateString('en-US',{day:'numeric',month:'short',year:'numeric'})}
+function fmtT(t){if(!t)return '';const m=/^(\d{1,2}):(\d{2})/.exec(t);if(!m)return esc(t);let h=+m[1];const ap=h>=12?'PM':'AM';h=h%12||12;return h+':'+m[2]+' '+ap}
+function renderRems(){
+  const l=cur.rems.map((r,i)=>({r,i})).sort((a,b)=>String(a.r.date||'9999').localeCompare(String(b.r.date||'9999')));
+  $('tRems').innerHTML='<div class="row2" style="margin:0 0 10px"><button class="btn sm" id="addRem">+ New reminder</button><span class="muted" style="align-self:center">'+l.length+(l.length===1?' reminder':' reminders')+'</span></div>'+
+  (l.map(({r,i})=>`<div class="ex"><div class="t"><div style="min-width:0"><h4 style="word-break:break-word">${esc(r.title||'(no title)')}</h4><span class="pill">${fmtD(r.date)}${r.time?' · '+fmtT(r.time):''}</span></div><div style="display:flex;gap:6px;flex:none"><button class="btn sec sm" data-re="${i}">Edit</button><button class="btn red sm" data-rd="${i}">Delete</button></div></div>${r.note?'<div class="m" style="word-break:break-word">Note: '+esc(r.note)+'</div>':''}</div>`).join('')||'<div class="muted">No reminders added</div>');
+  $('addRem').onclick=()=>openRemEdit(-1);
+  document.querySelectorAll('[data-re]').forEach(b=>b.onclick=()=>openRemEdit(+b.dataset.re));
+  document.querySelectorAll('[data-rd]').forEach(b=>b.onclick=async()=>{if(!confirm('Delete this reminder?'))return;cur.rems.splice(+b.dataset.rd,1);await persist();renderRems()});
+}
+function openRemEdit(i){
+  editKind='rem';editIdx=i;const x=i>=0?cur.rems[i]:{};
+  $('eTitle').textContent=i>=0?'Edit reminder':'New reminder';
+  $('eForm').innerHTML=REM_FIELDS.map(([k,l,t,full])=>{
+    const v=esc(x[k]||'');
+    const inp=t==='area'?`<textarea data-k="${k}">${v}</textarea>`:`<input data-k="${k}" type="${t}" value="${v}">`;
+    return `<div class="${full?'full':''}"><label>${l}</label>${inp}</div>`}).join('');
+  $('eModal').hidden=false;
+}
 async function persist(){
   try{
     await call('/rest/v1/user_data?on_conflict=user_id',{method:'POST',headers:{Prefer:'resolution=merge-duplicates,return=minimal'},body:{user_id:cur.uid,username:cur.username,exams:cur.exams,rems:cur.rems,updated_at:new Date().toISOString()}});
