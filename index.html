@@ -477,6 +477,19 @@ html[data-theme=light] .glow.seg0.c-cur{stroke:#f0a020}
 html[data-theme=light] .trail.seg0.c-hot{stroke:#e5484d;filter:drop-shadow(0 0 2px rgba(229,72,77,.5))}
 html[data-theme=light] .glow.seg0.c-hot{stroke:#e5484d}
 @media(prefers-reduced-motion:reduce){.glow{animation:none}}
+/* ===== Cost Calculator ===== */
+.costgrand{display:flex;justify-content:space-between;align-items:center;gap:10px;background:var(--blue);color:#fff;border-radius:20px;padding:16px 18px;font-weight:700;margin-bottom:12px}
+.costgrand b{font-size:20px;font-weight:800;white-space:nowrap}
+.costuni{background:var(--panel2);border-radius:20px;padding:14px;margin-bottom:10px}
+.costhead{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:6px;font-weight:800;font-size:14px}
+.costhead span{min-width:0;overflow-wrap:anywhere}
+.costhead b{color:var(--cyan);white-space:nowrap}
+.costrow{border-top:1px solid var(--line);padding:10px 0 2px}
+.costtag{display:flex;justify-content:space-between;gap:8px;font-size:12.5px;color:var(--muted);font-weight:700}
+.costtag b{color:var(--text);white-space:nowrap}
+.costinputs{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.costinputs label{margin:6px 0 4px 2px}
+.costinputs input{height:44px;background:var(--panel);padding:0 12px}
 </style>
 </head>
 <body>
@@ -561,6 +574,10 @@ html[data-theme=light] .glow.seg0.c-hot{stroke:#e5484d}
 <details class="panel acc" data-v="account" hidden>
  <summary><span>Data<small>Move to another device</small></span><i class="chev"></i></summary>
  <div class="accbody"><div class="btnrow" style="margin-top:0"><button class="btn secondary" id="exportBtn" type="button">Export data</button><button class="btn secondary" id="importBtn" type="button">Import data</button><button class="btn danger" id="clearBtn" type="button">Clear all exams</button><input id="importFile" type="file" accept="application/json" hidden></div></div>
+</details>
+<details class="panel acc" data-v="account" hidden>
+ <summary><span>Cost Calculator<small>আবেদন ও পরীক্ষার খরচের হিসাব</small></span><i class="chev"></i></summary>
+ <div class="accbody"><div id="costBody"></div></div>
 </details>
 <div class="panel accfoot" data-v="account" hidden>
  <a id="adminLink" class="btn" href="./admin.html" hidden style="display:block;text-align:center;text-decoration:none;margin-bottom:10px">Admin Panel</a>
@@ -736,7 +753,56 @@ function renderReminders(){
  if(!box.children.length)box.innerHTML='<div class="empty">কোনো রিমাইন্ডার নেই।<br>নিচের ডানের + বাটন চেপে নিজের রিমাইন্ডার যোগ করো, অথবা পরীক্ষার তারিখ দিলে এখানে নিজে থেকেই আসবে।</div>';
  const hot=ev.filter(e=>{const k=daysLeft(e.d);return k>=0&&k<=3}).length,bd=$('remindBadge');bd.hidden=!hot;bd.textContent=hot;
 }
-function renderAccount(){checkAdmin();$('accUser').textContent=currentUser||'';$('accAvatar').textContent=(currentUser||'?').charAt(0).toUpperCase();$('accCount').textContent=`মোট ${bnum(exams.length)}টি পরীক্ষা যোগ করা আছে`}
+function renderAccount(){checkAdmin();$('accUser').textContent=currentUser||'';$('accAvatar').textContent=(currentUser||'?').charAt(0).toUpperCase();$('accCount').textContent=`মোট ${bnum(exams.length)}টি পরীক্ষা যোগ করা আছে`;renderCost()}
+/* ---------- Cost Calculator ---------- */
+const money=n=>'৳ '+bnum(Math.round(n).toLocaleString('en-US'));
+const costOf=x=>(+x.fee||0)+(+x.extra||0);
+function updateCostTotals(){
+ const box=$('costBody');if(!box)return;
+ let grand=0;const sub={};
+ exams.forEach(x=>{const c=costOf(x);grand+=c;sub[x.uni]=(sub[x.uni]||0)+c});
+ box.querySelectorAll('[data-sub]').forEach(e=>e.textContent=money(sub[e.dataset.sub]||0));
+ box.querySelectorAll('[data-row]').forEach(e=>{const x=exams.find(a=>a.id===e.dataset.row);e.textContent=money(x?costOf(x):0)});
+ const g=$('costGrand');if(g)g.textContent=money(grand);
+}
+function renderCost(){
+ const box=$('costBody');if(!box)return;
+ const ae=document.activeElement;
+ if(ae&&ae.tagName==='INPUT'&&box.contains(ae)){updateCostTotals();return}
+ box.innerHTML='';
+ if(!exams.length){box.innerHTML='<div class="empty">এখনো কোনো পরীক্ষা নেই। পরীক্ষা যোগ করলে এখানে খরচের হিসাব করতে পারবে।</div>';return}
+ const gd=document.createElement('div');gd.className='costgrand';
+ const gs=document.createElement('span');gs.textContent='সব বিশ্ববিদ্যালয়ে মোট খরচ';
+ const gb=document.createElement('b');gb.id='costGrand';gd.append(gs,gb);box.append(gd);
+ const grp={};exams.forEach(x=>{(grp[x.uni]=grp[x.uni]||[]).push(x)});
+ Object.keys(grp).forEach(u=>{
+  const card=document.createElement('div');card.className='costuni';
+  const hd=document.createElement('div');hd.className='costhead';
+  const nm=document.createElement('span');nm.textContent=u;
+  const sb=document.createElement('b');sb.dataset.sub=u;hd.append(nm,sb);card.append(hd);
+  grp[u].forEach(x=>{
+   const row=document.createElement('div');row.className='costrow';
+   const tg=document.createElement('div');tg.className='costtag';
+   const tn=document.createElement('span');tn.textContent=tagText(x)||'পরীক্ষা';
+   const tb=document.createElement('b');tb.dataset.row=x.id;tg.append(tn,tb);
+   const ins=document.createElement('div');ins.className='costinputs';
+   [['fee','আবেদন ফি (৳)'],['extra','অতিরিক্ত খরচ (৳)']].forEach(([f,l])=>{
+    const w=document.createElement('div'),lb=document.createElement('label'),ip=document.createElement('input');
+    lb.textContent=l;ip.type='number';ip.inputMode='decimal';ip.min='0';ip.placeholder='0';
+    ip.value=x[f]?x[f]:'';ip.dataset.id=x.id;ip.dataset.f=f;w.append(lb,ip);ins.append(w)});
+   row.append(tg,ins);card.append(row);
+  });
+  box.append(card);
+ });
+ updateCostTotals();
+}
+$('costBody').addEventListener('input',e=>{
+ const t=e.target;if(!t.dataset||!t.dataset.f)return;
+ const z=exams.find(a=>a.id===t.dataset.id);if(!z)return;
+ const v=parseFloat(t.value);z[t.dataset.f]=(isNaN(v)||v<0)?0:v;
+ try{localStorage.setItem(userKey(currentUser),JSON.stringify(exams))}catch(err){}
+ markDirty();updateCostTotals();
+});
 
 const exKey=x=>[x.uni,x.unit||'',x.group||'',x.examDate||''].map(v=>String(v).trim().toLowerCase()).join('|');
 const inMine=x=>exams.some(e=>exKey(e)===exKey(x));
@@ -1259,7 +1325,8 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden&&currentUs
   'যোগ করেছে':'Added by','অবস্থা':'Status','আবেদন শুরু':'Application starts','আবেদন শেষ':'Application deadline','নোট':'Note','আজই':'Today','এই দিনে কোনো পরীক্ষা নেই':'No exams on this day',
   'পরীক্ষার তারিখ যোগ করা হয়নি':'No exam date added','তারিখ যোগ করা হয়নি':'No date added','পরীক্ষার তারিখ অপেক্ষমাণ':'Exam date pending',
   'পাসওয়ার্ড দেখাও':'Show password','পাসওয়ার্ড লুকাও':'Hide password','ফিল্টার':'Filter','আগের মাস':'Previous month','পরের মাস':'Next month',
-  'Language / ভাষা':'Language','🇧🇩 বাংলা':'🇧🇩 Bengali','নতুন যোগ করো':'Add new','তারিখ অপেক্ষমাণ':'Date pending','লক্ষ্য':'Goal','শুরু':'Start','শু':'Sun',
+  'Language / ভাষা':'Language',
+  'Cost Calculator':'Cost Calculator','আবেদন ও পরীক্ষার খরচের হিসাব':'Application & exam expenses','সব বিশ্ববিদ্যালয়ে মোট খরচ':'Total across all universities','আবেদন ফি (৳)':'Application fee (৳)','অতিরিক্ত খরচ (৳)':'Extra cost (৳)','এখনো কোনো পরীক্ষা নেই। পরীক্ষা যোগ করলে এখানে খরচের হিসাব করতে পারবে।':'No exams yet. Add an exam to start tracking costs here.','🇧🇩 বাংলা':'🇧🇩 Bengali','নতুন যোগ করো':'Add new','তারিখ অপেক্ষমাণ':'Date pending','লক্ষ্য':'Goal','শুরু':'Start','শু':'Sun',
   'এই ফিল্টারে দেখানোর মতো কোনো তারিখ যোগ করা নেই।':'No dates available for this filter.',
   'এখনো কেউ কোনো পরীক্ষা যোগ করেনি।':'No one has added an exam yet.','এখনো কোনো পরীক্ষা নেই। নিচের ডানের + বাটন চেপে প্রথম পরীক্ষা যোগ করো।':'No exams yet. Tap the + button at the bottom right to add your first exam.',
   'ভর্তি পরীক্ষা':'Admission test','আবেদনের শেষ দিন':'Application deadline','বিশ্ববিদ্যালয়ের নাম দাও':'Enter a university name',
