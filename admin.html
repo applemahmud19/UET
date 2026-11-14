@@ -43,6 +43,38 @@ tr.row{cursor:pointer}tr.row:hover td{filter:brightness(.97)}
 .themefix{position:fixed;right:16px;top:calc(14px + env(safe-area-inset-top));z-index:60}
 [hidden]{display:none!important}
 @media(max-width:700px){.stats{grid-template-columns:1fr 1fr}.g2{grid-template-columns:1fr}.modal{align-items:flex-end;padding:0}.sheet{border-radius:32px 32px 0 0;max-height:92vh}}
+
+/* ===== mobile fixes ===== */
+@media(max-width:700px){
+  .themefix{position:absolute;right:14px;top:calc(12px + env(safe-area-inset-top))}
+  .wrap{padding:max(16px,env(safe-area-inset-top)) 12px 60px}
+  .bar{flex-direction:column;align-items:stretch;gap:14px;margin:62px 2px 18px}
+  .bar h1{font-size:30px;line-height:1.15}
+  .bar .acts{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+  .bar .acts #me{grid-column:1/-1;font-size:14px;font-weight:600;background:var(--panel);border-radius:999px;padding:9px 16px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;box-shadow:var(--shadow)}
+  .bar .acts #me:empty{display:none}
+  .bar .acts .btn{width:100%;padding:11px 8px}
+  .stats{gap:10px}
+  .stat{padding:16px;border-radius:24px}.stat strong{font-size:28px}
+  .panel{padding:14px;border-radius:24px}
+  .tools{flex-direction:column;gap:8px}
+  .tools input,.tools select{max-width:none;width:100%}
+  /* table -> cards */
+  .tw{overflow:visible}
+  table,tbody{display:block;min-width:0;width:100%}
+  thead{display:none}
+  tbody{counter-reset:r}
+  tr.row{display:grid;grid-template-columns:1fr 1fr;column-gap:12px;row-gap:10px;background:var(--panel2);border-radius:20px;padding:14px 16px;margin-bottom:10px;counter-increment:r}
+  tr.row td{display:block;background:none!important;border-radius:0!important;padding:0;white-space:normal;min-width:0;font-size:14px}
+  tr.row td:nth-child(1){display:none}
+  tr.row td:nth-child(2){font-size:16px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  tr.row td:nth-child(2)::before{content:counter(r) ". ";color:var(--muted);font-weight:500}
+  tr.row td:nth-child(3){justify-self:end;align-self:center}
+  tr.row td[data-l]::before{content:attr(data-l);display:block;font-size:11px;font-weight:600;color:var(--muted);margin-bottom:2px}
+  tbody tr:not(.row) td{display:block;background:var(--panel2);border-radius:18px;padding:16px}
+  .sheet{padding:18px 16px calc(22px + env(safe-area-inset-bottom))}
+  .head h3{font-size:20px;word-break:break-word}
+}
 </style>
 <script>try{var th=localStorage.getItem('ar-admin-theme');if(th==='light'||th==='dark')document.documentElement.setAttribute('data-theme',th)}catch(e){}</script>
 <script src="./config.js"></script>
@@ -178,7 +210,7 @@ function renderUsers(){
   $('sE').textContent=users.reduce((s,u)=>s+(u.exam_count||0),0);
   $('sA').textContent=users.filter(u=>u.last_sign_in_at&&now-new Date(u.last_sign_in_at)<7*day).length;
   $('sN').textContent=users.filter(u=>dkey(u.created_at)===dkey(Date.now())).length;
-  $('rows').innerHTML=l.map((u,i)=>`<tr class="row" data-id="${esc(u.user_id)}"><td class="muted">${i+1}</td><td><b>${esc(u.username)}</b></td><td><span class="pill">${u.exam_count}</span></td><td>${u.rem_count}</td><td>${fd(u.created_at)}</td><td>${fdt(u.last_sign_in_at)}</td><td>${fdt(u.updated_at)}</td></tr>`).join('')||'<tr><td colspan="7" class="muted">No users found</td></tr>';
+  $('rows').innerHTML=l.map((u,i)=>`<tr class="row" data-id="${esc(u.user_id)}"><td class="muted">${i+1}</td><td><b>${esc(u.username)}</b></td><td><span class="pill">${u.exam_count}</span></td><td data-l="Reminders">${u.rem_count}</td><td data-l="Signup">${fd(u.created_at)}</td><td data-l="Last login">${fdt(u.last_sign_in_at)}</td><td data-l="Last sync">${fdt(u.updated_at)}</td></tr>`).join('')||'<tr><td colspan="7" class="muted">No users found</td></tr>';
   $('cnt').textContent=l.length+(l.length===1?' user':' users');
   document.querySelectorAll('tr.row').forEach(r=>r.onclick=()=>openUser(r.dataset.id));
 }
