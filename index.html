@@ -707,9 +707,9 @@ const byDate=(a,b)=>(a.examDate||'9999').localeCompare(b.examDate||'9999');
 function allExams(){
  const g={};
  ((CLOUD&&commRows)?[commRows]:Object.keys(getUsers()).map(u=>{let a=[];try{a=JSON.parse(localStorage.getItem(userKey(u))||'[]')}catch(e){}return a})).forEach(a=>{
-  a.forEach(x=>{if(!x||!x.uni||String(x.uni).length>100)return;const k=[x.uni,x.unit||'',x.group||'',x.examDate||''].map(v=>String(v).trim().toLowerCase()).join('|');
+  a.forEach(x=>{if(!x||!x.uni||String(x.uni).length>100)return;const k=exKey(x);
    const m=g[k]||(g[k]={id:k,uni:x.uni,unit:x.unit||'',group:x.group||'',examDate:x.examDate||'',examTime:x.examTime||'',applyEnd:'',applyEndTime:'',admitDate:'',admitTime:'',status:'',count:0});
-   m.count+=(+x.count||1);if(!m.applyEnd&&x.applyEnd){m.applyEnd=x.applyEnd;m.applyEndTime=x.applyEndTime||''}if(!m.admitDate&&x.admitDate){m.admitDate=x.admitDate;m.admitTime=x.admitTime||''}})});
+   m.count+=(+x.count||1);if(!m.examDate&&x.examDate){m.examDate=x.examDate;m.examTime=x.examTime||''}if(!m.applyEnd&&x.applyEnd){m.applyEnd=x.applyEnd;m.applyEndTime=x.applyEndTime||''}if(!m.admitDate&&x.admitDate){m.admitDate=x.admitDate;m.admitTime=x.admitTime||''}})});
  return Object.values(g).sort(byDate);
 }
 let mapFilter='all';const FILT={exam:'examDate',apply:'applyEnd',pending:'applyEnd',applied:'examDate',admit:'admitDate'},FNAME={examDate:'পরীক্ষা',applyEnd:'আবেদনের শেষ তারিখ',admitDate:'অ্যাডমিট কার্ড ডাউনলোড'};const FF=()=>FILT[mapFilter]||'examDate';
@@ -823,7 +823,15 @@ $('costBody').addEventListener('input',e=>{
 $('costOpen').onclick=()=>showView('cost');
 $('costBack').onclick=()=>showView('account');
 
-const exKey=x=>[x.uni,x.unit||'',x.group||'',x.examDate||''].map(v=>String(v).trim().toLowerCase()).join('|');
+const exKey=x=>[x.uni,x.unit||'',x.group||''].map(v=>String(v).trim().toLowerCase()).join('|');
+/* Main Map e same university+unit+group age thekei thakle, khali date/info gulo oikhan theke nijei bose jay (user er nijer deya value kokhono overwrite hoy na) */
+function fillFromMain(x){
+ if(!x||!x.uni)return false;
+ const k=exKey(x),m=allExams().find(a=>exKey(a)===k);if(!m)return false;
+ let ch=false;
+ [['examDate','examTime'],['applyEnd','applyEndTime'],['admitDate','admitTime']].forEach(([d,t])=>{if(!x[d]&&m[d]){x[d]=m[d];x[t]=m[t]||'';ch=true}});
+ return ch;
+}
 const inMine=x=>exams.some(e=>exKey(e)===exKey(x));
 function addToMine(x){
  if(inMine(x)){showToast('এটি আগে থেকেই My Map-এ আছে');return}
@@ -1052,7 +1060,9 @@ function formVals(){return{uni:getUni(),unit:getUnit(),group:$('groupSel').value
 function fixAutoStatus(v){if(v.status==='auto'){v.statusAuto=true;v.status=autoStatus(v)}else v.statusAuto=false;return v}
 let formT=null;
 function applyForm(){
- formT=null;const v=fixAutoStatus(formVals());if(!v.uni)return false;
+ formT=null;const v0=formVals();if(!v0.uni)return false;
+ if(fillFromMain(v0))['examDate','examTime','applyEnd','applyEndTime','admitDate','admitTime'].forEach(k=>{if($(k)&&$(k).value!==v0[k])$(k).value=v0[k]});
+ const v=fixAutoStatus(v0);
  if(editingId){const z=exams.find(a=>a.id===editingId);if(z)Object.assign(z,v);else{exams.push({id:editingId,...v})}}
  else{const id=Date.now().toString();exams.push({id,...v});editingId=id;$('modalTitle').textContent='পরীক্ষা এডিট করো'}
  save();$('formHint').textContent='নিজে থেকেই সেভ হয়েছে';return true;
@@ -1282,7 +1292,9 @@ async function fetchCommunity(){
  try{
   const t=await token();
   const rows=await sb('/rest/v1/rpc/community_exams',{method:'POST',token:t,body:{}});
-  if(Array.isArray(rows)){commRows=rows;localStorage.setItem(COMM_KEY,JSON.stringify(rows));if(currentUser&&view==='main')renderMap(true)}
+  if(Array.isArray(rows)){commRows=rows;localStorage.setItem(COMM_KEY,JSON.stringify(rows));
+   if(currentUser&&exams.map(fillFromMain).some(Boolean)){syncStatuses();try{localStorage.setItem(userKey(currentUser),JSON.stringify(exams))}catch(e){}markDirty();render()}
+   else if(currentUser&&view==='main')renderMap(true)}
  }catch(e){}
 }
 var adU=null;
