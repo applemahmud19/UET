@@ -709,7 +709,7 @@ function allExams(){
  ((CLOUD&&commRows)?[commRows]:Object.keys(getUsers()).map(u=>{let a=[];try{a=JSON.parse(localStorage.getItem(userKey(u))||'[]')}catch(e){}return a})).forEach(a=>{
   a.forEach(x=>{if(!x||!x.uni||String(x.uni).length>100)return;const k=[x.uni,x.unit||'',x.group||'',x.examDate||''].map(v=>String(v).trim().toLowerCase()).join('|');
    const m=g[k]||(g[k]={id:k,uni:x.uni,unit:x.unit||'',group:x.group||'',examDate:x.examDate||'',examTime:x.examTime||'',applyEnd:'',applyEndTime:'',admitDate:'',admitTime:'',status:'',count:0});
-   m.count++;if(!m.applyEnd&&x.applyEnd){m.applyEnd=x.applyEnd;m.applyEndTime=x.applyEndTime||''}if(!m.admitDate&&x.admitDate){m.admitDate=x.admitDate;m.admitTime=x.admitTime||''}})});
+   m.count+=(+x.count||1);if(!m.applyEnd&&x.applyEnd){m.applyEnd=x.applyEnd;m.applyEndTime=x.applyEndTime||''}if(!m.admitDate&&x.admitDate){m.admitDate=x.admitDate;m.admitTime=x.admitTime||''}})});
  return Object.values(g).sort(byDate);
 }
 let mapFilter='all';const FILT={exam:'examDate',apply:'applyEnd',pending:'applyEnd',applied:'examDate',admit:'admitDate'},FNAME={examDate:'পরীক্ষা',applyEnd:'আবেদনের শেষ তারিখ',admitDate:'অ্যাডমিট কার্ড ডাউনলোড'};const FF=()=>FILT[mapFilter]||'examDate';
@@ -1278,6 +1278,7 @@ async function pullNow(){
 }
 async function fetchCommunity(){
  if(!CLOUD||!cloud||!navigator.onLine)return;
+ if(Date.now()-(window._cf||0)<300000)return;window._cf=Date.now();
  try{
   const t=await token();
   const rows=await sb('/rest/v1/rpc/community_exams',{method:'POST',token:t,body:{}});
@@ -1292,7 +1293,7 @@ function checkAdmin(){
 }
 window.addEventListener('online',()=>{pushNow();pullNow()});
 window.addEventListener('resize',()=>{const n=$('nav');if(n)document.documentElement.style.setProperty('--navh',n.offsetHeight+'px')});
-document.addEventListener('visibilitychange',()=>{if(!document.hidden&&currentUser)pullNow()});
+document.addEventListener('visibilitychange',()=>{if(!document.hidden&&currentUser&&Date.now()-(window._pl||0)>60000){window._pl=Date.now();pullNow()}});
 
 (function boot(){
  const s=localStorage.getItem(SESSION_KEY);
