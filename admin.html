@@ -231,6 +231,13 @@ async function openUser(id){
     const row=(r&&r[0])||{};
     cur={uid:id,username:u.username,exams:Array.isArray(row.exams)?row.exams:[],rems:Array.isArray(row.rems)?row.rems:[],exists:!!(r&&r.length)};
   }catch(ex){toast(ex.message,1);return}
+  /* user er khali exam gulo Main Map er info diye auto fill + save */
+  try{
+    if(cur.exams.length){
+      await loadMM();
+      if(cur.exams.map(fillFromMM).some(Boolean))await persist();
+    }
+  }catch(ex){}
   $('uName').textContent=u.username;
   $('uMeta').textContent='Signup: '+fd(u.created_at)+' · Last login: '+fdt(u.last_sign_in_at);
   setTab('exams');renderExams();renderRems();$('newPw').value='';
@@ -289,9 +296,19 @@ let editKind='exam';
 /* ---- Main Map (community) exams -> add to user's My Map ---- */
 let mmRows=[];
 const exKey=x=>[x.uni,x.unit||'',x.group||''].map(v=>String(v).trim().toLowerCase()).join('|');
+/* user er khali date/info gulo Main Map theke fill kore; kichu change hole true */
+function fillFromMM(x){
+  const m=mmRows.find(a=>exKey(a)===exKey(x));if(!m)return false;
+  let ch=false;
+  [['examDate','examTime'],['applyEnd','applyEndTime'],['admitDate','admitTime']].forEach(([d,t])=>{if(!x[d]&&m[d]){x[d]=m[d];x[t]=m[t]||'';ch=true}});
+  return ch;
+}
 async function openMM(){
   $('mmQ').value='';$('mmList').innerHTML='<div class="muted">Loading...</div>';$('mmModal').hidden=false;
-  try{
+  try{await loadMM();renderMM()}catch(ex){$('mmList').innerHTML='';toast(ex.message,1)}
+}
+async function loadMM(){
+  {
     const rows=await call('/rest/v1/rpc/community_exams',{method:'POST',body:{}});
     const g={};
     (rows||[]).forEach(x=>{
@@ -304,8 +321,7 @@ async function openMM(){
       if(!m.admitDate&&x.admitDate){m.admitDate=x.admitDate;m.admitTime=x.admitTime||''}
     });
     mmRows=Object.values(g).sort((a,b)=>(a.examDate||'9999').localeCompare(b.examDate||'9999'));
-    renderMM();
-  }catch(ex){$('mmList').innerHTML='';toast(ex.message,1)}
+  }
 }
 function renderMM(){
   if(!cur)return;
