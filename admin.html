@@ -127,6 +127,12 @@ tr.row{cursor:pointer}tr.row:hover td{filter:brightness(.97)}
   </div>
 </div></div>
 
+<div class="modal" id="mmModal" hidden style="z-index:65"><div class="sheet s">
+  <div class="head"><h3>Add from Main Map</h3><button class="btn sec sm" id="mmClose">Close</button></div>
+  <input id="mmQ" placeholder="Search university...">
+  <div id="mmList" style="margin-top:12px"></div>
+</div></div>
+
 <div class="modal" id="eModal" hidden style="z-index:60"><div class="sheet s">
   <div class="head"><h3 id="eTitle">Exam</h3><button class="btn sec sm" id="eClose">Close</button></div>
   <div class="g2" id="eForm"></div>
@@ -238,9 +244,10 @@ document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>setTab(b.data
 $('uClose').onclick=()=>{$('uModal').hidden=true;cur=null};
 function renderExams(){
   const l=cur.exams;
-  $('tExams').innerHTML='<div class="row2" style="margin:0 0 10px"><button class="btn sm" id="addEx">+ New exam</button><span class="muted" style="align-self:center">'+l.length+(l.length===1?' exam':' exams')+'</span></div>'+
+  $('tExams').innerHTML='<div class="row2" style="margin:0 0 10px"><button class="btn sm" id="addEx">+ New exam</button><button class="btn sec sm" id="addMM">+ From Main Map</button><span class="muted" style="align-self:center">'+l.length+(l.length===1?' exam':' exams')+'</span></div>'+
   (l.map((x,i)=>`<div class="ex"><div class="t"><div><h4>${esc(L(x.uni))} ${x.unit?'— '+esc(x.unit):''}</h4><span class="pill">${esc(L(x.status)||'—')}</span></div><div style="display:flex;gap:6px"><button class="btn sec sm" data-e="${i}">Edit</button><button class="btn red sm" data-d="${i}">Delete</button></div></div><div class="m"><span>Exam: ${esc(x.examDate||'—')}</span><span>Application end: ${esc(x.applyEnd||'—')}</span><span>Admit card: ${esc(x.admitDate||'—')}</span>${x.group?'<span>'+esc(L(x.group))+'</span>':''}</div>${x.note?'<div class="m">Note: '+esc(x.note)+'</div>':''}</div>`).join('')||'<div class="muted">No exams added</div>');
   $('addEx').onclick=()=>openEdit(-1);
+  $('addMM').onclick=openMM;
   document.querySelectorAll('[data-e]').forEach(b=>b.onclick=()=>openEdit(+b.dataset.e));
   document.querySelectorAll('[data-d]').forEach(b=>b.onclick=async()=>{if(!confirm('Delete this exam?'))return;cur.exams.splice(+b.dataset.d,1);await persist();renderExams()});
 }
@@ -279,6 +286,44 @@ $('eSave').onclick=async()=>{
   if(await persist()){$('eModal').hidden=true;renderExams()}
 };
 let editKind='exam';
+/* ---- Main Map (community) exams -> add to user's My Map ---- */
+let mmRows=[];
+const exKey=x=>[x.uni,x.unit||'',x.group||''].map(v=>String(v).trim().toLowerCase()).join('|');
+async function openMM(){
+  $('mmQ').value='';$('mmList').innerHTML='<div class="muted">Loading...</div>';$('mmModal').hidden=false;
+  try{
+    const rows=await call('/rest/v1/rpc/community_exams',{method:'POST',body:{}});
+    const g={};
+    (rows||[]).forEach(x=>{
+      if(!x||!x.uni||String(x.uni).length>100)return;
+      const k=exKey(x);
+      const m=g[k]||(g[k]={uni:x.uni,unit:x.unit||'',group:x.group||'',examDate:x.examDate||'',examTime:x.examTime||'',applyEnd:'',applyEndTime:'',admitDate:'',admitTime:'',count:0});
+      m.count+=(+x.count||1);
+      if(!m.examDate&&x.examDate){m.examDate=x.examDate;m.examTime=x.examTime||''}
+      if(!m.applyEnd&&x.applyEnd){m.applyEnd=x.applyEnd;m.applyEndTime=x.applyEndTime||''}
+      if(!m.admitDate&&x.admitDate){m.admitDate=x.admitDate;m.admitTime=x.admitTime||''}
+    });
+    mmRows=Object.values(g).sort((a,b)=>(a.examDate||'9999').localeCompare(b.examDate||'9999'));
+    renderMM();
+  }catch(ex){$('mmList').innerHTML='';toast(ex.message,1)}
+}
+function renderMM(){
+  if(!cur)return;
+  const q=$('mmQ').value.trim().toLowerCase();
+  const l=mmRows.filter(x=>!q||(L(x.uni)+' '+x.uni+' '+(x.unit||'')).toLowerCase().includes(q));
+  $('mmList').innerHTML=l.map(x=>{
+    const has=cur.exams.some(e=>exKey(e)===exKey(x)),i=mmRows.indexOf(x);
+    return `<div class="ex"><div class="t"><div style="min-width:0"><h4>${esc(L(x.uni))}${x.unit?' — '+esc(x.unit):''}</h4>${x.group?'<span class="pill">'+esc(L(x.group))+'</span>':''}</div><button class="btn sm${has?' sec':''}" data-mm="${i}"${has?' disabled':''}>${has?'Added':'Add'}</button></div><div class="m"><span>Exam: ${esc(x.examDate||'—')}</span><span>Application end: ${esc(x.applyEnd||'—')}</span><span>Admit card: ${esc(x.admitDate||'—')}</span></div></div>`;
+  }).join('')||'<div class="muted">No exams found</div>';
+  document.querySelectorAll('[data-mm]').forEach(b=>b.onclick=async()=>{
+    const x=mmRows[+b.dataset.mm];
+    if(cur.exams.some(e=>exKey(e)===exKey(x)))return;
+    cur.exams.push({id:Date.now().toString(),uni:x.uni,unit:x.unit,group:x.group,examDate:x.examDate,examTime:x.examTime,applyStart:'',applyEnd:x.applyEnd,applyEndTime:x.applyEndTime,admitDate:x.admitDate,admitTime:x.admitTime,status:STATUS[0]});
+    if(await persist()){renderExams();renderMM()}else cur.exams.pop();
+  });
+}
+$('mmQ').oninput=renderMM;
+$('mmClose').onclick=()=>$('mmModal').hidden=true;
 const REM_FIELDS=[['title','Reminder','text',1],['date','Date','date'],['time','Time (optional)','time'],['note','Note (optional)','area',1]];
 function fmtD(d){if(!d)return '—';const x=new Date(d+'T00:00:00');return isNaN(x)?esc(d):x.toLocaleDateString('en-US',{day:'numeric',month:'short',year:'numeric'})}
 function fmtT(t){if(!t)return '';const m=/^(\d{1,2}):(\d{2})/.exec(t);if(!m)return esc(t);let h=+m[1];const ap=h>=12?'PM':'AM';h=h%12||12;return h+':'+m[2]+' '+ap}
