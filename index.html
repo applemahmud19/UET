@@ -736,6 +736,19 @@ let remFilter='all';
 $('remFilter').onchange=e=>{remFilter=e.target.value;renderReminders()};
 const isOngoing=x=>{if(examPassed(x))return false;const kS=x.applyStart?daysLeft(x.applyStart):null,kE=x.applyEnd?daysLeft(x.applyEnd):null;if(kE!==null&&kE<0)return false;return (kS!==null&&kS<=0)||x.status==='আবেদন চলছে'};
 const remKind=e=>e.custom?'custom':({'আবেদন শুরু':'start','আবেদনের শেষ তারিখ':'apply','অ্যাডমিট কার্ড ডাউনলোড':'admit','ভর্তি পরীক্ষা':'exam'})[e.t];
+const mergedTag=xs=>{
+ if(xs.length===1)return tagText(xs[0]);
+ const arr=[...xs].sort((a,b)=>String(a.unit||'').localeCompare(String(b.unit||''),undefined,{numeric:true}));
+ const seen=new Set(),out=[];
+ arr.forEach(x=>{const t=x.unit?(x.group?x.unit+' ('+x.group+')':x.unit):(x.group||'');if(t&&!seen.has(t)){seen.add(t);out.push(t)}});
+ return out.join(', ');
+};
+const appliedText=xs=>{
+ const ap=xs.filter(x=>x.applied);
+ if(!ap.length)return '';
+ if(ap.length===xs.length)return '  •  আবেদন করেছি';
+ return '  •  আবেদন করেছি: '+ap.map(x=>x.unit||x.group||'').filter(Boolean).join(', ');
+};
 function renderReminders(){
  const ev=[];
  exams.forEach(x=>{const si=STARS[x.status]||0;
@@ -746,6 +759,16 @@ function renderReminders(){
   if(x.examDate&&si<3)ev.push({d:x.examDate,tm:x.examTime,t:'ভর্তি পরীক্ষা',x});
  });
  rems.forEach(r=>{if(r.kind!=='alarm'&&r.date)ev.push({d:r.date,tm:r.time,custom:true,r})});
+ /* একই বিশ্ববিদ্যালয়ের একই ধরন+তারিখ+সময়ের ইভেন্ট (ইউনিট ভেদে) এক কার্ডে মার্জ */
+ {const mg=[],idx={};
+  ev.forEach(e=>{
+   if(e.custom){mg.push(e);return}
+   const key=[String(e.x.uni||'').trim().toLowerCase(),e.t,e.d,e.tm||''].join('|');
+   if(idx[key]){const m=idx[key];m.xs.push(e.x);if(e.ong)m.ong=true}
+   else{e.xs=[e.x];idx[key]=e;mg.push(e)}
+  });
+  ev.length=0;mg.forEach(e=>ev.push(e));
+ }
  ev.sort((a,b)=>a.d.localeCompare(b.d)||(a.tm||'').localeCompare(b.tm||''));
  const evF=remFilter==='all'?ev:ev.filter(e=>remFilter==='ongoing'?!!e.ong:remKind(e)===remFilter);
  const groups=[['আজ',e=>daysLeft(e.d)===0],['আগামী ৭ দিন',e=>{const k=daysLeft(e.d);return k>=1&&k<=7}],['এর পরে',e=>daysLeft(e.d)>7],['সময় পার হয়ে গেছে (অবস্থা আপডেট করো)',e=>daysLeft(e.d)<0]];
@@ -756,7 +779,7 @@ function renderReminders(){
   items.forEach(e=>{
    const k=daysLeft(e.d),r=document.createElement('div');r.className='ritem';
    const l=document.createElement('div'),b=document.createElement('b');b.textContent=e.custom?e.r.title:e.t+': '+e.x.uni;
-   const m=document.createElement('div');m.className='muted';m.textContent=dateText(e.d)+(e.tm?'  •  '+timeText(e.tm):'')+(e.custom?(e.r.note?'  •  '+e.r.note:''):(tagText(e.x)?'  •  '+tagText(e.x):''))+(!e.custom&&e.t==='আবেদনের শেষ তারিখ'&&e.x.applied?'  •  আবেদন করেছি':'');l.append(b,m);
+   const m=document.createElement('div');m.className='muted';m.textContent=dateText(e.d)+(e.tm?'  •  '+timeText(e.tm):'')+(e.custom?(e.r.note?'  •  '+e.r.note:''):(mergedTag(e.xs)?'  •  '+mergedTag(e.xs):''))+(!e.custom&&e.t==='আবেদনের শেষ তারিখ'?appliedText(e.xs):'');l.append(b,m);
    if(e.custom){const ac=document.createElement('div');ac.className='ractions';
     const eb=document.createElement('button');eb.type='button';eb.textContent='Edit';eb.onclick=()=>openRem(e.r.id);
     const db=document.createElement('button');db.type='button';db.textContent='মুছো';db.onclick=()=>{if(confirm('এই রিমাইন্ডারটি মুছে ফেলবে?')){rems=rems.filter(a=>a.id!==e.r.id);saveRems()}};
