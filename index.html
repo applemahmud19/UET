@@ -407,6 +407,8 @@ textarea:focus{border-color:var(--blue)}textarea::placeholder{color:#6f6f78}
 .rgroup .ritem .rdays.late{background:#e5484d1f}
 .rgroup .ritem .ractions{margin-top:10px;padding-top:10px;border-top:1px solid var(--line)}
 .rgroup .ritem.tap{cursor:pointer}
+#fabAdd{transition:transform .22s ease,opacity .22s ease}
+#fabAdd.hide{transform:translateY(130px);opacity:0;pointer-events:none}
 .rside{display:flex;align-items:center;gap:6px;flex:none}
 .rchev svg{width:18px;height:18px;stroke:var(--muted);fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;display:block;transition:transform .2s}
 .ritem.multi.open .rchev svg{transform:rotate(180deg)}
@@ -1022,7 +1024,7 @@ function renderCalendar(){
  Object.keys(ev).sort().forEach(k=>{if(calSel?k===calSel:k.startsWith(mk))ev[k].forEach(i=>rows.push({k,...i}))});
  const h=document.createElement('h4');
  if(calSel)h.textContent=dateText(calSel);
- else{const c=rows.filter(r=>r.t==='exam').length,fl=mapFilter!=='all',n2=fl?rows.length:c,nm=fl?CAL_T[mapFilter]:'পরীক্ষা';h.textContent=n2?`এই মাসে ${bnum(n2)}টি ${nm} আছে`:`এই মাসে কোনো ${nm} নেই`}
+ else{const c=rows.filter(r=>r.t==='exam').length,fl=mapFilter!=='all';let n2=fl?rows.length:c,nm=fl?CAL_T[mapFilter]:'পরীক্ষা';if(!fl&&!c&&rows.length){n2=rows.length;nm='তারিখ'}h.textContent=n2?`এই মাসে ${bnum(n2)}টি ${nm} আছে`:`এই মাসে কোনো ${nm} নেই`}
  list.append(h);
  if(calSel&&!rows.length){const e=document.createElement('div');e.className='empty';e.textContent='এই দিনে কোনো পরীক্ষা নেই';list.append(e)}
  rows.forEach(r=>{
@@ -1433,6 +1435,12 @@ function checkAdmin(){
  adU=currentUser;el.hidden=true;
  token().then(t=>sb('/rest/v1/rpc/is_admin',{method:'POST',token:t,body:{}})).then(ok=>{el.hidden=ok!==true}).catch(()=>{adU=null});
 }
+/* নিচে স্ক্রল করলে + বাটন লুকিয়ে যায় (কার্ড ঢাকে না), ওপরে স্ক্রল করলে আবার আসে */
+(function(){let ly=window.scrollY||0;const fab=$('fabAdd');if(!fab)return;
+ window.addEventListener('scroll',()=>{const y=window.scrollY||0,atEnd=window.innerHeight+y>=document.documentElement.scrollHeight-40;
+  if(y<40||atEnd||y<ly-6)fab.classList.remove('hide');else if(y>ly+6)fab.classList.add('hide');ly=y},{passive:true});
+ document.addEventListener('click',e=>{if(e.target.closest&&e.target.closest('#nav button'))fab.classList.remove('hide')});
+})();
 window.addEventListener('online',()=>{pushNow();pullNow()});
 window.addEventListener('resize',()=>{const n=$('nav');if(n)document.documentElement.style.setProperty('--navh',n.offsetHeight+'px')});
 document.addEventListener('visibilitychange',()=>{if(!document.hidden&&currentUser&&Date.now()-(window._pl||0)>60000){window._pl=Date.now();pullNow()}});
