@@ -406,6 +406,13 @@ textarea:focus{border-color:var(--blue)}textarea::placeholder{color:#6f6f78}
 .rgroup .ritem .rdays.hot{background:#ffb0201f}
 .rgroup .ritem .rdays.late{background:#e5484d1f}
 .rgroup .ritem .ractions{margin-top:10px;padding-top:10px;border-top:1px solid var(--line)}
+.rside{display:flex;align-items:center;gap:6px;flex:none}
+.rchev svg{width:18px;height:18px;stroke:var(--muted);fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;display:block;transition:transform .2s}
+.ritem.multi.open .rchev svg{transform:rotate(180deg)}
+.unitlist{display:flex;flex-direction:column;gap:6px;margin-top:10px}
+.unitlist[hidden]{display:none}
+.unitbtn{display:flex;justify-content:space-between;align-items:center;gap:10px;width:100%;border:1px solid var(--line);background:var(--panel);color:inherit;border-radius:12px;padding:9px 12px;font:inherit;font-size:13px;font-weight:700;cursor:pointer;text-align:left}
+.unitbtn i{font-style:normal;font-size:11px;font-weight:800;color:#2fa56c}
 .tpill.t-start{background:#35b87a26;color:#3fc98a}.tpill.t-custom{background:#b48cff26;color:#b48cff}
 .ritem.rr-start{box-shadow:inset 4px 0 0 #35b87a}.ritem.rr-apply{box-shadow:inset 4px 0 0 #67a8ff}.ritem.rr-admit{box-shadow:inset 4px 0 0 #62dfd0}.ritem.rr-exam{box-shadow:inset 4px 0 0 #ffc66d}.ritem.rr-custom{box-shadow:inset 4px 0 0 #b48cff}
 html[data-theme=light] .tpill.t-start{background:#c9efdc;color:#16744a}html[data-theme=light] .tpill.t-custom{background:#e6dcff;color:#5b34b0}
@@ -1004,7 +1011,23 @@ function renderCalendar(){
   if(!calSel){const m2=document.createElement('div');m2.className='muted';m2.textContent=dateText(r.k);l.append(m2)}
   const dd=document.createElement('div'),k=daysLeft(r.k);dd.className='rdays'+(k<0?' late':k<=3?' hot':'');
   dd.textContent=k===0?'আজ':k>0?`${bnum(k)} দিন বাকি`:`${bnum(Math.abs(k))} দিন আগে`;
-  it.append(l,dd);it.onclick=()=>{selectedId=r.x.id;renderMap(true);openDetail(r.x.id)};list.append(it);
+  const xs=r.xs||[r.x],open1=x=>{selectedId=x.id;renderMap(true);openDetail(x.id)};
+  if(xs.length>1){
+   const side=document.createElement('div');side.className='rside';
+   const chev=document.createElement('span');chev.className='rchev';chev.innerHTML='<svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>';
+   side.append(dd,chev);
+   const ul=document.createElement('div');ul.className='unitlist';ul.hidden=true;
+   xs.slice().sort((a,c)=>String(a.unit||'').localeCompare(String(c.unit||''),undefined,{numeric:true})).forEach(x=>{
+    const ub=document.createElement('button');ub.type='button';ub.className='unitbtn';
+    const lb=document.createElement('span');lb.textContent=x.unit?(x.group?x.unit+' ('+x.group+')':x.unit):(x.group||'বিস্তারিত');
+    ub.append(lb);if(x.applied){const ok=document.createElement('i');ok.textContent='✓ আবেদন করেছি';ub.append(ok)}
+    ub.onclick=ev2=>{ev2.stopPropagation();open1(x)};ul.append(ub)});
+   l.append(ul);
+   it.classList.add('multi');
+   it.onclick=()=>{ul.hidden=!ul.hidden;it.classList.toggle('open',!ul.hidden)};
+   it.append(l,side);
+  }else{it.append(l,dd);it.onclick=()=>open1(r.x)}
+  list.append(it);
  });
 }
 function calMove(n){calM+=n;if(calM<0){calM=11;calY--}if(calM>11){calM=0;calY++}calSel=null;renderCalendar()}
