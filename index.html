@@ -397,14 +397,19 @@ textarea:focus{border-color:var(--blue)}textarea::placeholder{color:#6f6f78}
 .panel[data-v=remind] .mapfilter select{width:100%;height:46px;font-size:14px}
 .rgroup{margin-bottom:20px}
 .rgroup h4{margin:0 4px 10px;font-size:14px}
-.rgroup .ritem{display:flex;flex-direction:column-reverse;align-items:stretch;justify-content:flex-end;gap:8px;padding:14px 16px;margin-bottom:10px;min-width:0}
+.rgroup .ritem{display:flex;flex-direction:row;align-items:center;justify-content:space-between;gap:12px;padding:14px 14px 14px 18px;margin-bottom:10px;min-width:0}
+.rgroup .ritem .tpill{margin:0 0 6px}
 .rgroup .ritem>div:first-child{min-width:0;flex:1 1 auto}
 .rgroup .ritem b{display:block;font-size:15px;line-height:1.5;font-weight:800;overflow-wrap:anywhere}
 .rgroup .ritem .muted{margin-top:4px;line-height:1.6;font-size:12.5px;overflow-wrap:anywhere}
-.rgroup .ritem .rdays{align-self:flex-start;display:inline-block;padding:3px 11px;border-radius:999px;font-size:12px;line-height:1.5;background:#2f7bf01f}
+.rgroup .ritem .rdays{align-self:center;flex:none;display:inline-block;padding:6px 12px;text-align:center;border-radius:999px;font-size:12px;line-height:1.5;background:#2f7bf01f}
 .rgroup .ritem .rdays.hot{background:#ffb0201f}
 .rgroup .ritem .rdays.late{background:#e5484d1f}
 .rgroup .ritem .ractions{margin-top:10px;padding-top:10px;border-top:1px solid var(--line)}
+.tpill.t-start{background:#35b87a26;color:#3fc98a}.tpill.t-custom{background:#b48cff26;color:#b48cff}
+.ritem.rr-start{box-shadow:inset 4px 0 0 #35b87a}.ritem.rr-apply{box-shadow:inset 4px 0 0 #67a8ff}.ritem.rr-admit{box-shadow:inset 4px 0 0 #62dfd0}.ritem.rr-exam{box-shadow:inset 4px 0 0 #ffc66d}.ritem.rr-custom{box-shadow:inset 4px 0 0 #b48cff}
+html[data-theme=light] .tpill.t-start{background:#c9efdc;color:#16744a}html[data-theme=light] .tpill.t-custom{background:#e6dcff;color:#5b34b0}
+html[data-theme=light] .ritem.rr-start{box-shadow:inset 4px 0 0 #1fa066}html[data-theme=light] .ritem.rr-apply{box-shadow:inset 4px 0 0 #2f7bf0}html[data-theme=light] .ritem.rr-admit{box-shadow:inset 4px 0 0 #1fb3a3}html[data-theme=light] .ritem.rr-exam{box-shadow:inset 4px 0 0 #f0a020}html[data-theme=light] .ritem.rr-custom{box-shadow:inset 4px 0 0 #8a5cf0}
 
 /* ===== আবেদন ট্র্যাকার ===== */
 .apsum{display:none;gap:6px;margin:8px 0 0}
@@ -777,9 +782,10 @@ function renderReminders(){
   const items=evF.filter(f);if(!items.length)return;
   const g=document.createElement('div');g.className='rgroup';const h=document.createElement('h4');h.textContent=title;g.append(h);
   items.forEach(e=>{
-   const k=daysLeft(e.d),r=document.createElement('div');r.className='ritem';
-   const l=document.createElement('div'),b=document.createElement('b');b.textContent=e.custom?e.r.title:e.t+': '+e.x.uni;
-   const m=document.createElement('div');m.className='muted';m.textContent=dateText(e.d)+(e.tm?'  •  '+timeText(e.tm):'')+(e.custom?(e.r.note?'  •  '+e.r.note:''):(mergedTag(e.xs)?'  •  '+mergedTag(e.xs):''))+(!e.custom&&e.t==='আবেদনের শেষ তারিখ'?appliedText(e.xs):'');l.append(b,m);
+   const k=daysLeft(e.d),r=document.createElement('div');const kd=remKind(e);r.className='ritem rr-'+kd;
+   const l=document.createElement('div'),b=document.createElement('b');b.textContent=e.custom?e.r.title:e.x.uni;
+   const pl=document.createElement('span');pl.className='tpill t-'+kd;pl.textContent=e.custom?'রিমাইন্ডার':e.t;
+   const m=document.createElement('div');m.className='muted';m.textContent=dateText(e.d)+(e.tm?'  •  '+timeText(e.tm):'')+(e.custom?(e.r.note?'  •  '+e.r.note:''):(mergedTag(e.xs)?'  •  '+mergedTag(e.xs):''))+(!e.custom&&e.t==='আবেদনের শেষ তারিখ'?appliedText(e.xs):'');l.append(pl,b,m);
    if(e.custom){const ac=document.createElement('div');ac.className='ractions';
     const eb=document.createElement('button');eb.type='button';eb.textContent='Edit';eb.onclick=()=>openRem(e.r.id);
     const db=document.createElement('button');db.type='button';db.textContent='মুছো';db.onclick=()=>{if(confirm('এই রিমাইন্ডারটি মুছে ফেলবে?')){rems=rems.filter(a=>a.id!==e.r.id);saveRems()}};
@@ -953,7 +959,14 @@ function renderMap(keepScroll){
 let calY=today.getFullYear(),calM=today.getMonth(),calSel=null;
 const p2=n=>String(n).padStart(2,'0');
 const CAL_T={exam:'পরীক্ষা',pending:'আবেদন বাকি',applied:'আবেদন করা',apply:'আবেদনের শেষ দিন',admit:'অ্যাডমিট কার্ড ডাউনলোড'};
-function calEvents(){const ev={};exams.forEach(x=>{[['examDate','exam'],['applyEnd','apply'],['admitDate','admit']].forEach(([f,t])=>{if(x[f]&&(mapFilter==='all'||mapFilter===t||(mapFilter==='pending'&&t==='apply'&&isPending(x))||(mapFilter==='applied'&&t==='exam'&&x.applied)))(ev[x[f]]=ev[x[f]]||[]).push({t,x})})});return ev}
+function calEvents(){const ev={};exams.forEach(x=>{[['examDate','exam'],['applyEnd','apply'],['admitDate','admit']].forEach(([f,t])=>{if(x[f]&&(mapFilter==='all'||mapFilter===t||(mapFilter==='pending'&&t==='apply'&&isPending(x))||(mapFilter==='applied'&&t==='exam'&&x.applied)))(ev[x[f]]=ev[x[f]]||[]).push({t,x})})});
+ /* একই বিশ্ববিদ্যালয়, একই ধরন ও সময় হলে ইউনিট ভেদে আলাদা না করে এক কার্ডে মার্জ */
+ const TM={exam:'examTime',apply:'applyEndTime',admit:'admitTime'};
+ Object.keys(ev).forEach(k=>{const idx={},out=[];
+  ev[k].forEach(i=>{const key=[String(i.x.uni||'').trim().toLowerCase(),i.t,i.x[TM[i.t]]||''].join('|');
+   if(idx[key])idx[key].xs.push(i.x);else{i.xs=[i.x];idx[key]=i;out.push(i)}});
+  ev[k]=out});
+ return ev}
 function renderCalendar(){
  const grid=$('calGrid');if(!grid)return;
  const ev=calEvents(),first=new Date(calY,calM,1),dim=new Date(calY,calM+1,0).getDate(),lead=first.getDay();
@@ -986,7 +999,7 @@ function renderCalendar(){
  rows.forEach(r=>{
   const it=document.createElement('div');it.className='ritem cr-'+r.t;
   const l=document.createElement('div'),b=document.createElement('b'),m=document.createElement('div');m.className='muted';
-  b.textContent=r.x.uni;const pl=document.createElement('span');pl.className='tpill t-'+r.t;pl.textContent=CAL_T[r.t];m.append(pl,' '+[timeText(r.x[({exam:'examTime',apply:'applyEndTime',admit:'admitTime'})[r.t]]),tagText(r.x)].filter(Boolean).join('  •  '));
+  b.textContent=r.x.uni;const pl=document.createElement('span');pl.className='tpill t-'+r.t;pl.textContent=CAL_T[r.t];m.append(pl,' '+[timeText(r.x[({exam:'examTime',apply:'applyEndTime',admit:'admitTime'})[r.t]]),mergedTag(r.xs||[r.x])].filter(Boolean).join('  •  '));
   l.append(b,m);
   if(!calSel){const m2=document.createElement('div');m2.className='muted';m2.textContent=dateText(r.k);l.append(m2)}
   const dd=document.createElement('div'),k=daysLeft(r.k);dd.className='rdays'+(k<0?' late':k<=3?' hot':'');
