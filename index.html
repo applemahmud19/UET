@@ -406,6 +406,7 @@ textarea:focus{border-color:var(--blue)}textarea::placeholder{color:#6f6f78}
 .rgroup .ritem .rdays.hot{background:#ffb0201f}
 .rgroup .ritem .rdays.late{background:#e5484d1f}
 .rgroup .ritem .ractions{margin-top:10px;padding-top:10px;border-top:1px solid var(--line)}
+.rgroup .ritem.tap{cursor:pointer}
 .rside{display:flex;align-items:center;gap:6px;flex:none}
 .rchev svg{width:18px;height:18px;stroke:var(--muted);fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;display:block;transition:transform .2s}
 .ritem.multi.open .rchev svg{transform:rotate(180deg)}
@@ -673,7 +674,11 @@ function wrapLabel(s,n){
  return [clip(l1,n+1),l2?clip(l2,n+1):''];
 }
 const today=new Date();today.setHours(0,0,0,0);
-$('today').textContent=new Intl.DateTimeFormat(localStorage.getItem('admission-roadmap-language')==='en'?'en-US':'bn-BD',{weekday:'long',day:'numeric',month:'long',year:'numeric'}).format(new Date());
+function setTodayText(){$('today').textContent=new Intl.DateTimeFormat(localStorage.getItem('admission-roadmap-language')==='en'?'en-US':'bn-BD',{weekday:'long',day:'numeric',month:'long',year:'numeric'}).format(new Date());}
+setTodayText();
+function refreshToday(){const n=new Date();n.setHours(0,0,0,0);if(n.getTime()===today.getTime())return;today.setTime(n.getTime());setTodayText();if(!currentUser)return;if(syncStatuses())save();else render()}
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)refreshToday()});
+setInterval(refreshToday,60000);
 function save(){localStorage.setItem(userKey(currentUser),JSON.stringify(exams));markDirty();render()}
 function dateText(s){if(!s)return 'তারিখ যোগ করা হয়নি';return new Intl.DateTimeFormat(localStorage.getItem('admission-roadmap-language')==='en'?'en-US':'bn-BD',{weekday:'long',day:'numeric',month:'short',year:'numeric'}).format(new Date(s+'T00:00:00'))}
 function timeText(t){if(!t)return '';try{return new Intl.DateTimeFormat(localStorage.getItem('admission-roadmap-language')==='en'?'en-US':'bn-BD',{hour:'numeric',minute:'2-digit',hour12:true}).format(new Date('1970-01-01T'+t))}catch(e){return t}}
@@ -798,7 +803,24 @@ function renderReminders(){
     const db=document.createElement('button');db.type='button';db.textContent='মুছো';db.onclick=()=>{if(confirm('এই রিমাইন্ডারটি মুছে ফেলবে?')){rems=rems.filter(a=>a.id!==e.r.id);saveRems()}};
     ac.append(eb,db);l.append(ac)}
    const dd=document.createElement('div');dd.className='rdays'+(k<0?' late':k<=3?' hot':'');dd.textContent=k===0?'আজ':k>0?`${bnum(k)} দিন বাকি`:`${bnum(Math.abs(k))} দিন আগে`;
-   r.append(l,dd);g.append(r);
+   if(!e.custom){
+    const xs=e.xs||[e.x],open1=x=>{mapMode='mine';selectedId=x.id;renderMap(true);openDetail(x.id)};
+    if(xs.length>1){
+     const side=document.createElement('div');side.className='rside';
+     const chev=document.createElement('span');chev.className='rchev';chev.innerHTML='<svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>';
+     side.append(dd,chev);
+     const ul=document.createElement('div');ul.className='unitlist';ul.hidden=true;
+     xs.slice().sort((a,c)=>String(a.unit||'').localeCompare(String(c.unit||''),undefined,{numeric:true})).forEach(x=>{
+      const ub=document.createElement('button');ub.type='button';ub.className='unitbtn';
+      const lb=document.createElement('span');lb.textContent=x.unit?(x.group?x.unit+' ('+x.group+')':x.unit):(x.group||'বিস্তারিত');
+      ub.append(lb);if(x.applied){const ok=document.createElement('i');ok.textContent='✓ আবেদন করেছি';ub.append(ok)}
+      ub.onclick=ev2=>{ev2.stopPropagation();open1(x)};ul.append(ub)});
+     l.append(ul);r.classList.add('multi','tap');
+     r.onclick=()=>{ul.hidden=!ul.hidden;r.classList.toggle('open',!ul.hidden)};
+     r.append(l,side);
+    }else{r.classList.add('tap');r.onclick=()=>open1(xs[0]);r.append(l,dd)}
+   }else r.append(l,dd);
+   g.append(r);
   });box.append(g);
  });
  if(!box.children.length&&remFilter!=='all')box.innerHTML='<div class="empty">এই ফিল্টারে কোনো রিমাইন্ডার নেই।</div>';
@@ -1069,7 +1091,7 @@ function openDetail(id){detailId=id;fillDetail();if(detailId)$('detailModal').hi
 let noteChanged=false;
 function closeDetail(){const t=document.getElementById('detailNote');if(t&&t._t){clearTimeout(t._t);t._t=null;const z=exams.find(a=>a.id===detailId);if(z&&(z.note||'')!==t.value.trim()){z.note=t.value.trim();try{localStorage.setItem(userKey(currentUser),JSON.stringify(exams))}catch(e){}markDirty();noteChanged=true}}$('detailModal').hidden=true;detailId=null;if(noteChanged){noteChanged=false;render()}}
 function fillDetail(){
- const x=sortedExams().find(a=>a.id===detailId),box=$('detailBody');
+ const x=(mapMode==='mine'?exams.find(a=>a.id===detailId):null)||sortedExams().find(a=>a.id===detailId),box=$('detailBody');
  if(!x){closeDetail();return}
  const mine=mapMode==='mine',d=daysLeft(x.examDate);
  box.innerHTML='';
@@ -1107,9 +1129,9 @@ function fillDetail(){
 function showToast(m){const t=$('toast');t.textContent=m;t.hidden=false;clearTimeout(showToast.t);showToast.t=setTimeout(()=>t.hidden=true,1800)}
 $('detailClose').onclick=closeDetail;
 $('detailModal').addEventListener('click',e=>{if(e.target.id==='detailModal')closeDetail()});
-let editingId=null;
+let editingId=null,formSnap=null,formNew=false;
 function openForm(id){
- editingId=id||null;const x=id?exams.find(a=>a.id===id):null;$('addForm').reset();
+ editingId=id||null;const x=id?exams.find(a=>a.id===id):null;$('addForm').reset();formSnap=x?JSON.stringify(x):null;formNew=!x;
  if(x){$('examDate').value=x.examDate||'';$('applyStart').value=x.applyStart||'';$('applyEnd').value=x.applyEnd||'';$('admitDate').value=x.admitDate||'';$('examTime').value=x.examTime||'';$('applyEndTime').value=x.applyEndTime||'';$('admitTime').value=x.admitTime||'';$('status').value=x.statusAuto===false?x.status:'auto';$('applied').value=x.applied?'yes':'no';$('noteInput').value=x.note||''}
  setUnitFields(x?x.unit:'',x?x.group:'');setUniFields(x?x.uni:'');
  $('modalTitle').textContent=x?'পরীক্ষা এডিট করো':'নতুন পরীক্ষা যোগ করো';$('saveBtn').textContent=x?'সেভ করো':'যোগ করো';
@@ -1117,28 +1139,38 @@ function openForm(id){
 }
 function formVals(){return{uni:getUni(),unit:getUnit(),group:$('groupSel').value,examDate:$('examDate').value,applyStart:$('applyStart').value,applyEnd:$('applyEnd').value,admitDate:$('admitDate').value,examTime:$('examTime').value,applyEndTime:$('applyEndTime').value,admitTime:$('admitTime').value,status:$('status').value,applied:$('applied').value==='yes',note:$('noteInput').value.trim()}}
 function fixAutoStatus(v){if(v.status==='auto'){v.statusAuto=true;v.status=autoStatus(v)}else v.statusAuto=false;return v}
-let formT=null;
+let formT=null,lastDup=false;
+const DUPMSG='এই পরীক্ষা আগে থেকেই আছে (একই বিশ্ববিদ্যালয়, ইউনিট ও গ্রুপ)';
 function applyForm(){
  formT=null;const v0=formVals();if(!v0.uni)return false;
  if(fillFromMain(v0))['examDate','examTime','applyEnd','applyEndTime','admitDate','admitTime'].forEach(k=>{if($(k)&&$(k).value!==v0[k])$(k).value=v0[k]});
+ const dup=exams.find(a=>a.id!==editingId&&exKey(a)===exKey(v0));
+ lastDup=!!dup;
+ if(dup){$('formHint').textContent=DUPMSG;return false}
  const v=fixAutoStatus(v0);
  if(editingId){const z=exams.find(a=>a.id===editingId);if(z)Object.assign(z,v);else{exams.push({id:editingId,...v})}}
  else{const id=Date.now().toString();exams.push({id,...v});editingId=id;$('modalTitle').textContent='পরীক্ষা এডিট করো'}
  save();$('formHint').textContent='নিজে থেকেই সেভ হয়েছে';return true;
 }
-function closeForm(){if(formT){clearTimeout(formT);applyForm()}$('addModal').hidden=true;editingId=null}
+function closeForm(){if(formT){clearTimeout(formT);applyForm()}$('addModal').hidden=true;editingId=null;formSnap=null;formNew=false}
+function cancelForm(){clearTimeout(formT);formT=null;
+ if(editingId){const i=exams.findIndex(a=>a.id===editingId);
+  if(i>=0&&formNew){exams.splice(i,1);save()}
+  else if(i>=0&&formSnap&&JSON.stringify(exams[i])!==formSnap){exams[i]=JSON.parse(formSnap);save()}}
+ $('addModal').hidden=true;editingId=null;formSnap=null;formNew=false}
 ['input','change'].forEach(ev=>$('addForm').addEventListener(ev,()=>{clearTimeout(formT);$('formHint').textContent='লিখছ…';formT=setTimeout(applyForm,600)}));
-$('fabAdd').onclick=()=>view==='remind'?openRem():openForm();$('modalClose').onclick=closeForm;$('modalCancel').onclick=closeForm;
+$('fabAdd').onclick=()=>view==='remind'?openRem():openForm();$('modalClose').onclick=closeForm;$('modalCancel').onclick=cancelForm;
 $('addModal').addEventListener('click',e=>{if(e.target.id==='addModal')closeForm()});
 $('addForm').addEventListener('submit',e=>{
  e.preventDefault();clearTimeout(formT);formT=null;
  if(!getUni()){showToast('বিশ্ববিদ্যালয়ের নাম দাও');return}
- applyForm();selectedId=editingId;closeForm();save();
+ if(!applyForm()&&lastDup){showToast(DUPMSG);return}
+ selectedId=editingId;closeForm();save();
 });
-let editingRem=null;
+let editingRem=null,remSnap=null,remNew=false;
 function saveRems(){localStorage.setItem(remKey(currentUser),JSON.stringify(rems));markDirty();renderReminders()}
 function openRem(id){
- editingRem=id||null;const r=id?rems.find(a=>a.id===id):null;$('remForm').reset();
+ editingRem=id||null;const r=id?rems.find(a=>a.id===id):null;$('remForm').reset();remSnap=r?JSON.stringify(r):null;remNew=!r;
  if(r){$('remTitle').value=r.title;$('remDate').value=r.date;$('remTime').value=r.time||'';$('remNote').value=r.note||''}
  $('remModalTitle').textContent=r?'রিমাইন্ডার এডিট করো':'নতুন রিমাইন্ডার';$('remModal').hidden=false;setTimeout(()=>$('remTitle').focus(),50);
 }
@@ -1150,9 +1182,14 @@ function applyRem(){
  else{const id=Date.now().toString();rems.push({id,...v});editingRem=id;$('remModalTitle').textContent='রিমাইন্ডার এডিট করো'}
  saveRems();$('remHint').textContent='নিজে থেকেই সেভ হয়েছে';return true;
 }
-function closeRem(){if(remT){clearTimeout(remT);applyRem()}$('remModal').hidden=true;editingRem=null}
+function closeRem(){if(remT){clearTimeout(remT);applyRem()}$('remModal').hidden=true;editingRem=null;remSnap=null;remNew=false}
+function cancelRem(){clearTimeout(remT);remT=null;
+ if(editingRem){const i=rems.findIndex(a=>a.id===editingRem);
+  if(i>=0&&remNew){rems.splice(i,1);saveRems()}
+  else if(i>=0&&remSnap&&JSON.stringify(rems[i])!==remSnap){rems[i]=JSON.parse(remSnap);saveRems()}}
+ $('remModal').hidden=true;editingRem=null;remSnap=null;remNew=false}
 ['input','change'].forEach(ev=>$('remForm').addEventListener(ev,()=>{clearTimeout(remT);$('remHint').textContent='লিখছ…';remT=setTimeout(applyRem,600)}));
-$('remClose').onclick=closeRem;$('remCancel').onclick=closeRem;
+$('remClose').onclick=closeRem;$('remCancel').onclick=cancelRem;
 $('remModal').addEventListener('click',e=>{if(e.target.id==='remModal')closeRem()});
 $('remForm').addEventListener('submit',e=>{
  e.preventDefault();clearTimeout(remT);remT=null;
@@ -1161,7 +1198,37 @@ $('remForm').addEventListener('submit',e=>{
 });
 $('exportBtn').onclick=()=>{const blob=new Blob([JSON.stringify({version:2,exams,reminders:rems},null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='admission-roadmap-data.json';a.click();URL.revokeObjectURL(a.href)};
 $('importBtn').onclick=()=>$('importFile').click();
-$('importFile').onchange=async e=>{const f=e.target.files[0];if(!f)return;try{const raw=JSON.parse(await f.text());const arr=Array.isArray(raw)?raw:(raw&&raw.exams),rr=(raw&&!Array.isArray(raw)&&raw.reminders)||[];if(!Array.isArray(arr)||!Array.isArray(rr))throw 0;if(confirm('বর্তমান তালিকার সঙ্গে ইম্পোর্ট করা হবে?')){exams=[...exams,...arr.map(x=>({...x,status:fixSt(x.status),id:String(Date.now()+Math.random())}))];rems=[...rems,...rr.map(x=>({...x,id:String(Date.now()+Math.random())}))];localStorage.setItem(remKey(currentUser),JSON.stringify(rems));save()}}catch(err){alert('ফাইলটি সঠিক নয়।')}e.target.value=''};
+const DRE=/^\d{4}-\d{2}-\d{2}$/,TRE=/^\d{2}:\d{2}$/;
+const cs=(v,n)=>typeof v==='string'?v.trim().slice(0,n):'',cd=v=>DRE.test(v||'')?v:'',ct=v=>TRE.test(v||'')?v:'';
+$('importFile').onchange=async e=>{const f=e.target.files[0];if(!f)return;
+ try{
+  const raw=JSON.parse(await f.text());
+  const arr=Array.isArray(raw)?raw:(raw&&raw.exams),rr=(raw&&!Array.isArray(raw)&&raw.reminders)||[];
+  if(!Array.isArray(arr)||!Array.isArray(rr))throw 0;
+  const seen=new Set(exams.map(exKey)),newE=[],newR=[];let skip=0,bad=0;
+  arr.forEach(x=>{
+   if(!x||typeof x!=='object'){bad++;return}
+   const uni=cs(x.uni,100);if(!uni){bad++;return}
+   const v={uni,unit:cs(x.unit,60),group:cs(x.group,60),examDate:cd(x.examDate),applyStart:cd(x.applyStart),applyEnd:cd(x.applyEnd),admitDate:cd(x.admitDate),examTime:ct(x.examTime),applyEndTime:ct(x.applyEndTime),admitTime:ct(x.admitTime),status:fixSt(cs(x.status,60)),applied:x.applied===true,note:cs(x.note,1000)};
+   if(typeof x.statusAuto==='boolean')v.statusAuto=x.statusAuto;
+   ['fee','extra'].forEach(k=>{const n=parseFloat(x[k]);if(n>0)v[k]=n});
+   const k=exKey(v);if(seen.has(k)){skip++;return}seen.add(k);
+   v.id=String(Date.now()+Math.random());newE.push(v)});
+  const rseen=new Set(rems.map(r=>[r.title,r.date,r.time||''].join('|')));
+  rr.forEach(x=>{
+   if(!x||typeof x!=='object'){bad++;return}
+   const r={title:cs(x.title,200),date:cd(x.date),time:ct(x.time),note:cs(x.note,1000)};
+   if(!r.title||!r.date){bad++;return}
+   const k=[r.title,r.date,r.time].join('|');if(rseen.has(k)){skip++;return}rseen.add(k);
+   r.id=String(Date.now()+Math.random());newR.push(r)});
+  if(!newE.length&&!newR.length){showToast('নতুন কিছু ইম্পোর্ট করার নেই'+(skip?', '+bnum(skip)+'টি আগে থেকেই ছিল':''));e.target.value='';return}
+  if(confirm('বর্তমান তালিকার সঙ্গে ইম্পোর্ট করা হবে?')){
+   exams=[...exams,...newE];rems=[...rems,...newR];
+   localStorage.setItem(remKey(currentUser),JSON.stringify(rems));save();
+   showToast(bnum(newE.length+newR.length)+'টি যোগ হয়েছে'+(skip?', '+bnum(skip)+'টি আগে থেকেই ছিল':'')+(bad?', '+bnum(bad)+'টি অসম্পূর্ণ বাদ':''));
+  }
+ }catch(err){alert('ফাইলটি সঠিক নয়।')}
+ e.target.value=''};
 $('clearBtn').onclick=()=>{if(confirm('সব বিশ্ববিদ্যালয়ের তথ্য মুছে ফেলবে? আগে এক্সপোর্ট করে রাখলে পরে ফিরিয়ে আনতে পারবে।')){exams=[];save()}};
 /* ---------- Login / Signup (এই ডিভাইসের ব্রাউজারে সেভ হয়) ---------- */
 function getUsers(){try{return JSON.parse(localStorage.getItem(USERS_KEY)||'{}')}catch(e){return{}}}
@@ -1333,9 +1400,13 @@ async function pullNow(){
  const u=currentUser;
  try{
   if(localStorage.getItem(dirtyKey(u))){await pushNow();return}
-  const t=await token();
+  const r0=rev,t=await token();
   const rows=await sb('/rest/v1/user_data?select=exams,rems&user_id=eq.'+cloud.uid,{token:t});
   if(u!==currentUser)return;
+  /* ফেচ চলার সময় ইউজার কিছু বদলালে ক্লাউডের পুরনো ডেটা দিয়ে সেটা মুছে ফেলা যাবে না */
+  if(rev!==r0||localStorage.getItem(dirtyKey(u))){await pushNow();return}
+  const cEmpty=!rows||!rows.length||(!(rows[0].exams||[]).length&&!(rows[0].rems||[]).length);
+  if(cEmpty&&(exams.length||rems.length)){markDirty();return}
   if(rows&&rows.length){
    localStorage.setItem(userKey(u),JSON.stringify(rows[0].exams||[]));
    localStorage.setItem(remKey(u),JSON.stringify(rows[0].rems||[]));
@@ -1454,7 +1525,7 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden&&currentUs
   ['আর ','In '],[' দিন বাকি',' days left'],[' দিন আগে হয়ে গেছে',' days ago'],[' দিন আগে পার হয়েছে',' days ago'],[' দিন আগে',' days ago'],
   ['টি পরীক্ষা যোগ করা আছে',' exams added'],['টি পরীক্ষা আছে',' exams'],[' জন',' people'],['পরীক্ষা ','Exam '],['আবেদন শেষ ','Application deadline '],
   ['বিজ্ঞান','Science'],['মানবিক','Humanities'],['বাণিজ্য','Business Studies'],['পরিকল্পনায়','Planned'],['আবেদন চলছে','Applications open'],['আবেদন সম্পন্ন','Application submitted'],['অ্যাডমিট কার্ড প্রকাশিত','Admit card published'],['পরীক্ষা সম্পন্ন','Exam completed'],['আজ পরীক্ষা','Exam today'],['স্বয়ংক্রিয় (তারিখ অনুযায়ী)','Auto (by dates)'],
-  ['অবস্থা আপডেট হয়েছে','Status updated'],['My Map-এ আছে','In My Map'],['My Map-এ যোগ করো','Add to My Map'],['My Map-এ যোগ হয়েছে','Added to My Map'],
+  ['অবস্থা আপডেট হয়েছে','Status updated'],['এই পরীক্ষা আগে থেকেই আছে (একই বিশ্ববিদ্যালয়, ইউনিট ও গ্রুপ)','This exam already exists (same university, unit and group)'],['টি যোগ হয়েছে',' added'],['টি আগে থেকেই ছিল',' already existed'],['টি অসম্পূর্ণ বাদ',' invalid skipped'],['নতুন কিছু ইম্পোর্ট করার নেই','Nothing new to import'],['বিস্তারিত','Details'],['My Map-এ আছে','In My Map'],['My Map-এ যোগ করো','Add to My Map'],['My Map-এ যোগ হয়েছে','Added to My Map'],
   ['এটি আগে থেকেই My Map-এ আছে','This is already in My Map'],['পরীক্ষা ','Exam '],['দিন বাকি','days left'],['দিন আগে','days ago']
  ];
  let originals=new WeakMap(), translating=new WeakSet();
