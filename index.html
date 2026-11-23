@@ -704,7 +704,7 @@ function autoStatus(x){
 const examPassed=x=>!!(x.examDate&&daysLeft(x.examDate)<0)||x.status==='পরীক্ষা সম্পন্ন';
 const isPending=x=>!x.applied&&!examPassed(x);
 const lateApply=x=>isPending(x)&&!!x.applyEnd&&daysLeft(x.applyEnd)<0;
-function toggleApplied(id){const z=exams.find(a=>a.id===id);if(!z)return;z.applied=!z.applied;if(z.statusAuto!==false)z.status=autoStatus(z);save();showToast(z.applied?'আবেদন করা হয়েছে বলে চিহ্নিত হলো':'আবেদন বাকি হিসেবে চিহ্নিত হলো')}
+function toggleApplied(id){const z=exams.find(a=>a.id===id);if(!z)return;z.applied=!z.applied;if(z.applied)z.appliedAt=Date.now();if(z.statusAuto!==false)z.status=autoStatus(z);save();showToast(z.applied?'আবেদন করা হয়েছে বলে চিহ্নিত হলো':'আবেদন বাকি হিসেবে চিহ্নিত হলো')}
 const IC={
  check:['M5 12.5l4.5 4.5L19 7.5'],
  x:['M6 6l12 12M18 6L6 18'],
@@ -715,7 +715,7 @@ const IC={
 const icoSvg=(n,sz)=>'<svg class="ico" viewBox="0 0 24 24" width="'+(sz||14)+'" height="'+(sz||14)+'" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+IC[n].map(d=>'<path d="'+d+'"/>').join('')+'</svg>';
 function icoBtn(el,n,txt){el.innerHTML=icoSvg(n,15);const sp=document.createElement('span');sp.textContent=txt;el.append(sp)}
 const apInfo=x=>{if(mapMode!=='mine'||examPassed(x))return null;return x.applied?{t:'আবেদন করেছি',i:'check',c:'#2fa56c'}:lateApply(x)?{t:'সময় পার',i:'x',c:'#e5484d'}:{t:'আবেদন বাকি',i:'alert',c:'#e08a00'}};
-function setApplied(id,v){const z=exams.find(a=>a.id===id);if(!z||!!z.applied===v)return;z.applied=v;if(z.statusAuto!==false)z.status=autoStatus(z);save();showToast(v?'আবেদন করা হয়েছে বলে চিহ্নিত হলো':'আবেদন বাকি হিসেবে চিহ্নিত হলো')}
+function setApplied(id,v){const z=exams.find(a=>a.id===id);if(!z||!!z.applied===v)return;z.applied=v;if(v)z.appliedAt=Date.now();if(z.statusAuto!==false)z.status=autoStatus(z);save();showToast(v?'আবেদন করা হয়েছে বলে চিহ্নিত হলো':'আবেদন বাকি হিসেবে চিহ্নিত হলো')}
 function apToggle(x){const w=document.createElement('div');w.className='aptoggle';const late=lateApply(x),y=document.createElement('button'),n=document.createElement('button');y.type=n.type='button';
  y.className='yes'+(x.applied?' on':'');n.className='no'+(!x.applied?' on':'')+(!x.applied&&late?' late':'');
  icoBtn(y,'check','আবেদন করেছি');icoBtn(n,'x',(!x.applied&&late)?'করিনি (সময় পার)':'এখনো করিনি');
@@ -846,7 +846,7 @@ function renderCost(){
  const ae=document.activeElement;
  if(ae&&ae.tagName==='INPUT'&&box.contains(ae)){updateCostTotals();return}
  box.innerHTML='';
- const list=exams.filter(x=>x.applied);
+ const list=exams.map((x,i)=>({x,i})).filter(o=>o.x.applied).sort((a,b)=>((b.x.appliedAt||0)-(a.x.appliedAt||0))||(b.i-a.i)).map(o=>o.x);
  if(!list.length){box.innerHTML='<div class="empty">আবেদন করা কোনো পরীক্ষা নেই। কোনো পরীক্ষায় "আবেদন করেছি" চিহ্নিত করলে এখানে খরচের হিসাব আসবে।</div>';return}
  const gd=document.createElement('div');gd.className='costgrand';
  const gs=document.createElement('span');gs.textContent='সব বিশ্ববিদ্যালয়ে মোট খরচ';
@@ -1150,8 +1150,8 @@ function applyForm(){
  lastDup=!!dup;
  if(dup){$('formHint').textContent=DUPMSG;return false}
  const v=fixAutoStatus(v0);
- if(editingId){const z=exams.find(a=>a.id===editingId);if(z)Object.assign(z,v);else{exams.push({id:editingId,...v})}}
- else{const id=Date.now().toString();exams.push({id,...v});editingId=id;$('modalTitle').textContent='পরীক্ষা এডিট করো'}
+ if(editingId){const z=exams.find(a=>a.id===editingId);if(z){const was=!!z.applied;Object.assign(z,v);if(v.applied&&!was)z.appliedAt=Date.now()}else{exams.push({id:editingId,...v,...(v.applied?{appliedAt:Date.now()}:{})})}}
+ else{const id=Date.now().toString();exams.push({id,...v,...(v.applied?{appliedAt:Date.now()}:{})});editingId=id;$('modalTitle').textContent='পরীক্ষা এডিট করো'}
  save();$('formHint').textContent='নিজে থেকেই সেভ হয়েছে';return true;
 }
 function closeForm(){if(formT){clearTimeout(formT);applyForm()}$('addModal').hidden=true;editingId=null;formSnap=null;formNew=false}
